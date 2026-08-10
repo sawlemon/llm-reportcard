@@ -1,0 +1,10 @@
+node_modules/
+dist/
+*.tsbuildinfo
+package-lock.json
+
+# Data / prose that Prettier must not reflow.
+# LLM_REPORT_CARD.md is parsed at build time; Prettier's markdown table normalisation
+# would rewrite the source of truth. plan.md is hand-authored prose.
+LLM_REPORT_CARD.md
+plan.md
