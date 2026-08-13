@@ -93,6 +93,21 @@ For each model, keep a running list of observations under each aspect — short 
 
 ## OpenAI
 
+### GPT 5.6 (variant unspecified)
+
+| Aspect | Pros | Cons |
+|---|---|---|
+| Reasoning | | |
+| Coding | | |
+| Instruction-following | | |
+| Tool use / agentic | at medium reasoning effort, eventually gets practical research tasks done, including finding stores in a location, researching OLX listings, and finding an iOS video player | rarely gets the right answer on the first attempt; typically needs multiple follow-up turns before reaching the correct result |
+| Context handling | | |
+| Speed / latency | | |
+| Cost / efficiency | | |
+| Refusals / safety behavior | | |
+| Formatting / output quality | | |
+| Other | good overall model after sustained use | |
+
 ### GPT 5.6 Tera
 
 | Aspect | Pros | Cons |
