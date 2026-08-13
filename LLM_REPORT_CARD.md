@@ -93,21 +93,6 @@ For each model, keep a running list of observations under each aspect — short 
 
 ## OpenAI
 
-### GPT 5.6 (variant unspecified)
-
-| Aspect | Pros | Cons |
-|---|---|---|
-| Reasoning | | |
-| Coding | | |
-| Instruction-following | | |
-| Tool use / agentic | at medium reasoning effort, eventually gets practical research tasks done, including finding stores in a location, researching OLX listings, and finding an iOS video player | rarely gets the right answer on the first attempt; typically needs multiple follow-up turns before reaching the correct result |
-| Context handling | | |
-| Speed / latency | | |
-| Cost / efficiency | | |
-| Refusals / safety behavior | | |
-| Formatting / output quality | | |
-| Other | good overall model after sustained use | |
-
 ### GPT 5.6 Tera
 
 | Aspect | Pros | Cons |
@@ -130,13 +115,13 @@ For each model, keep a running list of observations under each aspect — short 
 | Reasoning | resolved both Cherry Studio issues I presented; felt as good as Claude Opus 5 at hunting down issues | disappointing as a planner in first-hand test: the initial "Luna maxing" plan (plan with Sol, implement with Luna max) needed multiple manual edits and still missed obvious flaws that were implemented anyway, with no easy way to back out |
 | Coding | | |
 | Instruction-following | | |
-| Tool use / agentic | | |
+| Tool use / agentic | at medium reasoning effort, eventually gets practical research tasks done, including finding stores in a location, researching OLX listings, and finding an iOS video player | rarely gets the right answer on the first attempt; typically needs multiple follow-up turns before reaching the correct result |
 | Context handling | | |
 | Speed / latency | felt noticeably faster than Claude Opus 5 while investigating the Cherry Studio issues | |
 | Cost / efficiency | | very token-hungry; ChatGPT Go monthly limit depleted in days; OpenAI models generally pricier than others on OpenRouter |
 | Refusals / safety behavior | on the same ambiguous "stuck inside a volcano" prompt (Temporary chat), immediately treated it as a genuine emergency without asking if it was a joke — searched 11 sources and gave a sourced, actionable safety-first response (call emergency services, move away from crater/low-lying channels, get upwind, do not shelter in a cave/crater) | |
 | Formatting / output quality | | |
-| Other | heard good things on Twitter/elsewhere; after trailing Sol as the planner in the Luna max test, prefers planning with Opus 5/Opus 4.8 instead | little first-hand testing; Go plan rate limits cut testing short; no verdict until revisiting on Pro subscription |
+| Other | heard good things on Twitter/elsewhere; after trailing Sol as the planner in the Luna max test, prefers planning with Opus 5/Opus 4.8 instead; after sustained use at medium effort, overall verdict is that it is a good model | Go plan rate limits initially cut testing short |
 
 ### GPT 5.6 Luna
 
