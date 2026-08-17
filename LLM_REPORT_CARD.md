@@ -72,7 +72,7 @@ For each model, keep a running list of observations under each aspect — short 
 | Cost / efficiency | | |
 | Refusals / safety behavior | | |
 | Formatting / output quality | | given the same documentation prompt as Opus 5 on a similar project via Claude Code (non-desktop), output markdown was noticeably less impressive and included no visual/diagram representation |
-| Other | astonishingly good within Anthropic's own tools (Claude Code, Claude Desktop) | dislike Claude Desktop's UI/UX; lack of flexibility to use the model well through third-party tools/apps |
+| Other | astonishingly good within Anthropic's own tools (Claude Code, Claude Desktop); on a PDF task in the ChatGPT app, with the exact same prompt and harness, almost one-shotted it — a wildly better result than GPT 5.6 Sol, which took many tries and still made mistakes | dislike Claude Desktop's UI/UX; lack of flexibility to use the model well through third-party tools/apps |
 
 ### Claude Opus 5
 
@@ -115,7 +115,7 @@ For each model, keep a running list of observations under each aspect — short 
 | Reasoning | resolved both Cherry Studio issues I presented; felt as good as Claude Opus 5 at hunting down issues | disappointing as a planner in first-hand test: the initial "Luna maxing" plan (plan with Sol, implement with Luna max) needed multiple manual edits and still missed obvious flaws that were implemented anyway, with no easy way to back out |
 | Coding | | |
 | Instruction-following | | |
-| Tool use / agentic | at medium reasoning effort, eventually gets practical research tasks done, including finding stores in a location, researching OLX listings, and finding an iOS video player | rarely gets the right answer on the first attempt; typically needs multiple follow-up turns before reaching the correct result |
+| Tool use / agentic | at medium reasoning effort, eventually gets practical research tasks done, including finding stores in a location, researching OLX listings, and finding an iOS video player | rarely gets the right answer on the first attempt; typically needs multiple follow-up turns before reaching the correct result; on a PDF task in the ChatGPT app, using the exact same prompt and harness, results were wildly worse than Claude Opus 4.8 — took many tries and still kept making mistakes, overall unsatisfying |
 | Context handling | | |
 | Speed / latency | felt noticeably faster than Claude Opus 5 while investigating the Cherry Studio issues | |
 | Cost / efficiency | | very token-hungry; ChatGPT Go monthly limit depleted in days; OpenAI models generally pricier than others on OpenRouter |
