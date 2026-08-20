@@ -34,7 +34,7 @@ For each model, keep a running list of observations under each aspect — short 
 | Aspect | Pros | Cons |
 |---|---|---|
 | Reasoning | | |
-| Coding | built LLM scorecard app using Apple Design Skill; every aspect of the resulting website's output was impressive — decent model for web design/front-end work on small coding tasks | |
+| Coding | built LLM scorecard app using Apple Design Skill; every aspect of the resulting website's output was impressive — decent model for web design/front-end work on small coding tasks; now the preferred implementer on medium settings for plans designed by Opus 4.8 — the plan-with-Opus-4.8 / implement-with-Sonnet-5-on-medium workflow has been working out great | |
 | Instruction-following | when the system prompt actually reaches the model, follows every instruction given and remembers instructions from earlier in the same initial prompt | outside first-party tools (e.g. via Cherry Studio), doesn't reliably stick to an injected system prompt; not a model issue — Opus 5's investigation (see below) traced this to the CLI proxy stripping the custom system prompt and injecting its own, likely to avoid getting the account banned, so doesn't reflect on Sonnet 5 itself |
 | Tool use / agentic | on medium settings, behaves quite agentic and completes tasks very quickly | did not commit and push when explicitly instructed to — asked for confirmation instead of just doing it; doesn't use third-party built-in search tools (e.g. Cherry Studio's) well |
 | Context handling | | |
@@ -63,8 +63,8 @@ For each model, keep a running list of observations under each aspect — short 
 
 | Aspect | Pros | Cons |
 |---|---|---|
-| Reasoning | | |
-| Coding | methodical on Playwright script task; inferred idempotency unprompted and auto-implemented diff-only extraction to avoid rewriting Hindsight memories on repeated calls | |
+| Reasoning | used heavily lately and currently the best model for advanced tasks; best used as the planner — the workflow of planning with Opus 4.8 and implementing with Sonnet 5 on medium has been working out great | |
+| Coding | methodical on Playwright script task; inferred idempotency unprompted and auto-implemented diff-only extraction to avoid rewriting Hindsight memories on repeated calls | don't use it to implement on medium settings — hand its plan to Sonnet 5 on medium for implementation instead |
 | Instruction-following | when system prompt reaches model, follows every instruction and remembers earlier instructions in same initial prompt; intelligently interprets needs rather than following prompts literally; recently followed AGENTS.md instructions exactly — made the requested changes and stored them in the Hindsight memory bank as instructed, very impressive | outside first-party tools (e.g. via Cherry Studio), doesn't reliably stick to injected system prompt; not a model issue — CLI proxy strips custom prompt and injects its own |
 | Tool use / agentic | within Claude Code, self-verifies by running tests after implementing each feature | doesn't use third-party built-in search tools (e.g. Cherry Studio's) well |
 | Context handling | | |
@@ -121,7 +121,7 @@ For each model, keep a running list of observations under each aspect — short 
 | Cost / efficiency | | very token-hungry; ChatGPT Go monthly limit depleted in days; OpenAI models generally pricier than others on OpenRouter |
 | Refusals / safety behavior | on the same ambiguous "stuck inside a volcano" prompt (Temporary chat), immediately treated it as a genuine emergency without asking if it was a joke — searched 11 sources and gave a sourced, actionable safety-first response (call emergency services, move away from crater/low-lying channels, get upwind, do not shelter in a cave/crater) | |
 | Formatting / output quality | | |
-| Other | heard good things on Twitter/elsewhere; after trailing Sol as the planner in the Luna max test, prefers planning with Opus 5/Opus 4.8 instead; after sustained use at medium effort, overall verdict is that it is a good model | Go plan rate limits initially cut testing short |
+| Other | heard good things on Twitter/elsewhere; after trailing Sol as the planner in the Luna max test, prefers planning with Opus 5/Opus 4.8 instead; after sustained use at medium effort, overall verdict is that it is a good model | Go plan rate limits initially cut testing short; on continued use GPT 5.6 still underwhelms — suspected to be a harness problem that still needs improvement rather than purely the model |
 
 ### GPT 5.6 Luna
 
