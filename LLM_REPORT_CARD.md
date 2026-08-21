@@ -70,7 +70,7 @@ For each model, keep a running list of observations under each aspect — short 
 | Context handling | | |
 | Speed / latency | | |
 | Cost / efficiency | | |
-| Refusals / safety behavior | | |
+| Refusals / safety behavior | | refused a task once it recognized the intent was cheating, even though the user was completely honest about it — stayed principled and would not be talked into it |
 | Formatting / output quality | | given the same documentation prompt as Opus 5 on a similar project via Claude Code (non-desktop), output markdown was noticeably less impressive and included no visual/diagram representation |
 | Other | astonishingly good within Anthropic's own tools (Claude Code, Claude Desktop); on a PDF task in the ChatGPT app, with the exact same prompt and harness, almost one-shotted it — a wildly better result than GPT 5.6 Sol, which took many tries and still made mistakes | dislike Claude Desktop's UI/UX; lack of flexibility to use the model well through third-party tools/apps |
 
@@ -119,7 +119,7 @@ For each model, keep a running list of observations under each aspect — short 
 | Context handling | | |
 | Speed / latency | felt noticeably faster than Claude Opus 5 while investigating the Cherry Studio issues | |
 | Cost / efficiency | | very token-hungry; ChatGPT Go monthly limit depleted in days; OpenAI models generally pricier than others on OpenRouter |
-| Refusals / safety behavior | on the same ambiguous "stuck inside a volcano" prompt (Temporary chat), immediately treated it as a genuine emergency without asking if it was a joke — searched 11 sources and gave a sourced, actionable safety-first response (call emergency services, move away from crater/low-lying channels, get upwind, do not shelter in a cave/crater) | |
+| Refusals / safety behavior | on the same ambiguous "stuck inside a volcano" prompt (Temporary chat), immediately treated it as a genuine emergency without asking if it was a joke — searched 11 sources and gave a sourced, actionable safety-first response (call emergency services, move away from crater/low-lying channels, get upwind, do not shelter in a cave/crater) | happily proceeded with a cheating-related request that Claude Opus 4.8 refused on the same honest framing — less principled on that boundary |
 | Formatting / output quality | | |
 | Other | heard good things on Twitter/elsewhere; after trailing Sol as the planner in the Luna max test, prefers planning with Opus 5/Opus 4.8 instead; after sustained use at medium effort, overall verdict is that it is a good model | Go plan rate limits initially cut testing short; on continued use GPT 5.6 still underwhelms — suspected to be a harness problem that still needs improvement rather than purely the model |
 
