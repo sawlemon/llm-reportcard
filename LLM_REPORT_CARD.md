@@ -187,7 +187,7 @@ For each model, keep a running list of observations under each aspect — short 
 | Context handling | | |
 | Speed / latency | one of fastest models used so far; finished the whole integration task within 15 minutes | |
 | Cost / efficiency | ran quite a few tasks on medium settings for about $0.18, mind-blowingly cheap; OpenRouter usage dashboard showed $0.12 spend for 182 requests / 8.57M tokens in 3 hours, a blended $0.01/1M tokens with 94.1% cache hit rate | |
-| Refusals / safety behavior | | |
+| Refusals / safety behavior | gladly helped with a request on honest framing that both Claude Opus 4.8 and GPT 5.6 Sol refused — most willing/least restrictive of the three | |
 | Formatting / output quality | output format is genuinely nice — verbose yet concise, understandable, and easy to follow; an overall favorite to read | |
 | Other | favorite quick model; also a preferred cheap implementer when paired with Opus 5/Opus 4.8 planning (alongside Luna); despite reported high hallucination rate, does not hallucinate much in practice and sticks to task; handled the Hill Climb scheduled task on medium settings by getting the transcript accurately and updating it; user loves the output format of the new DeepSeek V4 Flash | no vision support or native image inputs; initial criticism of complex-task performance softened — Opus 5 also failed the same custom ChatGPT-app integration, so verdict still open on whether any model can do it yet; on low reasoning effort seemed unreliable for instruction-heavy agentic work — may only be suitable for exploration/read-only tasks at that setting, not yet confirmed across more sessions |
 
