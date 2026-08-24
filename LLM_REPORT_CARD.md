@@ -331,6 +331,21 @@ For each model, keep a running list of observations under each aspect — short 
 | Formatting / output quality | | |
 | Other | behaves well for simple tasks | model provider is anonymous; provider unknown, cannot categorize under a provider section yet; untested on long-running or highly complex tasks |
 
+### ox alpha
+
+| Aspect | Pros | Cons |
+|---|---|---|
+| Reasoning | thinking is detailed | |
+| Coding | | |
+| Instruction-following | follows instructions fine | |
+| Tool use / agentic | | |
+| Context handling | | |
+| Speed / latency | | very slow — takes a long time to finish tasks; wish it were faster |
+| Cost / efficiency | | uses a lot of tokens, similar to openweight models |
+| Refusals / safety behavior | | |
+| Formatting / output quality | | |
+| Other | | stealth model; provider unknown, cannot categorize under a provider section yet |
+
 ---
 
 ## LLM Harness
