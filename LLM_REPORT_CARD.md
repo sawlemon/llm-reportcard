@@ -157,6 +157,21 @@ For each model, keep a running list of observations under each aspect — short 
 | Formatting / output quality | | Cherry Studio chat titles wrong, all caps, weird format; suspect backend issue |
 | Other | | unreliable as search assistant and poor for chat-naming; not used much |
 
+### Gemini 3.1 Pro
+
+| Aspect | Pros | Cons |
+|---|---|---|
+| Reasoning | | |
+| Coding | | |
+| Instruction-following | | in Gemini Stitch, did not follow instructions while refactoring this report-card UI: produced a white background with light text and poor contrast; attempts to correct it created a new dark mode instead |
+| Tool use / agentic | | |
+| Context handling | | |
+| Speed / latency | | |
+| Cost / efficiency | | |
+| Refusals / safety behavior | | |
+| Formatting / output quality | | |
+| Other | | giving troubles in Stitch; needs more testing outside this UI task |
+
 ### Gemini Flash 3.6
 
 | Aspect | Pros | Cons |
@@ -171,6 +186,21 @@ For each model, keep a running list of observations under each aspect — short 
 | Refusals / safety behavior | | |
 | Formatting / output quality | | |
 | Other | now used for Cherry Studio chat-naming, replacing 3.1 Flash; very impressive overall; await more updates after further testing | chat-naming verdict pending |
+
+### Gemini 3.7 Flash
+
+| Aspect | Pros | Cons |
+|---|---|---|
+| Reasoning | | |
+| Coding | refactored this report-card webpage well in Gemini Stitch after the tool appeared to switch away from Gemini 3.1 Pro; strong first impression for UI work | |
+| Instruction-following | | |
+| Tool use / agentic | | |
+| Context handling | | |
+| Speed / latency | | |
+| Cost / efficiency | | |
+| Refusals / safety behavior | | |
+| Formatting / output quality | | |
+| Other | Google models made a strong first impression for UI work through Stitch; test further before drawing a broader conclusion | |
 
 ---
 
