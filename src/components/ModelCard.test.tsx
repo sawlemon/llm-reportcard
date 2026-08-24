@@ -18,38 +18,37 @@ describe('ModelCard', () => {
     ).toBeInTheDocument();
   });
 
-  it('previews the "Other" note when no aspect is highlighted', () => {
+  it('shows independent pro and con highlights from Other by default', () => {
     render(<ModelCard model={prime} highlightAspect={null} onSelect={() => {}} />);
 
-    expect(screen.getByText('Other')).toBeInTheDocument();
-    expect(screen.getByRole('button')).toHaveTextContent('favourite for refactors');
+    const card = screen.getByRole('button');
+    expect(screen.getAllByText('Other')).toHaveLength(2);
+    expect(card).toHaveTextContent('favourite for refactors');
+    expect(card).toHaveTextContent('early impression only');
   });
 
-  it('previews the highlighted aspect instead, rendering inline code', () => {
+  it('uses the filtered aspect and renders inline code', () => {
     render(<ModelCard model={prime} highlightAspect="Coding" onSelect={() => {}} />);
 
-    expect(screen.getByText('Coding')).toBeInTheDocument();
     const card = screen.getByRole('button');
+    expect(screen.getAllByText('Coding')).toHaveLength(1);
     expect(card).toHaveTextContent('patches parseReportCard.ts without breaking callers');
     expect(card.querySelector('code')).toHaveTextContent('parseReportCard.ts');
   });
 
-  it('falls back to the first con when the highlighted aspect has only cons', () => {
+  it('falls back independently when the filtered aspect only has a con', () => {
     render(<ModelCard model={prime} highlightAspect="Cost / efficiency" onSelect={() => {}} />);
 
-    expect(screen.getByRole('button')).toHaveTextContent('token-hungry on long agent runs');
+    const card = screen.getByRole('button');
+    expect(card).toHaveTextContent('token-hungry on long agent runs');
+    expect(card).toHaveTextContent('plans multi-step tasks well');
   });
 
-  it('says nothing is recorded when the highlighted aspect is empty', () => {
-    render(<ModelCard model={prime} highlightAspect="Context handling" onSelect={() => {}} />);
-
-    expect(screen.getByText('No observations recorded yet.')).toBeInTheDocument();
-  });
-
-  it('says nothing is recorded for a model with no observations', () => {
+  it('shows one-sided empty states when no matching observations exist', () => {
     render(<ModelCard model={mini} highlightAspect={null} onSelect={() => {}} />);
 
-    expect(screen.getByText('No observations recorded yet.')).toBeInTheDocument();
+    expect(screen.getByText('No strength recorded yet.')).toBeInTheDocument();
+    expect(screen.getByText('No weakness recorded yet.')).toBeInTheDocument();
   });
 
   it('reports its model id when activated', async () => {

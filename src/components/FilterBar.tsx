@@ -1,17 +1,27 @@
 import { Search, X } from 'lucide-react';
-import type { ProviderEntry } from '../data/types';
-import type { Filters } from '../lib/filterModels';
 
 interface FilterBarProps {
-  providers: ProviderEntry[];
   aspects: string[];
-  filters: Filters;
+  query: string;
+  aspect: string | null;
   resultCount: number;
-  onChange: (next: Filters) => void;
+  itemLabels: readonly [singular: string, plural: string];
+  onQueryChange: (query: string) => void;
+  onAspectChange: (aspect: string | null) => void;
+  onReset: () => void;
 }
 
-export function FilterBar({ providers, aspects, filters, resultCount, onChange }: FilterBarProps) {
-  const isFiltered = Boolean(filters.query || filters.providerId || filters.aspect);
+export function FilterBar({
+  aspects,
+  query,
+  aspect,
+  resultCount,
+  itemLabels,
+  onQueryChange,
+  onAspectChange,
+  onReset,
+}: FilterBarProps) {
+  const isFiltered = Boolean(query || aspect);
 
   return (
     <div className="filter-bar">
@@ -20,54 +30,27 @@ export function FilterBar({ providers, aspects, filters, resultCount, onChange }
         <input
           type="search"
           className="search__input"
-          value={filters.query}
+          value={query}
           placeholder="Search models and observations"
           aria-label="Search models and observations"
-          onChange={(event) => onChange({ ...filters, query: event.target.value })}
+          onChange={(event) => onQueryChange(event.target.value)}
         />
-        {filters.query ? (
+        {query ? (
           <button
             type="button"
             className="search__clear"
             aria-label="Clear search"
-            onClick={() => onChange({ ...filters, query: '' })}
+            onClick={() => onQueryChange('')}
           >
             <X aria-hidden="true" size={14} />
           </button>
         ) : null}
       </div>
 
-      <div className="chips" role="group" aria-label="Filter by provider">
-        <button
-          type="button"
-          className="chip"
-          aria-pressed={filters.providerId === null}
-          onClick={() => onChange({ ...filters, providerId: null })}
-        >
-          All providers
-        </button>
-        {providers.map((provider) => (
-          <button
-            key={provider.id}
-            type="button"
-            className="chip"
-            aria-pressed={filters.providerId === provider.id}
-            onClick={() =>
-              onChange({ ...filters, providerId: filters.providerId === provider.id ? null : provider.id })
-            }
-          >
-            {provider.name}
-          </button>
-        ))}
-      </div>
-
       <div className="filter-bar__row">
         <label className="select">
           <span className="visually-hidden">Filter by aspect</span>
-          <select
-            value={filters.aspect ?? ''}
-            onChange={(event) => onChange({ ...filters, aspect: event.target.value || null })}
-          >
+          <select value={aspect ?? ''} onChange={(event) => onAspectChange(event.target.value || null)}>
             <option value="">All aspects</option>
             {aspects.map((aspect) => (
               <option key={aspect} value={aspect}>
@@ -78,15 +61,11 @@ export function FilterBar({ providers, aspects, filters, resultCount, onChange }
         </label>
 
         <p className="filter-bar__count" role="status" aria-live="polite">
-          {resultCount} {resultCount === 1 ? 'model' : 'models'}
+          {resultCount} {resultCount === 1 ? itemLabels[0] : itemLabels[1]}
         </p>
 
         {isFiltered ? (
-          <button
-            type="button"
-            className="text-button"
-            onClick={() => onChange({ query: '', providerId: null, aspect: null })}
-          >
+          <button type="button" className="text-button" onClick={onReset}>
             Reset
           </button>
         ) : null}
