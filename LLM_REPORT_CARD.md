@@ -63,7 +63,7 @@ For each model, keep a running list of observations under each aspect — short 
 
 | Aspect | Pros | Cons |
 |---|---|---|
-| Reasoning | used heavily lately and currently the best model for advanced tasks; best used as the planner — the workflow of planning with Opus 4.8 and implementing with Sonnet 5 on medium has been working out great | |
+| Reasoning | used heavily lately and currently the best model for advanced tasks; best used as the planner — the workflow of planning with Opus 4.8 and implementing with Sonnet 5 on medium has been working out great; solved a CrowdStrike Fusion SOAR workflow debugging issue right away where GPT 5.6 Sol kept giving wrong information | |
 | Coding | methodical on Playwright script task; inferred idempotency unprompted and auto-implemented diff-only extraction to avoid rewriting Hindsight memories on repeated calls | don't use it to implement on medium settings — hand its plan to Sonnet 5 on medium for implementation instead |
 | Instruction-following | when system prompt reaches model, follows every instruction and remembers earlier instructions in same initial prompt; intelligently interprets needs rather than following prompts literally; recently followed AGENTS.md instructions exactly — made the requested changes and stored them in the Hindsight memory bank as instructed, very impressive | outside first-party tools (e.g. via Cherry Studio), doesn't reliably stick to injected system prompt; not a model issue — CLI proxy strips custom prompt and injects its own |
 | Tool use / agentic | within Claude Code, self-verifies by running tests after implementing each feature | doesn't use third-party built-in search tools (e.g. Cherry Studio's) well |
@@ -112,7 +112,7 @@ For each model, keep a running list of observations under each aspect — short 
 
 | Aspect | Pros | Cons |
 |---|---|---|
-| Reasoning | resolved both Cherry Studio issues I presented; felt as good as Claude Opus 5 at hunting down issues | disappointing as a planner in first-hand test: the initial "Luna maxing" plan (plan with Sol, implement with Luna max) needed multiple manual edits and still missed obvious flaws that were implemented anyway, with no easy way to back out |
+| Reasoning | resolved both Cherry Studio issues I presented; felt as good as Claude Opus 5 at hunting down issues | disappointing as a planner in first-hand test: the initial "Luna maxing" plan (plan with Sol, implement with Luna max) needed multiple manual edits and still missed obvious flaws that were implemented anyway, with no easy way to back out; on CrowdStrike Fusion SOAR workflow debugging it kept giving wrong information, with a very high hallucination rate |
 | Coding | | |
 | Instruction-following | | |
 | Tool use / agentic | at medium reasoning effort, eventually gets practical research tasks done, including finding stores in a location, researching OLX listings, and finding an iOS video player | rarely gets the right answer on the first attempt; typically needs multiple follow-up turns before reaching the correct result; on a PDF task in the ChatGPT app, using the exact same prompt and harness, results were wildly worse than Claude Opus 4.8 — took many tries and still kept making mistakes, overall unsatisfying |
