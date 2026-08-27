@@ -361,7 +361,7 @@ For each model, keep a running list of observations under each aspect — short 
 | Formatting / output quality | | |
 | Other | behaves well for simple tasks | model provider is anonymous; provider unknown, cannot categorize under a provider section yet; untested on long-running or highly complex tasks |
 
-### ox alpha
+### GLM 5.3 Flash
 
 | Aspect | Pros | Cons |
 |---|---|---|
