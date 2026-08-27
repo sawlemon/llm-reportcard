@@ -136,7 +136,7 @@ For each model, keep a running list of observations under each aspect — short 
 | Cost / efficiency | incredibly cheap relative to Tera/Sol for reportedly comparable intelligence at matched effort levels, driving the "Luna maxing" trend of using it for everyday tasks; in the first-hand test the implementation consumed a low amount of the monthly usage budget | |
 | Refusals / safety behavior | | |
 | Formatting / output quality | | |
-| Other | first-hand verdict now in: good enough as a cheap implementer at max effort (slow but got to the point), and became the preferred cheap implementer alongside DeepSeek V4 Flash — plan with Opus 5/Opus 4.8, implement with Luna | reportedly weak for factual/deep-research tasks per community claims (not re-tested here) |
+| Other | first-hand verdict now in: good enough as a cheap implementer at max effort (slow but got to the point), and became the preferred cheap implementer alongside DeepSeek V4 Flash — plan with Opus 5/Opus 4.8, implement with Luna; preferred for normal task execution over ox alpha because it is fast enough and follows instructions well enough | reportedly weak for factual/deep-research tasks per community claims (not re-tested here) |
 
 ---
 
@@ -365,16 +365,16 @@ For each model, keep a running list of observations under each aspect — short 
 
 | Aspect | Pros | Cons |
 |---|---|---|
-| Reasoning | thinking is detailed | |
+| Reasoning | thinking is detailed; reportedly benchmarks above DeepSeek V4 Pro, though that benchmark comparison has not been independently verified here | |
 | Coding | | |
 | Instruction-following | follows instructions fine | |
 | Tool use / agentic | | |
 | Context handling | | |
-| Speed / latency | | very slow — takes a long time to finish tasks; wish it were faster |
-| Cost / efficiency | | uses a lot of tokens, similar to openweight models |
+| Speed / latency | | extremely slow for interactive use; the latency is a major dealbreaker and not worth waiting through for normal task execution |
+| Cost / efficiency | low cost, which is a meaningful advantage | uses a lot of tokens, similar to openweight models |
 | Refusals / safety behavior | | |
 | Formatting / output quality | | |
-| Other | | stealth model; provider unknown, cannot categorize under a provider section yet |
+| Other | may be worth trying again for background automation tasks, where the slow response is less disruptive | now reportedly identified as GLM 5.3 Flash; the suggestion that it runs on Chinese hardware is unverified; for normal task execution, prefers GPT 5.6 Luna, which is fast enough and follows instructions well enough |
 
 ---
 
