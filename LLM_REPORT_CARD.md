@@ -129,7 +129,7 @@ For each model, keep a running list of observations under each aspect — short 
 |---|---|---|
 | Reasoning | "Luna maxing" trend on Twitter: users report Luna at max effort matches Tera at medium effort and Sol at low effort in intelligence, at a fraction of the cost; on first-hand test at max effort as the implementer, it got to the point and completed the task | |
 | Coding | community claims it's good enough for simple coding tasks at max effort, and people are leveraging it for exactly that given the low cost | |
-| Instruction-following | | |
+| Instruction-following | | very poor at simple tasks in medium effort; needs unusually explicit instructions to produce anything useful |
 | Tool use / agentic | preferred for deep research when paired with Exa at max effort | |
 | Context handling | | |
 | Speed / latency | | super slow at max effort: the thinking phase takes a long time, so output arrives late |
