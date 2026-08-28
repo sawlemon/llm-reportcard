@@ -240,6 +240,21 @@ For each model, keep a running list of observations under each aspect — short 
 | Formatting / output quality | accurate and concise in practice, with little unneeded text | |
 | Other | favorite for writing system prompts; prompts transfer well and stick across other models | |
 
+### GLM 5.3 Flash
+
+| Aspect | Pros | Cons |
+|---|---|---|
+| Reasoning | thinking is detailed; reportedly benchmarks above DeepSeek V4 Pro, though that benchmark comparison has not been independently verified here | |
+| Coding | | |
+| Instruction-following | follows instructions fine | |
+| Tool use / agentic | | |
+| Context handling | | |
+| Speed / latency | | extremely slow for interactive use; the latency is a major dealbreaker and not worth waiting through for normal task execution |
+| Cost / efficiency | low cost, which is a meaningful advantage | uses a lot of tokens, similar to openweight models; quota snapshot on Aug 28, 2026 showed 1.3M total tokens = 74% of the window limit (reset 21:29), implying a per-window cap around 1.75M tokens; the 300M-token weekend giveaway from z.ai is the total pool, but the window cap is the real constraint, so even flat-out weekend use (~10 resets) only moves ~17M tokens; per window it is roughly comparable to ChatGPT Plus and much stingier than Claude Pro's 5-hour limit |
+| Refusals / safety behavior | | |
+| Formatting / output quality | | |
+| Other | may be worth trying again for background automation tasks, where the slow response is less disruptive | the suggestion that it runs on Chinese hardware is unverified; for normal task execution, prefers GPT 5.6 Luna, which is fast enough and follows instructions well enough |
+
 ---
 
 ## xAI
@@ -360,21 +375,6 @@ For each model, keep a running list of observations under each aspect — short 
 | Refusals / safety behavior | | |
 | Formatting / output quality | | |
 | Other | behaves well for simple tasks | model provider is anonymous; provider unknown, cannot categorize under a provider section yet; untested on long-running or highly complex tasks |
-
-### GLM 5.3 Flash
-
-| Aspect | Pros | Cons |
-|---|---|---|
-| Reasoning | thinking is detailed; reportedly benchmarks above DeepSeek V4 Pro, though that benchmark comparison has not been independently verified here | |
-| Coding | | |
-| Instruction-following | follows instructions fine | |
-| Tool use / agentic | | |
-| Context handling | | |
-| Speed / latency | | extremely slow for interactive use; the latency is a major dealbreaker and not worth waiting through for normal task execution |
-| Cost / efficiency | low cost, which is a meaningful advantage | uses a lot of tokens, similar to openweight models |
-| Refusals / safety behavior | | |
-| Formatting / output quality | | |
-| Other | may be worth trying again for background automation tasks, where the slow response is less disruptive | now reportedly identified as GLM 5.3 Flash; the suggestion that it runs on Chinese hardware is unverified; for normal task execution, prefers GPT 5.6 Luna, which is fast enough and follows instructions well enough |
 
 ---
 
