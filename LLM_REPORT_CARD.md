@@ -136,7 +136,7 @@ For each model, keep a running list of observations under each aspect — short 
 | Cost / efficiency | incredibly cheap relative to Tera/Sol for reportedly comparable intelligence at matched effort levels, driving the "Luna maxing" trend of using it for everyday tasks; in the first-hand test the implementation consumed a low amount of the monthly usage budget | |
 | Refusals / safety behavior | | |
 | Formatting / output quality | | |
-| Other | first-hand verdict now in: good enough as a cheap implementer at max effort (slow but got to the point), and became the preferred cheap implementer alongside DeepSeek V4 Flash — plan with Opus 5/Opus 4.8, implement with Luna; preferred for normal task execution over ox alpha because it is fast enough and follows instructions well enough | reportedly weak for factual/deep-research tasks per community claims (not re-tested here) |
+| Other | first-hand verdict now in: good enough as a cheap implementer at max effort (slow but got to the point), and became the preferred cheap implementer alongside DeepSeek V4 Flash — plan with Opus 5/Opus 4.8, implement with Luna; preferred for normal task execution over ox alpha because it is fast enough and follows instructions well enough; after using Luna through Zcode, the user feels it behaves dramatically better than it did through Codex and had previously underestimated it | reportedly weak for factual/deep-research tasks per community claims (not re-tested here); behaved poorly when used through Codex, though this appears to be a harness experience rather than a settled model verdict |
 
 ---
 
@@ -459,3 +459,16 @@ Harnesses are the apps/CLIs that models run inside. They're judged on different 
 | Resource consumption | | |
 | Model support | successfully routed Codex desktop messages to DeepSeek V4 Flash; switching the upstream format for Anthropic models from Chat Completions to Responses (native) fixed tool use and enabled spawning sub-agents in Codex — Chat Completions as upstream caused errors and blocked both tool use and sub-agent spawning for Anthropic models | cliproxyapi bug: older CC Switch builds wrote assistant message IDs as `resp_<id>_msg`; when a Claude-model conversation history with those IDs later replayed against a GPT model via the OpenAI Responses API, it was rejected since Responses API IDs must start with `msg` — fixed by adding a Codex-protocol payload filter in `/opt/homebrew/etc/cliproxyapi.conf` to strip those IDs before forwarding, then restarting cliproxyapi |
 | Other | | new setup; needs more testing before a broader verdict; CC Switch is not working reliably as expected and has lots of issues; cloud models routed through CC Switch can be troublesome on advanced tasks — a long-horizon task appeared to get stuck thinking, with the last command repeatedly shown while the thinking view was expanded; possibly a UI or streaming-response issue, but tool calling is not consistently smooth; HTTP 400 errors seen when routing Claude models through cliproxyapi initially looked like a routing/config failure, but were actually caused by an Anthropic-side outage (Anthropic servers down) — Anthropic gave no status-page/notification about it; only found out via X/Twitter; CLIProxyAPI config tuned for Opus 5 reliability: cooldown fully removed (`disable-cooling: true`, `transient-error-cooldown-seconds: -1`) so a transient blip never blacks out the single Claude account; streaming keep-alives enabled and aggressive (`streaming.keepalive-seconds: 10` — repeating heartbeat every 10s for the entire turn, holding the connection open regardless of turn length; `bootstrap-retries: 1` — retries once if stream drops before first byte; `nonstream-keepalive-interval: 15` — backup heartbeat for non-streaming calls) |
+
+### Zcode
+
+| Aspect | Pros | Cons |
+|---|---|---|
+| UI / UX | feels like a polished Codex alternative while preserving a familiar workflow | |
+| Ease of use | can import sessions and configuration from other apps | MCP server configuration import from Codex made a mistake and required manual correction |
+| Customizability | offers substantially more customization than Codex | |
+| Flexibility | | |
+| Speed / responsiveness | | |
+| Resource consumption | | |
+| Model support | Luna behaves dramatically better through Zcode than it did through Codex in the user's experience | |
+| Other | | |
