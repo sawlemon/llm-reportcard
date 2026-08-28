@@ -39,7 +39,7 @@ For each model, keep a running list of observations under each aspect — short 
 | Tool use / agentic | on medium settings, behaves quite agentic and completes tasks very quickly | did not commit and push when explicitly instructed to — asked for confirmation instead of just doing it; doesn't use third-party built-in search tools (e.g. Cherry Studio's) well |
 | Context handling | | |
 | Speed / latency | | |
-| Cost / efficiency | | |
+| Cost / efficiency | | Claude Pro quota snapshot on Aug 28, 2026 showed 31% on the 5-hour limit and 62% on the 7-day limit; the accompanying usage breakdown showed Claude Sonnet 5 at 108 calls and 14M tokens, while Claude Opus 4.8 accounted for 42 calls and 4.2M tokens |
 | Refusals / safety behavior | | |
 | Formatting / output quality | limited verbosity; doesn't give a lot of unnecessary/rubbish feedback | |
 | Other | astonishingly good within Anthropic's own tools (Claude Code, Claude Desktop) | dislike Claude Desktop's UI/UX; lack of flexibility to use the model well through third-party tools/apps |
@@ -69,7 +69,7 @@ For each model, keep a running list of observations under each aspect — short 
 | Tool use / agentic | within Claude Code, self-verifies by running tests after implementing each feature; agreed with GPT 5.6 Sol's solid recommendation when using Exa for research | doesn't use third-party built-in search tools (e.g. Cherry Studio's) well |
 | Context handling | | |
 | Speed / latency | | |
-| Cost / efficiency | | |
+| Cost / efficiency | | usage snapshot showed 42 calls and 4.2M tokens on the Claude Pro account |
 | Refusals / safety behavior | | refused a task once it recognized the intent was cheating, even though the user was completely honest about it — stayed principled and would not be talked into it |
 | Formatting / output quality | | given the same documentation prompt as Opus 5 on a similar project via Claude Code (non-desktop), output markdown was noticeably less impressive and included no visual/diagram representation |
 | Other | astonishingly good within Anthropic's own tools (Claude Code, Claude Desktop); on a PDF task in the ChatGPT app, with the exact same prompt and harness, almost one-shotted it — a wildly better result than GPT 5.6 Sol, which took many tries and still made mistakes | dislike Claude Desktop's UI/UX; lack of flexibility to use the model well through third-party tools/apps |
