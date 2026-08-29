@@ -245,7 +245,7 @@ For each model, keep a running list of observations under each aspect — short 
 | Aspect | Pros | Cons |
 |---|---|---|
 | Reasoning | thinking is detailed; reportedly benchmarks above DeepSeek V4 Pro, though that benchmark comparison has not been independently verified here | intelligence is not as expected at high reasoning effort; max reasoning overshoots and overanalyzes things |
-| Coding | great for implementing things | not intelligent enough to plan complex designs — Opus 4.8 is still the better planner |
+| Coding | great for implementing things | frequently makes mistakes when editing files; not intelligent enough to plan complex designs — Opus 4.8 is still the better planner |
 | Instruction-following | follows instructions fine | behaves a bit literally; when asked to work on a new branch, it did all the work on main first and only then created the new branch, instead of creating the branch upfront and working on it |
 | Tool use / agentic | | |
 | Context handling | | |
