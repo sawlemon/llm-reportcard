@@ -244,13 +244,13 @@ For each model, keep a running list of observations under each aspect — short 
 
 | Aspect | Pros | Cons |
 |---|---|---|
-| Reasoning | thinking is detailed; reportedly benchmarks above DeepSeek V4 Pro, though that benchmark comparison has not been independently verified here | |
-| Coding | | |
-| Instruction-following | follows instructions fine | |
+| Reasoning | thinking is detailed; reportedly benchmarks above DeepSeek V4 Pro, though that benchmark comparison has not been independently verified here | intelligence is not as expected at high reasoning effort; max reasoning overshoots and overanalyzes things |
+| Coding | great for implementing things | not intelligent enough to plan complex designs — Opus 4.8 is still the better planner |
+| Instruction-following | follows instructions fine | behaves a bit literally; when asked to work on a new branch, it did all the work on main first and only then created the new branch, instead of creating the branch upfront and working on it |
 | Tool use / agentic | | |
 | Context handling | | |
 | Speed / latency | | extremely slow for interactive use; the latency is a major dealbreaker and not worth waiting through for normal task execution |
-| Cost / efficiency | low cost, which is a meaningful advantage | uses a lot of tokens, similar to openweight models; quota snapshot on Aug 28, 2026 showed 1.3M total tokens = 74% of the window limit (reset 21:29), implying a per-window cap around 1.75M tokens; the 300M-token weekend giveaway from z.ai is the total pool, but the window cap is the real constraint, so even flat-out weekend use (~10 resets) only moves ~17M tokens; per window it is roughly comparable to ChatGPT Plus and much stingier than Claude Pro's 5-hour limit; z.ai exhaustion behavior: the client shows a per-model usage bar with percentage and a reset timestamp (74% · 21:29), usage drains against the rolling window cap rather than the giveaway pool, so at 100% you wait for the reset even with giveaway tokens left (not yet observed firsthand what the client does at the limit) |
+| Cost / efficiency | low cost, which is a meaningful advantage | uses a lot of tokens, similar to openweight models — heavy token consumption is regular openweight-model behavior, and it burned 100M tokens in a single night; quota snapshot on Aug 28, 2026 showed 1.3M total tokens = 74% of the window limit (reset 21:29), implying a per-window cap around 1.75M tokens; the 300M-token weekend giveaway from z.ai is the total pool, but the window cap is the real constraint, so even flat-out weekend use (~10 resets) only moves ~17M tokens; per window it is roughly comparable to ChatGPT Plus and much stingier than Claude Pro's 5-hour limit; z.ai exhaustion behavior: the client shows a per-model usage bar with percentage and a reset timestamp (74% · 21:29), usage drains against the rolling window cap rather than the giveaway pool, so at 100% you wait for the reset even with giveaway tokens left (not yet observed firsthand what the client does at the limit) |
 | Refusals / safety behavior | | |
 | Formatting / output quality | | |
 | Other | may be worth trying again for background automation tasks, where the slow response is less disruptive | the suggestion that it runs on Chinese hardware is unverified; for normal task execution, prefers GPT 5.6 Luna, which is fast enough and follows instructions well enough |
