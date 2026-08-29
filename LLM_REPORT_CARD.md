@@ -466,7 +466,7 @@ Harnesses are the apps/CLIs that models run inside. They're judged on different 
 |---|---|---|
 | UI / UX | feels like a polished Codex alternative while preserving a familiar workflow | |
 | Ease of use | can import sessions and configuration from other apps | MCP server configuration import from Codex made a mistake and required manual correction |
-| Customizability | offers substantially more customization than Codex | |
+| Customizability | offers substantially more customization than Codex; has a subagent configuration feature Codex lacks — supports multiple agent configurations, and each subagent can be assigned any model with its own reasoning-effort setting, which the user finds really handy, a huge plus, and loves the feature | |
 | Flexibility | | |
 | Speed / responsiveness | | |
 | Resource consumption | | |
