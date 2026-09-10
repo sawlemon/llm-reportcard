@@ -93,6 +93,21 @@ For each model, keep a running list of observations under each aspect — short 
 
 ## OpenAI
 
+### GPT-6 Astra
+
+| Aspect | Pros | Cons |
+|---|---|---|
+| Reasoning | tops out on benchmarks; the user tested low effort based on Thibault's claim that GPT-6 Astra at low effort would be somewhat equivalent to GPT 5.6 Sol at medium effort | the low-effort substitution did not work out in practice; not compelling enough for the user's local tasks to justify continued use |
+| Coding | | |
+| Instruction-following | | |
+| Tool use / agentic | | |
+| Context handling | | |
+| Speed / latency | | |
+| Cost / efficiency | | consumes the ChatGPT Pro Plus five-hour and weekly usage limits extremely quickly, even at low effort; quota efficiency is poor for practical use |
+| Refusals / safety behavior | | |
+| Formatting / output quality | | |
+| Other | | despite topping benchmarks, the user expects to use GPT-6 Astra only sparingly because it burns through usage limits too aggressively |
+
 ### GPT 5.6 Tera
 
 | Aspect | Pros | Cons |
