@@ -3,13 +3,14 @@ import { Menu, Moon, PanelLeftClose, Sun, X } from 'lucide-react';
 import reportCard from 'virtual:report-card';
 import type { ModelEntry, ProviderEntry } from './data/types';
 import { FilterBar } from './components/FilterBar';
+import { DecisionView } from './components/DecisionView';
 import { ModelCard } from './components/ModelCard';
 import { ModelDetail } from './components/ModelDetail';
 import { filterModels } from './lib/filterModels';
 import { useHashModel } from './lib/useHashModel';
 import { useTheme } from './lib/useTheme';
 
-type View = 'models' | 'harnesses';
+type View = 'decide' | 'models' | 'harnesses';
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input, select, [tabindex]:not([tabindex="-1"])';
 
@@ -130,7 +131,7 @@ function ProviderDrawer({ onClose, ...navigation }: ProviderDrawerProps) {
 export default function App() {
   const [selectedId, setSelectedId] = useHashModel();
   const [view, setView] = useState<View>(() =>
-    reportCard.harnesses.some((harness) => harness.id === selectedId) ? 'harnesses' : 'models',
+    reportCard.harnesses.some((harness) => harness.id === selectedId) ? 'harnesses' : 'decide',
   );
   const [query, setQuery] = useState('');
   const [providerId, setProviderId] = useState<string | null>(null);
@@ -221,6 +222,15 @@ export default function App() {
               <button
                 type="button"
                 role="tab"
+                aria-selected={activeView === 'decide'}
+                className="dashboard-tab"
+                onClick={() => switchView('decide')}
+              >
+                Decide
+              </button>
+              <button
+                type="button"
+                role="tab"
                 aria-selected={activeView === 'models'}
                 className="dashboard-tab"
                 onClick={() => switchView('models')}
@@ -281,86 +291,92 @@ export default function App() {
 
         <main className="dashboard-main" id="dashboard-content" role="tabpanel">
           <div className="dashboard-main__inner">
-            <header className="dashboard-heading">
-              <div>
-                <p className="dashboard-heading__eyebrow">
-                  {activeView === 'models' ? 'Model evaluation' : 'Tool evaluation'}
-                </p>
-                <h1>{title}</h1>
-                <p>{subtitle}</p>
-              </div>
-              <p className="dashboard-heading__count">
-                {results.length} {activeView === 'models' ? 'models' : 'harnesses'}
-              </p>
-            </header>
+            {activeView === 'decide' ? (
+              <DecisionView onSelectModel={setSelectedId} />
+            ) : (
+              <>
+                <header className="dashboard-heading">
+                  <div>
+                    <p className="dashboard-heading__eyebrow">
+                      {activeView === 'models' ? 'Model evaluation' : 'Tool evaluation'}
+                    </p>
+                    <h1>{title}</h1>
+                    <p>{subtitle}</p>
+                  </div>
+                  <p className="dashboard-heading__count">
+                    {results.length} {activeView === 'models' ? 'models' : 'harnesses'}
+                  </p>
+                </header>
 
-            <FilterBar
-              aspects={aspects}
-              query={query}
-              aspect={activeAspect}
-              resultCount={results.length}
-              itemLabels={activeView === 'models' ? ['model', 'models'] : ['harness', 'harnesses']}
-              onQueryChange={setQuery}
-              onAspectChange={activeView === 'models' ? setModelAspect : setHarnessAspect}
-              onReset={() => {
-                setQuery('');
-                if (activeView === 'models') setModelAspect(null);
-                else setHarnessAspect(null);
-              }}
-            />
+                <FilterBar
+                  aspects={aspects}
+                  query={query}
+                  aspect={activeAspect}
+                  resultCount={results.length}
+                  itemLabels={activeView === 'models' ? ['model', 'models'] : ['harness', 'harnesses']}
+                  onQueryChange={setQuery}
+                  onAspectChange={activeView === 'models' ? setModelAspect : setHarnessAspect}
+                  onReset={() => {
+                    setQuery('');
+                    if (activeView === 'models') setModelAspect(null);
+                    else setHarnessAspect(null);
+                  }}
+                />
 
-            <section
-              className="report-gallery"
-              aria-label={activeView === 'models' ? 'Model reports' : 'Harness reports'}
-            >
-              {results.length === 0 ? (
-                <div className="empty-state">
-                  <p className="empty-state__title">No reports match those filters.</p>
-                  <button
-                    type="button"
-                    className="text-button"
-                    onClick={() => {
-                      setQuery('');
-                      if (activeView === 'models') setModelAspect(null);
-                      else setHarnessAspect(null);
-                    }}
-                  >
-                    Reset filters
-                  </button>
-                </div>
-              ) : activeView === 'models' ? (
-                groups.map((group) => (
-                  <section
-                    className="report-group"
-                    key={group.provider}
-                    aria-label={`${group.provider} reports`}
-                  >
-                    {providerId === null ? <h2>{group.provider}</h2> : null}
+                <section
+                  className="report-gallery"
+                  aria-label={activeView === 'models' ? 'Model reports' : 'Harness reports'}
+                >
+                  {results.length === 0 ? (
+                    <div className="empty-state">
+                      <p className="empty-state__title">No reports match those filters.</p>
+                      <button
+                        type="button"
+                        className="text-button"
+                        onClick={() => {
+                          setQuery('');
+                          if (activeView === 'models') setModelAspect(null);
+                          else setHarnessAspect(null);
+                        }}
+                      >
+                        Reset filters
+                      </button>
+                    </div>
+                  ) : activeView === 'models' ? (
+                    groups.map((group) => (
+                      <section
+                        className="report-group"
+                        key={group.provider}
+                        aria-label={`${group.provider} reports`}
+                      >
+                        {providerId === null ? <h2>{group.provider}</h2> : null}
+                        <div className="report-grid">
+                          {group.models.map((model) => (
+                            <ModelCard
+                              key={model.id}
+                              model={model}
+                              highlightAspect={modelAspect}
+                              onSelect={setSelectedId}
+                            />
+                          ))}
+                        </div>
+                      </section>
+                    ))
+                  ) : (
                     <div className="report-grid">
-                      {group.models.map((model) => (
+                      {results.map((harness) => (
                         <ModelCard
-                          key={model.id}
-                          model={model}
-                          highlightAspect={modelAspect}
+                          key={harness.id}
+                          model={harness}
+                          highlightAspect={harnessAspect}
                           onSelect={setSelectedId}
                         />
                       ))}
                     </div>
-                  </section>
-                ))
-              ) : (
-                <div className="report-grid">
-                  {results.map((harness) => (
-                    <ModelCard
-                      key={harness.id}
-                      model={harness}
-                      highlightAspect={harnessAspect}
-                      onSelect={setSelectedId}
-                    />
-                  ))}
-                </div>
-              )}
-            </section>
+                  )}
+                </section>
+              </>
+            )}
           </div>
         </main>
       </div>

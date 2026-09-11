@@ -8,7 +8,10 @@ way. Author-facing instructions live in `README.md`; this is the design rational
 `LLM_REPORT_CARD.md` is the single source of truth. A Vite plugin parses it at build time and inlines the
 result as the `virtual:report-card` module, which a static React + TypeScript app renders as a searchable,
 filterable model gallery published to GitHub Pages. There is no backend, database, CMS, account system,
-analytics, or external API call. Editing the Markdown is the only step required to update the site.
+analytics, or external API call. Editing the Markdown is the only step required to update the site. The same
+file also carries an optional per-model `**Verdict:**` line and a single reserved end-of-file
+`## Recommendations` table, parsed into `ModelEntry.verdict` and `ReportCard.recommendations`; the site does
+not yet render either.
 
 The report card doubles as a hand-authored document and as structured data. Every design decision below
 follows from holding that tension: authoring must stay frictionless, while the build must refuse to ship a

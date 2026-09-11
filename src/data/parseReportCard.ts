@@ -2,14 +2,27 @@ import {
   CANONICAL_ASPECTS,
   HARNESS_ASPECTS,
   HARNESS_SECTION_NAME,
+  RECOMMENDATIONS_SECTION_NAME,
   ReportCardParseError,
+  VERDICT_STATUSES,
   type AspectEntry,
   type ModelEntry,
   type ProviderEntry,
+  type Recommendation,
   type ReportCard,
+  type Verdict,
 } from './types';
 
 const EXPECTED_COLUMNS = ['aspect', 'pros', 'cons'];
+
+/** Column order the reserved "## Recommendations" table must use, verbatim in its header row. */
+const EXPECTED_RECOMMENDATION_COLUMNS = ['task', 'model', 'harness', 'effort', 'role', 'cautions'];
+
+/** The literal separator between fields on a `**Verdict:**` line: space, middle dot, space. */
+const VERDICT_FIELD_SEPARATOR = ' · ';
+
+/** Matches a `**Verdict:**` line, capturing everything after the label. */
+const VERDICT_LINE_PATTERN = /^\*\*Verdict:\*\*\s*(.*)$/;
 
 /**
  * The two vocabularies a table may use, chosen by the enclosing section: model sections use
@@ -127,6 +140,58 @@ export function splitNotes(cell: string): string[] {
   return notes.map((note) => note.trim()).filter((note) => note.length > 0);
 }
 
+/** True for a calendar-valid `YYYY-MM-DD` string (rejects e.g. `2026-13-40`). */
+function isValidIsoDate(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split('-').map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
+}
+
+/**
+ * Parses the content of a `**Verdict:**` line (everything after the label) into a {@link Verdict},
+ * validating the status against {@link VERDICT_STATUSES} and the date as a calendar-valid ISO date.
+ *
+ * Splits on only the first two ` · ` separators, so a summary that (against the authoring rule)
+ * contains a stray ` · ` is kept whole rather than truncated.
+ */
+function parseVerdictLine(content: string, modelName: string, line: number): Verdict {
+  const firstSeparator = content.indexOf(VERDICT_FIELD_SEPARATOR);
+  const secondSeparator =
+    firstSeparator === -1
+      ? -1
+      : content.indexOf(VERDICT_FIELD_SEPARATOR, firstSeparator + VERDICT_FIELD_SEPARATOR.length);
+
+  if (firstSeparator === -1 || secondSeparator === -1) {
+    throw new ReportCardParseError(
+      `model "${modelName}" has a malformed Verdict line; expected "**Verdict:** <status> · <YYYY-MM-DD> · <summary>"`,
+      line,
+    );
+  }
+
+  const status = content.slice(0, firstSeparator).trim();
+  const date = content.slice(firstSeparator + VERDICT_FIELD_SEPARATOR.length, secondSeparator).trim();
+  const summary = content.slice(secondSeparator + VERDICT_FIELD_SEPARATOR.length).trim();
+
+  if (!Object.hasOwn(VERDICT_STATUSES, status)) {
+    throw new ReportCardParseError(
+      `model "${modelName}" has verdict status "${status}"; expected one of [${Object.keys(VERDICT_STATUSES).join(', ')}]`,
+      line,
+    );
+  }
+  if (!isValidIsoDate(date)) {
+    throw new ReportCardParseError(
+      `model "${modelName}" has verdict date "${date}"; expected an ISO date (YYYY-MM-DD)`,
+      line,
+    );
+  }
+  if (!summary) {
+    throw new ReportCardParseError(`model "${modelName}" has a Verdict line with an empty summary`, line);
+  }
+
+  return { status: status as Verdict['status'], date, summary };
+}
+
 /**
  * Builds the error for an aspect name that is not in `CANONICAL_ASPECTS`, pointing at the
  * closest canonical name when the difference is only case or whitespace.
@@ -154,13 +219,22 @@ export function parseReportCard(markdown: string): ReportCard {
   const seenAspects = new Set<string>();
   const seenHarnessAspects = new Set<string>();
   const seenModelIds = new Set<string>();
+  // Cross-referenced against `models` only after the whole document is parsed, since the
+  // reserved Recommendations section is authored at the end, after every model it can reference.
+  const recommendationRows: Array<{ recommendation: Recommendation; line: number }> = [];
 
   let provider: ProviderEntry | null = null;
   // 'model' while under a "## Provider" heading, 'harness' under the reserved "## LLM Harness".
   let sectionKind: SectionKind = 'model';
+  // True while under the reserved "## Recommendations" heading, which is not a provider and
+  // whose table is parsed independently of `sectionKind` (it needs no model in scope).
+  let inRecommendations = false;
   let model: ModelEntry | null = null;
   let modelLine = 0;
   let inTable = false;
+  // True for the single line immediately following a "### Model name" heading, the only place a
+  // "**Verdict:**" line may appear. Cleared on the first non-blank line, matched or not.
+  let expectVerdict = false;
 
   const finishModel = () => {
     if (model && model.aspects.length === 0) {
@@ -171,6 +245,7 @@ export function parseReportCard(markdown: string): ReportCard {
     }
     model = null;
     inTable = false;
+    expectVerdict = false;
   };
 
   for (const { text, number } of lines) {
@@ -186,14 +261,22 @@ export function parseReportCard(markdown: string): ReportCard {
         finishModel();
         provider = null;
         sectionKind = 'model';
+        inRecommendations = false;
         title = name;
       } else if (level === 2) {
         finishModel();
-        if (name === HARNESS_SECTION_NAME) {
+        if (name === RECOMMENDATIONS_SECTION_NAME) {
+          // Reserved: a single table of cross-references into models parsed above it, not a
+          // provider grouping models of its own.
+          inRecommendations = true;
+          provider = null;
+        } else if (name === HARNESS_SECTION_NAME) {
           // A flat section of harness tools, not a provider grouping models.
+          inRecommendations = false;
           sectionKind = 'harness';
           provider = null;
         } else {
+          inRecommendations = false;
           sectionKind = 'model';
           provider = { id: slugify(name), name, models: [] };
         }
@@ -246,9 +329,23 @@ export function parseReportCard(markdown: string): ReportCard {
           if (!providers.includes(provider)) providers.push(provider);
           provider.models.push(model);
           models.push(model);
+          // Only a "### Model name" under a provider may carry a Verdict line, per the schema.
+          expectVerdict = true;
         }
       }
       continue;
+    }
+
+    if (expectVerdict) {
+      const trimmed = text.trim();
+      if (trimmed === '') continue; // Blank line before content; still awaiting the one slot.
+      expectVerdict = false;
+      const verdictMatch = VERDICT_LINE_PATTERN.exec(trimmed);
+      if (verdictMatch && model) {
+        model.verdict = parseVerdictLine(verdictMatch[1], model.name, number);
+        continue;
+      }
+      // Not a Verdict line: fall through and let the normal table/prose handling below see it.
     }
 
     if (!text.trim().startsWith('|')) {
@@ -257,6 +354,43 @@ export function parseReportCard(markdown: string): ReportCard {
     }
 
     const cells = splitRow(text.trim());
+
+    if (inRecommendations) {
+      if (!inTable) {
+        const header = cells.map((cell) => cell.toLowerCase());
+        if (header.join('|') !== EXPECTED_RECOMMENDATION_COLUMNS.join('|')) {
+          throw new ReportCardParseError(
+            `"${RECOMMENDATIONS_SECTION_NAME}" table has columns [${cells.join(', ')}]; expected [Task, Model, Harness, Effort, Role, Cautions]`,
+            number,
+          );
+        }
+        inTable = true;
+        continue;
+      }
+
+      if (isDelimiterRow(cells)) continue;
+
+      if (cells.length !== EXPECTED_RECOMMENDATION_COLUMNS.length) {
+        throw new ReportCardParseError(
+          `"${RECOMMENDATIONS_SECTION_NAME}" table has a row with ${cells.length} column(s); expected 6 (Task | Model | Harness | Effort | Role | Cautions)`,
+          number,
+        );
+      }
+
+      const [task, recommendedModel, recHarness, effort, role, cautions] = cells;
+      if (!recommendedModel) {
+        throw new ReportCardParseError(
+          `"${RECOMMENDATIONS_SECTION_NAME}" table has a row with an empty Model`,
+          number,
+        );
+      }
+
+      recommendationRows.push({
+        recommendation: { task, model: recommendedModel, harness: recHarness, effort, role, cautions },
+        line: number,
+      });
+      continue;
+    }
 
     if (!model) {
       throw new ReportCardParseError(
@@ -317,9 +451,20 @@ export function parseReportCard(markdown: string): ReportCard {
     );
   }
 
+  const recommendations: Recommendation[] = [];
+  for (const { recommendation, line } of recommendationRows) {
+    if (!models.some((entry) => entry.name === recommendation.model)) {
+      throw new ReportCardParseError(
+        `recommendation references unknown model: ${recommendation.model}`,
+        line,
+      );
+    }
+    recommendations.push(recommendation);
+  }
+
   // Present aspects in canonical order regardless of authoring order, keeping only those used.
   const aspects = CANONICAL_ASPECTS.filter((aspect) => seenAspects.has(aspect));
   const harnessAspects = HARNESS_ASPECTS.filter((aspect) => seenHarnessAspects.has(aspect));
 
-  return { title, providers, models, aspects, harnesses, harnessAspects };
+  return { title, providers, models, aspects, harnesses, harnessAspects, recommendations };
 }

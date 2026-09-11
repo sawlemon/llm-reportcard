@@ -5,6 +5,7 @@ import reportCard from 'virtual:report-card';
 import App from './App';
 import type { ModelEntry } from './data/types';
 import { EMPTY_FILTERS, filterModels, type Filters } from './lib/filterModels';
+import { codingVerdictModels } from './lib/decision';
 
 const { models, providers, harnesses } = reportCard;
 
@@ -54,9 +55,12 @@ beforeEach(() => {
 afterEach(() => setHash(''));
 
 describe('dashboard navigation', () => {
-  it('starts on Models with all provider reports and the provider index', () => {
+  it('starts on Decide and shows all provider reports once Models is selected', async () => {
+    const user = userEvent.setup();
     render(<App />);
 
+    expect(screen.getByRole('tab', { name: 'Decide' })).toHaveAttribute('aria-selected', 'true');
+    await user.click(screen.getByRole('tab', { name: 'Models' }));
     expect(screen.getByRole('tab', { name: 'Models' })).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByRole('button', { name: 'All models' })).toHaveAttribute('aria-pressed', 'true');
     for (const provider of providers) {
@@ -69,6 +73,7 @@ describe('dashboard navigation', () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await user.click(screen.getByRole('tab', { name: 'Models' }));
     await user.click(screen.getByRole('button', { name: narrowestProvider.name }));
     expect(
       screen.getByRole('heading', { name: new RegExp(narrowestProvider.name, 'i') }),
@@ -109,6 +114,7 @@ describe('dashboard navigation', () => {
     expect(noteWord).not.toBeNull();
     render(<App />);
 
+    await user.click(screen.getByRole('tab', { name: 'Models' }));
     await user.type(screen.getByRole('searchbox'), noteWord as string);
     const expectedSearch = matching(models, { query: noteWord as string });
     for (const model of expectedSearch) expect(cardFor(model)).toBeInTheDocument();
@@ -125,6 +131,7 @@ describe('access and deep links', () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await user.click(screen.getByRole('tab', { name: 'Models' }));
     const trigger = screen.getByRole('button', { name: 'Open provider menu' });
     await user.click(trigger);
     const drawer = screen.getByRole('dialog', { name: 'Provider navigation' });
@@ -139,6 +146,7 @@ describe('access and deep links', () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await user.click(screen.getByRole('tab', { name: 'Models' }));
     await user.click(cardFor(models[0]));
     expect(window.location.hash).toBe(`#${encodeURIComponent(models[0].id)}`);
     expect(
@@ -165,5 +173,42 @@ describe('access and deep links', () => {
     await user.click(screen.getByRole('button', { name: 'Switch to dark theme' }));
     expect(document.documentElement.dataset.theme).toBe('dark');
     expect(window.localStorage.getItem('llm-report-card-theme')).toBe('dark');
+  });
+});
+
+describe('decide view', () => {
+  it('is the default view and hides the models UI chrome', () => {
+    render(<App />);
+
+    expect(screen.getByRole('tab', { name: 'Decide' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('region', { name: 'Task recommender' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Current verdicts' })).toBeInTheDocument();
+    expect(screen.getAllByRole('tab')).toHaveLength(3);
+    expect(screen.queryByRole('tab', { name: 'Voice-to-text' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('searchbox')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'All models' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Open provider menu' })).not.toBeInTheDocument();
+  });
+
+  it('opens a model dialog from a verdict row and returns to Decide when it closes', async () => {
+    const user = userEvent.setup();
+    const target = codingVerdictModels(models)[0];
+    const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const rowName = new RegExp(`${escape(target.name)}\\s+${escape(target.provider)}`);
+    render(<App />);
+
+    await user.click(
+      within(screen.getByRole('region', { name: 'Current verdicts' })).getByRole('button', {
+        name: rowName,
+      }),
+    );
+    expect(
+      within(screen.getByRole('dialog')).getByRole('heading', { name: target.name }),
+    ).toBeInTheDocument();
+
+    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Close' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Decide' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('region', { name: 'Current verdicts' })).toBeInTheDocument();
   });
 });

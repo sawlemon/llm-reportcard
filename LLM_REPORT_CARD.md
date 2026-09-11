@@ -31,6 +31,8 @@ For each model, keep a running list of observations under each aspect — short 
 
 ### Claude Sonnet 5
 
+**Verdict:** preferred · 2026-09-03 · preferred implementer for Opus-planned work; solved a toolset bug others could not
+
 | Aspect | Pros | Cons |
 |---|---|---|
 | Reasoning | | |
@@ -45,6 +47,8 @@ For each model, keep a running list of observations under each aspect — short 
 | Other | astonishingly good within Anthropic's own tools (Claude Code, Claude Desktop) | dislike Claude Desktop's UI/UX; lack of flexibility to use the model well through third-party tools/apps |
 
 ### Claude Opus 4.6
+
+**Verdict:** preferred · 2026-08-10 · favorite frontier model again; efficient, focused planning and thorough instruction-following, best used via Antigravity for web search access
 
 | Aspect | Pros | Cons |
 |---|---|---|
@@ -61,9 +65,11 @@ For each model, keep a running list of observations under each aspect — short 
 
 ### Claude Opus 4.8
 
+**Verdict:** avoid · 2026-09-03 · no longer for thinking tasks; got land-purchase work wrong
+
 | Aspect | Pros | Cons |
 |---|---|---|
-| Reasoning | used heavily lately and previously seemed like the best model for advanced tasks; best used as the planner — the workflow of planning with Opus 4.8 and implementing with Sonnet 5 on medium had been working out great; solved a CrowdStrike Fusion SOAR workflow debugging issue right away where GPT 5.6 Sol kept giving wrong information; previously preferred over GPT 5.6 Sol for research | recently feels weird, stupid, irritating, and annoying; while helping with a land purchase, drafting simple messages, and handling a couple of PDFs, got things completely wrong repeatedly; user no longer wants to use Opus 4.8 for thinking tasks |
+| Reasoning | (2026-08) best used as the planner — the workflow of planning with Opus 4.8 and implementing with Sonnet 5 on medium had been working out great; (2026-08) used heavily lately and previously seemed like the best model for advanced tasks; (2026-08) solved a CrowdStrike Fusion SOAR workflow debugging issue right away where GPT 5.6 Sol kept giving wrong information; (2026-08) previously preferred over GPT 5.6 Sol for research | (2026-09-03) current verdict: user no longer wants to use Opus 4.8 for thinking tasks; (2026-09-03) recently feels weird, stupid, irritating, and annoying; (2026-09-01) while helping with a land purchase, drafting simple messages, and handling a couple of PDFs, got things completely wrong repeatedly |
 | Coding | methodical on Playwright script task; inferred idempotency unprompted and auto-implemented diff-only extraction to avoid rewriting Hindsight memories on repeated calls | don't use it to implement on medium settings — hand its plan to Sonnet 5 on medium for implementation instead |
 | Instruction-following | when system prompt reaches model, follows every instruction and remembers earlier instructions in same initial prompt; intelligently interprets needs rather than following prompts literally; recently followed AGENTS.md instructions exactly — made the requested changes and stored them in the Hindsight memory bank as instructed, very impressive | outside first-party tools (e.g. via Cherry Studio), doesn't reliably stick to injected system prompt; not a model issue — CLI proxy strips custom prompt and injects its own |
 | Tool use / agentic | within Claude Code, self-verifies by running tests after implementing each feature; agreed with GPT 5.6 Sol's solid recommendation when using Exa for research | doesn't use third-party built-in search tools (e.g. Cherry Studio's) well |
@@ -75,6 +81,8 @@ For each model, keep a running list of observations under each aspect — short 
 | Other | astonishingly good within Anthropic's own tools (Claude Code, Claude Desktop); on a PDF task in the ChatGPT app, with the exact same prompt and harness, almost one-shotted it — a wildly better result than GPT 5.6 Sol, which took many tries and still made mistakes | dislike Claude Desktop's UI/UX; lack of flexibility to use the model well through third-party tools/apps |
 
 ### Claude Opus 5
+
+**Verdict:** care · 2026-09-03 · strong at root-cause investigation but overall makes more mistakes than Opus 4.8 and self-corrects after; token-hungry
 
 | Aspect | Pros | Cons |
 |---|---|---|
@@ -95,6 +103,8 @@ For each model, keep a running list of observations under each aspect — short 
 
 ### GPT-6 Astra
 
+**Verdict:** avoid · 2026-09-10 · failed local toolset debugging alongside GPT 5.6 Sol; low-effort/quota-cost mismatch
+
 | Aspect | Pros | Cons |
 |---|---|---|
 | Reasoning | tops out on benchmarks; the user tested low effort based on Thibault's claim that GPT-6 Astra at low effort would be somewhat equivalent to GPT 5.6 Sol at medium effort | the low-effort substitution did not work out in practice; not compelling enough for the user's local tasks to justify continued use |
@@ -109,6 +119,8 @@ For each model, keep a running list of observations under each aspect — short 
 | Other | | despite topping benchmarks, the user expects to use GPT-6 Astra only sparingly because it burns through usage limits too aggressively |
 
 ### GPT 5.6 Tera
+
+**Verdict:** care · 2026-08-10 · strong OpenCode pairing (todos, speed, formatting) but makes unrequested scope changes without confirmation and underperforms via the ChatGPT desktop app
 
 | Aspect | Pros | Cons |
 |---|---|---|
@@ -125,6 +137,8 @@ For each model, keep a running list of observations under each aspect — short 
 
 ### GPT 5.6 Sol
 
+**Verdict:** care · 2026-09-10 · fine when the plan is already clear, but unreliable at diagnosis and no longer a favorite for development
+
 | Aspect | Pros | Cons |
 |---|---|---|
 | Reasoning | resolved both Cherry Studio issues I presented; felt as good as Claude Opus 5 at hunting down issues; after switching back from Opus 4.8, immediately noticed enhanced performance and a more natural interaction style | disappointing as a planner in first-hand test: the initial "Luna maxing" plan (plan with Sol, implement with Luna max) needed multiple manual edits and still missed obvious flaws that were implemented anyway, with no easy way to back out; on CrowdStrike Fusion SOAR workflow debugging it kept giving wrong information, with a very high hallucination rate; after hours of planning iterations for a Word-document enhancement, the Sol-plan/Luna-implementation workflow still produced a worse result and the user abandoned GPT models for documentation work; when troubleshooting a local toolset alongside GPT-6 Astra, went on wild theories and random actions instead of diagnosing the problem, and Sonnet 5 on medium solved it immediately |
@@ -140,6 +154,8 @@ For each model, keep a running list of observations under each aspect — short 
 | Other | after sustained use at medium effort, overall verdict was that it was a good model; through Zcode it initially felt insanely clever and made the user switch to Zcode with OpenAI models; after resubscribing to ChatGPT Plus, Sol initially felt like a major improvement over Opus 4.8 — it talked in the user's preferred style, called the right tools, and followed `AGENTS.md` very well | the user no longer considers GPT 5.6 Sol a favorite model for development work; it cannot reliably diagnose or troubleshoot problems, goes on wild theories and random actions, and is now being replaced by Anthropic models; clear, well-understood implementation tasks remain an acceptable use case, but Sonnet 5 on medium is preferred when the problem is not already understood |
 
 ### GPT 5.6 Luna
+
+**Verdict:** preferred · 2026-09-04 · strong for exploratory research; not for final documentation output
 
 | Aspect | Pros | Cons |
 |---|---|---|
@@ -159,6 +175,8 @@ For each model, keep a running list of observations under each aspect — short 
 ## Google
 
 ### Gemini 3.1 Flash
+
+**Verdict:** avoid · 2026-08-10 · hallucinated details as a search assistant and produced malformed chat titles; switched back to DeepSeek V4 Flash, rarely used now
 
 | Aspect | Pros | Cons |
 |---|---|---|
@@ -189,6 +207,8 @@ For each model, keep a running list of observations under each aspect — short 
 | Other | | giving troubles in Stitch; needs more testing outside this UI task |
 
 ### Gemini Flash 3.6
+
+**Verdict:** care · 2026-08-10 · impressive and proactive at autonomous fixes, fast, but endpoint reliability varies and it acts without confirming; chat-naming verdict still pending
 
 | Aspect | Pros | Cons |
 |---|---|---|
@@ -224,6 +244,8 @@ For each model, keep a running list of observations under each aspect — short 
 
 ### DeepSeek V4 Flash
 
+**Verdict:** preferred · 2026-08-21 · favorite quick, cheap implementer when paired with frontier planning; thorough and well-formatted output, but no vision support and unreliable at low reasoning effort for agentic work
+
 | Aspect | Pros | Cons |
 |---|---|---|---|
 | Reasoning | | on custom ChatGPT-app provider integration (planned with Opus 4.8, executed here) made many mistakes and left a few old references behind; that said, Opus 5 failed the same task too — likely a hard/unsolvable task rather than a model-specific failure |
@@ -243,6 +265,8 @@ For each model, keep a running list of observations under each aspect — short 
 
 ### GLM 5.2
 
+**Verdict:** preferred · 2026-08-10 · favorite for writing system prompts that transfer well across models; fast, accurate research, though high-thinking mode gets expensive
+
 | Aspect | Pros | Cons |
 |---|---|---|
 | Reasoning | does research very well; admits when it does not know rather than making information up | missed that CrowdStrike Falcon repo `xdr_indicators` is a Falcon LogScale repo where XDR indicators are stored |
@@ -257,6 +281,8 @@ For each model, keep a running list of observations under each aspect — short 
 | Other | favorite for writing system prompts; prompts transfer well and stick across other models | |
 
 ### GLM 5.3 Flash
+
+**Verdict:** care · 2026-08-30 · cheap implementer only, not a planner; token-hungry and makes file-edit mistakes; low cost is the main justification
 
 | Aspect | Pros | Cons |
 |---|---|---|
@@ -277,6 +303,8 @@ For each model, keep a running list of observations under each aspect — short 
 
 ### Grok 4.5
 
+**Verdict:** preferred · 2026-08-10 · impressive day-to-day agentic use; only model to properly follow the Hindsight/Claude.md workflow in OpenCode, though it misread a re-scoped date range once
+
 | Aspect | Pros | Cons |
 |---|---|---|
 | Reasoning | | |
@@ -295,6 +323,8 @@ For each model, keep a running list of observations under each aspect — short 
 ## Xiaomi
 
 ### MiMo 2.5
+
+**Verdict:** avoid · 2026-08-10 · failed the OpenCode variant-selection debug task that Opus 5 solved, proposing a dull, overweight fix instead of the simple one
 
 | Aspect | Pros | Cons |
 |---|---|---|
@@ -315,6 +345,8 @@ For each model, keep a running list of observations under each aspect — short 
 
 ### Parakeet V3
 
+**Verdict:** care · 2026-08-10 · fast and reliably accurate, but processes the whole input before returning instead of streaming; superseded by Parakeet Unified for live transcription
+
 | Aspect | Pros | Cons |
 |---|---|---|
 | Reasoning | | |
@@ -329,6 +361,8 @@ For each model, keep a running list of observations under each aspect — short 
 | Other | previous go-to voice-to-text model | superseded by Parakeet Unified for live transcription |
 
 ### Parakeet Unified ENG 0.6B
+
+**Verdict:** care · 2026-08-10 · current voice-to-text model of choice with impressive live transcription, but recognition accuracy has been degrading and needs a custom-vocabulary workaround
 
 | Aspect | Pros | Cons |
 |---|---|---|
@@ -345,6 +379,8 @@ For each model, keep a running list of observations under each aspect — short 
 
 ### Parakeet TDT V2
 
+**Verdict:** care · 2026-08-10 · testing well overall, with a natural typing style that keeps acronyms lowercase, but lacks streaming/live transcription
+
 | Aspect | Pros | Cons |
 |---|---|---|
 | Reasoning | | |
@@ -359,6 +395,8 @@ For each model, keep a running list of observations under each aspect — short 
 | Other | testing well so far; disadvantage is lack of streaming/live transcription | |
 
 ### Nemotron Streaming 3.5
+
+**Verdict:** care · 2026-08-10 · fast streaming transcription that works fine overall, but once transcribed English speech entirely in Hindi and struggles with single words like Tamil names
 
 | Aspect | Pros | Cons |
 |---|---|---|
@@ -378,6 +416,8 @@ For each model, keep a running list of observations under each aspect — short 
 ## Unknown Provider
 
 ### Big Pickle
+
+**Verdict:** care · 2026-08-10 · solid fallback for simple coding and agentic tasks (e.g. SSH config changes) when Anthropic/OpenAI limits are hit, but untested on long-running or complex tasks
 
 | Aspect | Pros | Cons |
 |---|---|---|
@@ -488,3 +528,17 @@ Harnesses are the apps/CLIs that models run inside. They're judged on different 
 | Resource consumption | CPU and RAM usage is expected for a V8-based application and feels similar to running a browser | |
 | Model support | models behave more intelligently and follow `AGENTS.md` much better; GPT 5.6 Sol is especially impressive through Zcode — very clever, thorough in research, and more appealing than Opus 4.8; browser use and MCP tools work seamlessly across models, unlike Codex where browser use effectively worked only with GPT models; Hindsight calls continue to work more reliably even after long conversations | |
 | Other | after two days, Zcode is the user's preferred harness; it avoids overloading models with excessive system-prompt context, and the user prefers it over Codex for OpenAI models; use Zcode instead of Codex for OpenAI models, configurable model/effort routing, reliable browser/MCP tools, and instruction-heavy coding; use Codex when its image-generation output or another specific built-in capability is needed; use Claude Code when Anthropic-native behavior or its mature documentation/agent workflow is specifically preferred | Zcode is primarily a coding tool for now; the first improvement priority is clearer task visibility plus better long-chat and background-process reliability |
+
+---
+
+## Recommendations
+
+| Task | Model | Harness | Effort | Role | Cautions |
+|---|---|---|---|---|---|
+| Debugging | Claude Sonnet 5 | Zcode | medium | implementer | Avoid GPT 5.6 Sol and GPT-6 Astra for diagnosis |
+| Implement from plan | Claude Sonnet 5 | Zcode | medium | implementer | Hand Opus 4.8 plans to Sonnet 5 to build |
+| Planning / architecture | Claude Opus 4.6 | Antigravity | high | planner | Opus 4.8 is no longer trusted for thinking tasks |
+| Exploratory research | GPT 5.6 Luna | Zcode | high | explorer | Verify citations; do not use for final documentation |
+| Cheap implementation | DeepSeek V4 Flash | Zcode | medium | implementer | Pair with a frontier planner; unreliable at low reasoning effort |
+| Documentation / writing | Claude Opus 5 | Claude Code (desktop) | high | writer | GPT models are weak for documentation output |
+| Speech to text | Parakeet Unified ENG 0.6B | | | | Recognition accuracy has been degrading; needs a custom-vocabulary workaround |

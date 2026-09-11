@@ -45,6 +45,55 @@ export type HarnessAspect = (typeof HARNESS_ASPECTS)[number];
 /** The exact top-level heading that switches a section from models to harnesses. */
 export const HARNESS_SECTION_NAME = 'LLM Harness';
 
+/**
+ * The only verdict statuses a model's `**Verdict:**` line may use, mapped to their display label.
+ *
+ * This is the single source for the enum: the parser validates the status key against it (via
+ * `Object.hasOwn`), and any UI copy renders the corresponding label rather than the raw key.
+ * `preferred` / `care` / `avoid` are written lowercase in the document; the labels are the
+ * capitalised, human-facing text ("Preferred" / "Use with care" / "Avoid").
+ */
+export const VERDICT_STATUSES = {
+  preferred: 'Preferred',
+  care: 'Use with care',
+  avoid: 'Avoid',
+} as const;
+
+/** One of the {@link VERDICT_STATUSES} keys. */
+export type VerdictStatus = keyof typeof VERDICT_STATUSES;
+
+/** The exact top-level heading for the reserved, end-of-file recommendations table. */
+export const RECOMMENDATIONS_SECTION_NAME = 'Recommendations';
+
+/**
+ * A model's current-state call, parsed from the optional `**Verdict:** <status> · <date> ·
+ * <summary>` line directly under its `### Model name` heading.
+ */
+export interface Verdict {
+  /** One of {@link VERDICT_STATUSES}' keys. */
+  status: VerdictStatus;
+  /** ISO date (`YYYY-MM-DD`) the verdict was recorded. */
+  date: string;
+  /** Free-text rationale; never contains the ` · ` field separator. */
+  summary: string;
+}
+
+/** One row of the reserved `## Recommendations` table at the end of the document. */
+export interface Recommendation {
+  /** Free-text task label, e.g. "Debugging". */
+  task: string;
+  /** Must exactly match a {@link ModelEntry.name} parsed elsewhere in the card. */
+  model: string;
+  /** Free-text harness/tool name, e.g. "Zcode". */
+  harness: string;
+  /** Free-text effort level, e.g. "medium". */
+  effort: string;
+  /** Free-text role, e.g. "implementer". */
+  role: string;
+  /** Free-text cautions; may be empty. */
+  cautions: string;
+}
+
 export interface AspectEntry {
   /** Aspect name, always one of {@link CANONICAL_ASPECTS}, e.g. "Tool use / agentic". */
   aspect: string;
@@ -69,6 +118,8 @@ export interface ModelEntry {
   coveredAspects: string[];
   prosCount: number;
   consCount: number;
+  /** Parsed from the optional `**Verdict:**` line directly under the model heading, if present. */
+  verdict?: Verdict;
 }
 
 export interface ProviderEntry {
@@ -89,6 +140,8 @@ export interface ReportCard {
   harnesses: ModelEntry[];
   /** Every distinct aspect name seen across harnesses, in {@link HARNESS_ASPECTS} order. */
   harnessAspects: string[];
+  /** Rows of the reserved "## Recommendations" table, in source order. */
+  recommendations: Recommendation[];
 }
 
 export class ReportCardParseError extends Error {

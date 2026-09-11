@@ -166,6 +166,11 @@ describe('the real report card', () => {
     expect(card.models).toHaveLength(grouped);
 
     for (const aspect of card.aspects) expect(CANONICAL_ASPECTS).toContain(aspect);
+
+    const modelNames = new Set(card.models.map((m) => m.name));
+    for (const recommendation of card.recommendations) {
+      expect(modelNames.has(recommendation.model)).toBe(true);
+    }
   });
 });
 
@@ -302,6 +307,79 @@ describe('parseReportCard validation', () => {
       expect(error).toBeInstanceOf(ReportCardParseError);
       expect((error as ReportCardParseError).line).toBe(3);
     }
+  });
+});
+
+describe('parseReportCard verdict and recommendations', () => {
+  const table = ['| Aspect | Pros | Cons |', '|---|---|---|', '| Reasoning | fast | |'].join('\n');
+
+  it('parses a well-formed Verdict line into the model', () => {
+    const doc = `# Card\n\n## Acme\n\n### Model X\n\n**Verdict:** preferred · 2026-09-03 · does great work\n\n${table}\n`;
+    const card = parseReportCard(doc);
+    expect(card.models[0].verdict).toEqual({
+      status: 'preferred',
+      date: '2026-09-03',
+      summary: 'does great work',
+    });
+  });
+
+  it('leaves verdict undefined when no Verdict line is present', () => {
+    const card = parseReportCard(`# Card\n\n## Acme\n\n### Model X\n\n${table}\n`);
+    expect(card.models[0].verdict).toBeUndefined();
+  });
+
+  it('rejects a verdict status outside the enum', () => {
+    const doc = `# Card\n\n## Acme\n\n### Model X\n\n**Verdict:** great · 2026-09-03 · does great work\n\n${table}\n`;
+    expect(() => parseReportCard(doc)).toThrow(
+      /verdict status "great"; expected one of \[preferred, care, avoid\]/,
+    );
+  });
+
+  it('rejects a verdict date that is not a valid calendar date', () => {
+    const doc = `# Card\n\n## Acme\n\n### Model X\n\n**Verdict:** preferred · 2026-13-40 · does great work\n\n${table}\n`;
+    expect(() => parseReportCard(doc)).toThrow(/verdict date "2026-13-40"/);
+  });
+
+  it('rejects a Verdict line missing a field separator', () => {
+    const doc = `# Card\n\n## Acme\n\n### Model X\n\n**Verdict:** preferred 2026-09-03 does great work\n\n${table}\n`;
+    expect(() => parseReportCard(doc)).toThrow(/malformed Verdict line/);
+  });
+
+  it('parses the reserved Recommendations table at the end of the document', () => {
+    const recTable = [
+      '| Task | Model | Harness | Effort | Role | Cautions |',
+      '|---|---|---|---|---|---|',
+      '| Debugging | Model X | Zcode | medium | implementer | be careful |',
+    ].join('\n');
+    const doc = `# Card\n\n## Acme\n\n### Model X\n\n${table}\n\n---\n\n## Recommendations\n\n${recTable}\n`;
+    const card = parseReportCard(doc);
+    expect(card.recommendations).toEqual([
+      {
+        task: 'Debugging',
+        model: 'Model X',
+        harness: 'Zcode',
+        effort: 'medium',
+        role: 'implementer',
+        cautions: 'be careful',
+      },
+    ]);
+    expect(card.providers.map((p) => p.name)).not.toContain('Recommendations');
+  });
+
+  it('rejects a recommendation that references a model not in the card', () => {
+    const recTable = [
+      '| Task | Model | Harness | Effort | Role | Cautions |',
+      '|---|---|---|---|---|---|',
+      '| Debugging | Nonexistent Model | Zcode | medium | implementer | |',
+    ].join('\n');
+    const doc = `# Card\n\n## Acme\n\n### Model X\n\n${table}\n\n---\n\n## Recommendations\n\n${recTable}\n`;
+    expect(() => parseReportCard(doc)).toThrow(/recommendation references unknown model: Nonexistent Model/);
+  });
+
+  it('rejects a Recommendations table with the wrong columns', () => {
+    const wrong = ['| Task | Model |', '|---|---|', '| Debugging | Model X |'].join('\n');
+    const doc = `# Card\n\n## Acme\n\n### Model X\n\n${table}\n\n---\n\n## Recommendations\n\n${wrong}\n`;
+    expect(() => parseReportCard(doc)).toThrow(/expected \[Task, Model, Harness, Effort, Role, Cautions\]/);
   });
 });
 

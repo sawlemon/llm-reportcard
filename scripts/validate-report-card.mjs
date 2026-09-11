@@ -42,10 +42,31 @@ const pros = card.models.reduce((total, model) => total + model.prosCount, 0);
 const cons = card.models.reduce((total, model) => total + model.consCount, 0);
 const covered = new Set(card.models.flatMap((model) => model.coveredAspects));
 const orderedCovered = card.aspects.filter((aspect) => covered.has(aspect));
+const verdictCount = card.models.filter((model) => model.verdict).length;
 
 console.log(`LLM_REPORT_CARD.md is valid — "${card.title}"`);
-console.log(`  providers: ${card.providers.length} (${card.providers.map((p) => p.name).join(', ')})`);
-console.log(`  models:    ${card.models.length}`);
-console.log(`  harnesses: ${card.harnesses.length} (${card.harnesses.map((h) => h.name).join(', ')})`);
-console.log(`  aspects:   ${orderedCovered.length} of ${card.aspects.length} with observations`);
-console.log(`  notes:     ${pros} pros, ${cons} cons`);
+console.log(`  providers:       ${card.providers.length} (${card.providers.map((p) => p.name).join(', ')})`);
+console.log(`  models:          ${card.models.length}`);
+console.log(`  harnesses:       ${card.harnesses.length} (${card.harnesses.map((h) => h.name).join(', ')})`);
+console.log(`  aspects:         ${orderedCovered.length} of ${card.aspects.length} with observations`);
+console.log(`  notes:           ${pros} pros, ${cons} cons`);
+console.log(`  verdicts:        ${verdictCount} of ${card.models.length} models`);
+console.log(`  recommendations: ${card.recommendations.length}`);
+
+// Optional, non-blocking: flag a model whose newest dated note is later than its verdict date,
+// which usually means the verdict line was left stale after a newer observation was added.
+const DATED_NOTE_PATTERN = /^\((\d{4}-\d{2}-\d{2})\)/;
+for (const model of card.models) {
+  if (!model.verdict) continue;
+  const noteDates = model.aspects
+    .flatMap((entry) => [...entry.pros, ...entry.cons])
+    .map((note) => DATED_NOTE_PATTERN.exec(note.trim())?.[1])
+    .filter((date) => Boolean(date));
+  if (noteDates.length === 0) continue;
+  const newestNoteDate = noteDates.reduce((latest, date) => (date > latest ? date : latest));
+  if (newestNoteDate > model.verdict.date) {
+    console.warn(
+      `warning: model "${model.name}" has a dated note from ${newestNoteDate}, after its verdict date ${model.verdict.date}; consider updating the Verdict line`,
+    );
+  }
+}

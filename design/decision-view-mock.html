@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LLM Report Card</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-primary": "#00315c",
+            "primary": "#a2c9ff",
+            "on-secondary-fixed": "#002106",
+            "tertiary": "#fabc45",
+            "on-primary-fixed-variant": "#004882",
+            "inverse-primary": "#0060aa",
+            "primary-fixed": "#d3e4ff",
+            "on-surface-variant": "#c0c7d4",
+            "surface-tint": "#a2c9ff",
+            "surface": "#10141a",
+            "outline-variant": "#414752",
+            "on-error-container": "#ffdad6",
+            "on-tertiary": "#422c00",
+            "surface-container-high": "#262a31",
+            "surface-container-highest": "#31353c",
+            "on-background": "#dfe2eb",
+            "tertiary-container": "#d29922",
+            "tertiary-fixed": "#ffdeaa",
+            "error": "#ffb4ab",
+            "on-secondary": "#00390e",
+            "primary-container": "#58a6ff",
+            "on-tertiary-fixed-variant": "#5f4100",
+            "surface-container": "#1c2026",
+            "background": "#10141a",
+            "secondary-fixed-dim": "#7bdb80",
+            "surface-container-lowest": "#0a0e14",
+            "outline": "#8b919d",
+            "inverse-on-surface": "#2d3137",
+            "tertiary-fixed-dim": "#fabc45",
+            "secondary": "#7bdb80",
+            "on-primary-fixed": "#001c38",
+            "error-container": "#93000a",
+            "inverse-surface": "#dfe2eb",
+            "surface-container-low": "#181c22",
+            "surface-variant": "#31353c",
+            "on-tertiary-fixed": "#271900",
+            "on-primary-container": "#003a6b",
+            "secondary-fixed": "#97f999",
+            "on-tertiary-container": "#4d3500",
+            "surface-bright": "#353940",
+            "on-secondary-container": "#91f294",
+            "primary-fixed-dim": "#a2c9ff",
+            "on-error": "#690005",
+            "secondary-container": "#007124",
+            "on-secondary-fixed-variant": "#005319",
+            "surface-dim": "#10141a",
+            "on-surface": "#dfe2eb"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-xl": "1rem",
+            "gutter-desktop": "1rem",
+            "space-lg": "0.75rem",
+            "space-2xs": "0.125rem",
+            "margin": "0.75rem",
+            "space-sm": "0.375rem",
+            "space-xs": "0.25rem",
+            "gutter": "0.75rem",
+            "space-md": "0.5rem",
+            "margin-desktop": "1rem"
+          },
+          "fontFamily": {
+            "label-default": ["Inter"],
+            "headline-md": ["Inter"],
+            "body-lg": ["Inter"],
+            "code-sm": ["JetBrains Mono"],
+            "headline-xl": ["Inter"],
+            "body-sm": ["Inter"],
+            "headline-lg": ["Inter"],
+            "body-default": ["Inter"],
+            "label-code": ["JetBrains Mono"],
+            "code-default": ["JetBrains Mono"]
+          },
+          "fontSize": {
+            "label-default": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+            "headline-md": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "600" }],
+            "body-lg": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "code-sm": ["11px", { "lineHeight": "16px", "fontWeight": "400" }],
+            "headline-xl": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+            "headline-lg": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "body-default": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "label-code": ["11px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+            "code-default": ["12px", { "lineHeight": "18px", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-surface-container-lowest text-on-surface antialiased min-h-screen flex flex-col font-body-default text-body-default selection:bg-primary-container/30">
+<!-- TOP APP BAR (Shared Component Anchor) -->
+<header class="flex justify-between items-center h-12 w-full px-4 border-b border-outline-variant bg-surface-container docked full-width top-0 z-50">
+<!-- Brand / Title Cluster -->
+<div class="flex items-center space-x-3">
+<div class="flex items-center space-x-2">
+<span class="inline-block w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span class="text-headline-md font-label-code font-bold text-on-surface tracking-tight">LLM Report Card</span>
+</div>
+<span class="text-code-sm font-code-sm px-1.5 py-0.5 rounded bg-surface-container-high border border-outline-variant text-outline">v0.9.4-internal</span>
+</div>
+<!-- Center Nav Links (Web) -->
+<nav class="hidden md:flex items-center space-x-6 h-full text-label-code font-label-code">
+<a class="text-primary font-semibold border-b-2 border-primary pb-1 flex items-center h-full" href="#">Models</a>
+<a class="text-on-surface-variant hover:text-on-surface pb-1 flex items-center h-full" href="#">Benchmarks</a>
+<a class="text-on-surface-variant hover:text-on-surface pb-1 flex items-center h-full" href="#">Drift Logs</a>
+<a class="text-on-surface-variant hover:text-on-surface pb-1 flex items-center h-full" href="#">Docs</a>
+</nav>
+<!-- Trailing Actions Cluster -->
+<div class="flex items-center space-x-2">
+<!-- Status quick-stat -->
+<span class="hidden lg:inline-flex items-center px-2 py-1 rounded text-code-sm font-code-sm bg-surface-container-low border border-outline-variant text-on-surface-variant mr-1">
+        5 models evaluated
+      </span>
+<!-- Harness Dropdown Filter -->
+<div class="relative inline-flex items-center">
+<button class="h-7 px-2.5 bg-surface-container-low hover:bg-surface-container-high border border-outline-variant rounded flex items-center space-x-1.5 text-code-sm font-code-sm text-on-surface transition-colors duration-150">
+<span class="text-outline">Harness:</span>
+<span class="font-medium text-on-surface">Zcode</span>
+<span class="material-symbols-outlined text-[14px] text-outline leading-none" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+<!-- Effort Dropdown Filter -->
+<div class="relative inline-flex items-center">
+<button class="h-7 px-2.5 bg-surface-container-low hover:bg-surface-container-high border border-outline-variant rounded flex items-center space-x-1.5 text-code-sm font-code-sm text-on-surface transition-colors duration-150">
+<span class="text-outline">Effort:</span>
+<span class="font-medium text-on-surface">medium</span>
+<span class="material-symbols-outlined text-[14px] text-outline leading-none" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+<div class="h-4 w-[1px] bg-outline-variant mx-1"></div>
+<!-- Secondary Action: Export JSON -->
+<button class="hidden sm:inline-flex items-center h-7 px-2.5 bg-surface-container-high hover:bg-surface-bright border border-outline-variant rounded text-label-code font-label-code text-on-surface transition-colors duration-150">
+        Export JSON
+      </button>
+<!-- Primary Action: Run Harness -->
+<button class="inline-flex items-center h-7 px-3 bg-secondary-container hover:opacity-90 text-on-secondary rounded text-label-code font-label-code font-semibold transition-opacity duration-150 shadow-sm">
+        Run Harness
+      </button>
+<!-- Icon Actions -->
+<div class="flex items-center ml-1 text-on-surface-variant">
+<button class="p-1 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface" title="Filter list">
+<span class="material-symbols-outlined text-[18px]" data-icon="filter_list">filter_list</span>
+</button>
+<button class="p-1 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface" title="Terminal">
+<span class="material-symbols-outlined text-[18px]" data-icon="terminal">terminal</span>
+</button>
+<button class="p-1 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface" title="Settings">
+<span class="material-symbols-outlined text-[18px]" data-icon="settings">settings</span>
+</button>
+</div>
+</div>
+</header>
+<!-- MAIN VIEWPORT CANVAS (Multi-Pane / Zero-Overscan Structure) -->
+<main class="flex-1 max-w-[1400px] w-full mx-auto p-3 sm:p-4 md:p-6 space-y-4">
+<!-- 1. TASK RECOMMENDER SECTION -->
+<section class="space-y-2.5">
+<!-- Section Header Label -->
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-2">
+<span class="text-label-code font-label-code text-outline tracking-wider uppercase">TASK RECOMMENDER // SELECT SCENARIO</span>
+</div>
+<span class="text-code-sm font-code-sm text-outline">Target Profile: Full-Stack Orchestration</span>
+</div>
+<!-- Scenario Chips Bar -->
+<div class="flex items-center flex-wrap gap-1.5 pb-0.5">
+<!-- Selected: Debugging -->
+<button class="h-7 px-3 rounded bg-primary-container/15 border border-primary text-primary font-label-code text-label-code flex items-center space-x-2 shadow-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+<span>Debugging</span>
+</button>
+<!-- Inactive Chips -->
+<button class="h-7 px-3 rounded bg-surface-container border border-outline-variant hover:border-outline text-on-surface-variant hover:text-on-surface font-label-code text-label-code flex items-center transition-colors duration-150">
+<span>Research</span>
+</button>
+<button class="h-7 px-3 rounded bg-surface-container border border-outline-variant hover:border-outline text-on-surface-variant hover:text-on-surface font-label-code text-label-code flex items-center transition-colors duration-150">
+<span>Documentation</span>
+</button>
+<button class="h-7 px-3 rounded bg-surface-container border border-outline-variant hover:border-outline text-on-surface-variant hover:text-on-surface font-label-code text-label-code flex items-center transition-colors duration-150">
+<span>Implement from plan</span>
+</button>
+<button class="h-7 px-3 rounded bg-surface-container border border-outline-variant hover:border-outline text-on-surface-variant hover:text-on-surface font-label-code text-label-code flex items-center transition-colors duration-150">
+<span>Agentic tool use</span>
+</button>
+</div>
+<!-- Recommended Setup Card -->
+<div class="rounded-lg bg-surface-container-low border border-outline-variant border-l-4 border-l-primary p-3.5 sm:p-4 space-y-3 shadow-none">
+<div class="flex items-center justify-between border-b border-outline-variant/60 pb-2">
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-[16px] text-primary" data-icon="verified">verified</span>
+<span class="text-label-code font-label-code text-on-surface-variant font-semibold tracking-wider uppercase">RECOMMENDED SETUP</span>
+</div>
+<a class="text-code-sm font-code-sm text-primary hover:underline flex items-center space-x-1" href="#benchmarks">
+<span>why?</span>
+<span class="material-symbols-outlined text-[12px]" data-icon="open_in_new">open_in_new</span>
+</a>
+</div>
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
+<div class="flex items-center space-x-3">
+<h1 class="text-headline-lg font-headline-lg text-on-surface tracking-tight font-bold">Claude Sonnet 5</h1>
+<span class="px-2 py-0.5 rounded bg-surface-container-high border border-outline-variant text-code-sm font-code-sm text-on-surface-variant">Anthropic</span>
+</div>
+<!-- Meta Tags Line -->
+<div class="flex items-center flex-wrap gap-2 text-code-sm font-code-sm text-on-surface-variant">
+<span class="bg-surface-container px-2 py-0.5 rounded border border-outline-variant text-on-surface font-medium">Harness: <span class="text-primary">Zcode</span></span>
+<span class="text-outline">·</span>
+<span class="bg-surface-container px-2 py-0.5 rounded border border-outline-variant text-on-surface font-medium">Effort: <span class="text-primary">medium</span></span>
+<span class="text-outline">·</span>
+<span class="bg-surface-container px-2 py-0.5 rounded border border-outline-variant text-on-surface font-medium">Role: <span class="text-secondary">implementer</span></span>
+</div>
+</div>
+<!-- Cautions Alert Row -->
+<div class="flex items-center space-x-2.5 p-2 rounded bg-tertiary-container/10 border border-tertiary/30 text-tertiary text-code-sm font-code-sm">
+<span class="material-symbols-outlined text-[16px] flex-shrink-0 text-tertiary" data-icon="warning">warning</span>
+<span class="truncate sm:whitespace-normal">
+<strong class="font-semibold">Avoid GPT 5.6 Sol and GPT-6 Astra for diagnosis</strong> — both failed to find root cause in harness suites.
+          </span>
+</div>
+</div>
+</section>
+<!-- 2. CURRENT VERDICTS SECTION -->
+<section class="space-y-2">
+<!-- Section Header -->
+<div class="flex items-center justify-between pt-2">
+<div class="flex items-center space-x-2">
+<h2 class="text-label-code font-label-code text-outline uppercase tracking-wider font-semibold">CURRENT VERDICTS</h2>
+<span class="text-code-sm font-code-sm text-outline">(5 models tracked)</span>
+</div>
+<div class="flex items-center space-x-2 text-code-sm font-code-sm text-outline">
+<span class="flex items-center"><span class="w-2 h-2 rounded-full bg-secondary inline-block mr-1"></span>Pass</span>
+<span class="flex items-center"><span class="w-2 h-2 rounded-full bg-tertiary inline-block mr-1"></span>Caution</span>
+<span class="flex items-center"><span class="w-2 h-2 rounded-full bg-error inline-block mr-1"></span>Avoid</span>
+</div>
+</div>
+<!-- Main Evaluation Data Table -->
+<div class="rounded-lg bg-surface-container-low border border-outline-variant overflow-hidden">
+<!-- Table Header Bar -->
+<div class="grid grid-cols-12 gap-2 h-8 px-3 bg-surface-container border-b border-outline-variant items-center text-label-code font-label-code text-outline uppercase tracking-wider select-none">
+<div class="col-span-3 sm:col-span-2">STATUS</div>
+<div class="col-span-4 sm:col-span-3">MODEL &amp; PROVIDER</div>
+<div class="col-span-5 sm:col-span-5">LATEST VERDICT</div>
+<div class="hidden sm:block sm:col-span-2 text-right">UPDATED</div>
+</div>
+<!-- ROW 1: Preferred -->
+<div class="grid grid-cols-12 gap-2 px-3 py-2 border-b border-outline-variant/40 hover:bg-surface-container items-center transition-colors duration-100 group">
+<!-- Status -->
+<div class="col-span-3 sm:col-span-2 flex items-center">
+<span class="inline-flex items-center h-5 px-2 rounded-full bg-secondary-container/20 border border-secondary/40 text-secondary text-label-code font-label-code">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary mr-1.5"></span>
+              Preferred
+            </span>
+</div>
+<!-- Model & Provider -->
+<div class="col-span-4 sm:col-span-3 flex items-center space-x-1.5 truncate">
+<span class="font-semibold text-on-surface text-body-default group-hover:text-primary transition-colors">Claude Sonnet 5</span>
+<span class="text-outline text-code-sm font-code-sm">(Anthropic)</span>
+</div>
+<!-- Verdict -->
+<div class="col-span-5 sm:col-span-5 text-on-surface-variant text-body-default truncate sm:whitespace-normal">
+            Preferred implementer for plans; solved a toolset bug others couldn't
+          </div>
+<!-- Date -->
+<div class="hidden sm:block sm:col-span-2 text-right text-code-sm font-code-sm text-outline">
+            updated 2026-09-03
+          </div>
+</div>
+<!-- ROW 2: Use with care -->
+<div class="grid grid-cols-12 gap-2 px-3 py-2 border-b border-outline-variant/40 hover:bg-surface-container items-center transition-colors duration-100 group">
+<!-- Status -->
+<div class="col-span-3 sm:col-span-2 flex items-center">
+<span class="inline-flex items-center h-5 px-2 rounded-full bg-tertiary-container/20 border border-tertiary/40 text-tertiary text-label-code font-label-code">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary mr-1.5"></span>
+              Use with care
+            </span>
+</div>
+<!-- Model & Provider -->
+<div class="col-span-4 sm:col-span-3 flex items-center space-x-1.5 truncate">
+<span class="font-semibold text-on-surface text-body-default group-hover:text-primary transition-colors">GLM 5.3 Flash</span>
+<span class="text-outline text-code-sm font-code-sm">(Zhipu AI)</span>
+</div>
+<!-- Verdict -->
+<div class="col-span-5 sm:col-span-5 text-on-surface-variant text-body-default truncate sm:whitespace-normal">
+            Cheap implementer only; don't trust for planning; token-hungry
+          </div>
+<!-- Date -->
+<div class="hidden sm:block sm:col-span-2 text-right text-code-sm font-code-sm text-outline">
+            updated 2026-08-30
+          </div>
+</div>
+<!-- ROW 3: EXPANDED ROW (Claude Opus 4.8) -->
+<div class="bg-surface-container/50 border-b border-outline-variant/40">
+<div class="grid grid-cols-12 gap-2 px-3 py-2 hover:bg-surface-container items-center transition-colors duration-100 cursor-pointer">
+<!-- Status -->
+<div class="col-span-3 sm:col-span-2 flex items-center">
+<span class="inline-flex items-center h-5 px-2 rounded-full bg-error-container/25 border border-error/40 text-error text-label-code font-label-code">
+<span class="w-1.5 h-1.5 rounded-full bg-error mr-1.5"></span>
+                Avoid
+              </span>
+</div>
+<!-- Model & Provider (with active chevron indicator) -->
+<div class="col-span-4 sm:col-span-3 flex items-center space-x-1.5 truncate">
+<span class="material-symbols-outlined text-[16px] text-primary rotate-0 transition-transform leading-none" data-icon="keyboard_arrow_down">keyboard_arrow_down</span>
+<span class="font-semibold text-on-surface text-body-default text-primary">Claude Opus 4.8</span>
+<span class="text-outline text-code-sm font-code-sm">(Anthropic)</span>
+</div>
+<!-- Verdict -->
+<div class="col-span-5 sm:col-span-5 text-on-surface-variant text-body-default truncate sm:whitespace-normal">
+              No longer for thinking tasks; got land-purchase work wrong
+            </div>
+<!-- Date -->
+<div class="hidden sm:block sm:col-span-2 text-right text-code-sm font-code-sm text-outline">
+              updated 2026-09-03
+            </div>
+</div>
+<!-- EXPANDED DRIFT TIMELINE ACCORDION PANEL -->
+<div class="bg-surface-container-lowest border-t border-b border-outline-variant border-l-4 border-l-error p-3.5 sm:p-4 ml-2 mr-2 my-2 rounded-r">
+<!-- Drift Timeline Header -->
+<div class="flex items-center justify-between pb-3 border-b border-outline-variant/50 mb-3">
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-[16px] text-error" data-icon="history">history</span>
+<span class="text-label-code font-label-code text-on-surface font-semibold tracking-wider uppercase">DRIFT TIMELINE // EVALUATION LOG</span>
+</div>
+<span class="text-code-sm font-code-sm text-outline">4 recorded shifts across harnesses</span>
+</div>
+<!-- Vertical Timeline Track -->
+<div class="relative pl-5 space-y-3.5 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-outline-variant">
+<!-- Entry 1 -->
+<div class="relative flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
+<span class="absolute -left-5 top-1.5 w-2 h-2 rounded-full bg-error ring-4 ring-surface-container-lowest"></span>
+<div class="flex items-start sm:items-center space-x-2 flex-wrap">
+<span class="text-code-sm font-code-sm text-outline font-medium">2026-09-03</span>
+<span class="text-body-default text-on-surface">current verdict: no longer want it for thinking tasks</span>
+<span class="text-code-sm font-code-sm px-1.5 py-0.2 bg-error-container/20 text-error rounded border border-error/30">[zcode]</span>
+</div>
+<span class="text-code-sm font-code-sm text-outline shrink-0">Harness Run #1092</span>
+</div>
+<!-- Entry 2 -->
+<div class="relative flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
+<span class="absolute -left-5 top-1.5 w-2 h-2 rounded-full bg-error ring-4 ring-surface-container-lowest"></span>
+<div class="flex items-start sm:items-center space-x-2 flex-wrap">
+<span class="text-code-sm font-code-sm text-outline font-medium">2026-09-01</span>
+<span class="text-body-default text-on-surface">got land-purchase messages and PDFs wrong</span>
+<span class="text-code-sm font-code-sm px-1.5 py-0.2 bg-error-container/20 text-error rounded border border-error/30">[zcode]</span>
+</div>
+<span class="text-code-sm font-code-sm text-outline shrink-0">Harness Run #1087</span>
+</div>
+<!-- Entry 3 -->
+<div class="relative flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
+<span class="absolute -left-5 top-1.5 w-2 h-2 rounded-full bg-secondary ring-4 ring-surface-container-lowest"></span>
+<div class="flex items-start sm:items-center space-x-2 flex-wrap">
+<span class="text-code-sm font-code-sm text-outline font-medium">2026-08</span>
+<span class="text-body-default text-on-surface">best used as the planner; plan-with-Opus / implement-with-Sonnet worked great</span>
+<span class="text-code-sm font-code-sm px-1.5 py-0.2 bg-secondary-container/20 text-secondary rounded border border-secondary/30">[zcode]</span>
+</div>
+<span class="text-code-sm font-code-sm text-outline shrink-0">Harness Run #0981</span>
+</div>
+<!-- Entry 4 -->
+<div class="relative flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
+<span class="absolute -left-5 top-1.5 w-2 h-2 rounded-full bg-secondary ring-4 ring-surface-container-lowest"></span>
+<div class="flex items-start sm:items-center space-x-2 flex-wrap">
+<span class="text-code-sm font-code-sm text-outline font-medium">2026-08</span>
+<span class="text-body-default text-on-surface">solved a CrowdStrike SOAR debugging issue Sol got wrong</span>
+<span class="text-code-sm font-code-sm px-1.5 py-0.2 bg-secondary-container/20 text-secondary rounded border border-secondary/30">[zcode]</span>
+</div>
+<span class="text-code-sm font-code-sm text-outline shrink-0">Harness Run #0964</span>
+</div>
+</div>
+</div>
+</div>
+<!-- ROW 4: Use with care -->
+<div class="grid grid-cols-12 gap-2 px-3 py-2 border-b border-outline-variant/40 hover:bg-surface-container items-center transition-colors duration-100 group">
+<!-- Status -->
+<div class="col-span-3 sm:col-span-2 flex items-center">
+<span class="inline-flex items-center h-5 px-2 rounded-full bg-tertiary-container/20 border border-tertiary/40 text-tertiary text-label-code font-label-code">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary mr-1.5"></span>
+              Use with care
+            </span>
+</div>
+<!-- Model & Provider -->
+<div class="col-span-4 sm:col-span-3 flex items-center space-x-1.5 truncate">
+<span class="font-semibold text-on-surface text-body-default group-hover:text-primary transition-colors">GPT 5.6 Sol</span>
+<span class="text-outline text-code-sm font-code-sm">(OpenAI)</span>
+</div>
+<!-- Verdict -->
+<div class="col-span-5 sm:col-span-5 text-on-surface-variant text-body-default truncate sm:whitespace-normal">
+            Fine when the plan is clear; unreliable at diagnosis
+          </div>
+<!-- Date -->
+<div class="hidden sm:block sm:col-span-2 text-right text-code-sm font-code-sm text-outline">
+            updated 2026-09-10
+          </div>
+</div>
+<!-- ROW 5: Avoid -->
+<div class="grid grid-cols-12 gap-2 px-3 py-2 hover:bg-surface-container items-center transition-colors duration-100 group">
+<!-- Status -->
+<div class="col-span-3 sm:col-span-2 flex items-center">
+<span class="inline-flex items-center h-5 px-2 rounded-full bg-error-container/25 border border-error/40 text-error text-label-code font-label-code">
+<span class="w-1.5 h-1.5 rounded-full bg-error mr-1.5"></span>
+              Avoid
+            </span>
+</div>
+<!-- Model & Provider -->
+<div class="col-span-4 sm:col-span-3 flex items-center space-x-1.5 truncate">
+<span class="font-semibold text-on-surface text-body-default group-hover:text-primary transition-colors">GPT-6 Astra</span>
+<span class="text-outline text-code-sm font-code-sm">(OpenAI)</span>
+</div>
+<!-- Verdict -->
+<div class="col-span-5 sm:col-span-5 text-on-surface-variant text-body-default truncate sm:whitespace-normal">
+            Failed local toolset debugging alongside Sol
+          </div>
+<!-- Date -->
+<div class="hidden sm:block sm:col-span-2 text-right text-code-sm font-code-sm text-outline">
+            updated 2026-09-10
+          </div>
+</div>
+</div>
+</section>
+<!-- COMPACT TELEMETRY FOOTER BAR -->
+<footer class="mt-4 pt-2 border-t border-outline-variant flex flex-col sm:flex-row items-center justify-between text-code-sm font-code-sm text-outline gap-2">
+<div class="flex items-center space-x-3">
+<span class="flex items-center space-x-1">
+<span class="material-symbols-outlined text-[14px] text-secondary" data-icon="terminal">terminal</span>
+<span>Last sync: 2m ago</span>
+</span>
+<span>·</span>
+<span>SHA: 4f2c99a</span>
+<span>·</span>
+<span>Harness cluster: us-west-telemetry-01</span>
+</div>
+<div class="flex items-center space-x-2">
+<span class="px-1.5 py-0.5 rounded bg-surface-container border border-outline-variant text-[10px]">ESC to close</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container border border-outline-variant text-[10px]">⌘K Command Palette</span>
+</div>
+</footer>
+</main>
+<script>
+    // Lightweight interactive chip toggle logic
+    document.querySelectorAll('button').forEach(button => {
+      button.addEventListener('click', function(e) {
+        // Prevent layout jumps on non-anchor buttons
+        if (this.getAttribute('href') === undefined) {
+          e.preventDefault();
+        }
+      });
+    });
+  </script>
+</body></html>

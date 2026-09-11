@@ -8,3 +8,6 @@ package-lock.json
 # would rewrite the source of truth. plan.md is hand-authored prose.
 LLM_REPORT_CARD.md
 plan.md
+
+# Generated design mock captured from Stitch; not hand-maintained source.
+design/

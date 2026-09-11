@@ -22,6 +22,13 @@ reads the markdown, parses it, and inlines the result as the `virtual:report-car
 (`src/data/reportCardPlugin.ts`). Every push to `main` redeploys the site from that file, so editing the
 markdown is the only step needed to update the published page.
 
+The same file also carries two optional layers on top of the provider → model → aspect table: an
+optional per-model `**Verdict:**` line (status, date, one-line summary) directly under a `### Model name`
+heading, and a single reserved `## Recommendations` table at the end of the file cross-referencing task →
+model → harness. Both are parsed by the same `parseReportCard.ts` into typed fields (`ModelEntry.verdict`,
+`ReportCard.recommendations`) — nothing about the single-file, no-database model changes, and the site
+currently renders neither field (data/validation layer only).
+
 A malformed report card **fails the build** with the offending line number, rather than silently shipping a
 broken page. The same parser runs under `npm test`, so problems surface locally too.
 
