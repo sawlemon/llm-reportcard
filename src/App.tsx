@@ -213,7 +213,7 @@ export default function App() {
 
   const onTabKeyDown = (event: React.KeyboardEvent) => {
     const currentIndex = views.indexOf(activeView);
-    let nextIndex = currentIndex;
+    let nextIndex: number;
     if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
       event.preventDefault();
       nextIndex = (currentIndex + 1) % views.length;
