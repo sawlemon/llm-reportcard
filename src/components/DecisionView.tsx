@@ -103,9 +103,14 @@ export function DecisionView({ onSelectModel }: DecisionViewProps) {
           </ul>
         ) : null}
         {rows.length > 0 ? (
-          <ul className="decision-list">
-            {rows.map((row) => (
-              <VerdictRow key={row.model.id} row={row} onSelectModel={onSelectModel} />
+          <ul className="decision-list" key={selectedTask}>
+            {rows.map((row, index) => (
+              <VerdictRow
+                key={row.model.id}
+                row={row}
+                onSelectModel={onSelectModel}
+                style={{ '--stagger-index': index } as React.CSSProperties}
+              />
             ))}
           </ul>
         ) : (

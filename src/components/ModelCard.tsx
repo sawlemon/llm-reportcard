@@ -6,9 +6,10 @@ interface ModelCardProps {
   model: ModelEntry;
   highlightAspect: string | null;
   onSelect: (id: string) => void;
+  style?: React.CSSProperties;
 }
 
-export function ModelCard({ model, highlightAspect, onSelect }: ModelCardProps) {
+export function ModelCard({ model, highlightAspect, onSelect, style }: ModelCardProps) {
   const preferred = highlightAspect
     ? model.aspects.find((entry) => entry.aspect === highlightAspect)
     : model.aspects.find((entry) => entry.aspect === 'Other');
@@ -21,6 +22,7 @@ export function ModelCard({ model, highlightAspect, onSelect }: ModelCardProps) 
     <button
       type="button"
       className="model-card"
+      style={style}
       onClick={() => onSelect(model.id)}
       aria-label={`${model.name} by ${model.provider}, ${model.prosCount} strengths and ${model.consCount} weaknesses noted`}
     >

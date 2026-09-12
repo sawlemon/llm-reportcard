@@ -6,6 +6,7 @@ interface VerdictRowProps {
   row: TaskVerdictRow;
   /** Opens the shared model detail modal for a model id (App wires this to `setSelectedId`). */
   onSelectModel: (id: string) => void;
+  style?: React.CSSProperties;
 }
 
 /**
@@ -14,11 +15,11 @@ interface VerdictRowProps {
  * with an explicitly recorded viable verdict for the selected task, and clicking one opens the
  * same shared model detail as everywhere else on the site.
  */
-export function VerdictRow({ row, onSelectModel }: VerdictRowProps) {
+export function VerdictRow({ row, onSelectModel, style }: VerdictRowProps) {
   const { verdict, model } = row;
 
   return (
-    <li>
+    <li style={style}>
       <button type="button" className="decision-row" onClick={() => onSelectModel(model.id)}>
         <span className={`decision-status decision-status--${statusTone(verdict.status)}`}>
           <span className="decision-status__dot" aria-hidden="true" />

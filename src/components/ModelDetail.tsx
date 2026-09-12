@@ -19,11 +19,15 @@ export function ModelDetail({ model, onClose }: ModelDetailProps) {
   const copied = copiedId === model.id;
 
   useEffect(() => {
+    const previouslyFocused = document.activeElement as HTMLElement | null;
     closeRef.current?.focus();
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = previousOverflow;
+      if (previouslyFocused && previouslyFocused.isConnected) {
+        previouslyFocused.focus();
+      }
     };
   }, []);
 
@@ -87,7 +91,7 @@ export function ModelDetail({ model, onClose }: ModelDetailProps) {
               type="button"
               className="icon-button"
               onClick={copyLink}
-              aria-label="Copy link to this model"
+              aria-label={copied ? 'Link copied' : 'Copy link to this model'}
             >
               {copied ? <Check aria-hidden="true" size={18} /> : <Link2 aria-hidden="true" size={18} />}
             </button>
@@ -97,7 +101,7 @@ export function ModelDetail({ model, onClose }: ModelDetailProps) {
           </div>
         </header>
 
-        <div className="sheet__body">
+        <div className="sheet__body" tabIndex={0} role="region" aria-label={`${model.name} report details`}>
           {hasNotes ? (
             <table className="aspect-table">
               <caption className="visually-hidden">

@@ -208,6 +208,32 @@ export default function App() {
     setDrawerOpen(false);
   };
 
+  const views: View[] = ['decide', 'models', 'harnesses'];
+  const tabLabels = { decide: 'Decide', models: 'Models', harnesses: 'Harnesses' };
+
+  const onTabKeyDown = (event: React.KeyboardEvent) => {
+    const currentIndex = views.indexOf(activeView);
+    let nextIndex = currentIndex;
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+      event.preventDefault();
+      nextIndex = (currentIndex + 1) % views.length;
+    } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      nextIndex = (currentIndex - 1 + views.length) % views.length;
+    } else if (event.key === 'Home') {
+      event.preventDefault();
+      nextIndex = 0;
+    } else if (event.key === 'End') {
+      event.preventDefault();
+      nextIndex = views.length - 1;
+    } else {
+      return;
+    }
+    const nextView = views[nextIndex];
+    switchView(nextView);
+    document.getElementById(`tab-${nextView}`)?.focus();
+  };
+
   return (
     <div className="app-shell">
       <a className="skip-link" href="#dashboard-content">
@@ -218,34 +244,27 @@ export default function App() {
         <div className="dashboard-nav__inner">
           <div className="dashboard-nav__left">
             <span className="dashboard-nav__brand">{reportCard.title}</span>
-            <nav className="dashboard-tabs" aria-label="Report category" role="tablist">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={activeView === 'decide'}
-                className="dashboard-tab"
-                onClick={() => switchView('decide')}
-              >
-                Decide
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={activeView === 'models'}
-                className="dashboard-tab"
-                onClick={() => switchView('models')}
-              >
-                Models
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={activeView === 'harnesses'}
-                className="dashboard-tab"
-                onClick={() => switchView('harnesses')}
-              >
-                Harnesses
-              </button>
+            <nav
+              className="dashboard-tabs"
+              aria-label="Report category"
+              role="tablist"
+              onKeyDown={onTabKeyDown}
+            >
+              {views.map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  role="tab"
+                  id={`tab-${v}`}
+                  aria-selected={activeView === v}
+                  aria-controls="dashboard-content"
+                  tabIndex={activeView === v ? 0 : -1}
+                  className="dashboard-tab"
+                  onClick={() => switchView(v)}
+                >
+                  {tabLabels[v]}
+                </button>
+              ))}
             </nav>
           </div>
           <div className="dashboard-nav__actions">
@@ -289,7 +308,12 @@ export default function App() {
           </aside>
         ) : null}
 
-        <main className="dashboard-main" id="dashboard-content" role="tabpanel">
+        <main
+          className="dashboard-main"
+          id="dashboard-content"
+          role="tabpanel"
+          aria-labelledby={`tab-${activeView}`}
+        >
           <div className="dashboard-main__inner">
             {activeView === 'decide' ? (
               <DecisionView onSelectModel={setSelectedId} />
@@ -351,12 +375,13 @@ export default function App() {
                       >
                         {providerId === null ? <h2>{group.provider}</h2> : null}
                         <div className="report-grid">
-                          {group.models.map((model) => (
+                          {group.models.map((model, index) => (
                             <ModelCard
                               key={model.id}
                               model={model}
                               highlightAspect={modelAspect}
                               onSelect={setSelectedId}
+                              style={{ '--stagger-index': index } as React.CSSProperties}
                             />
                           ))}
                         </div>
@@ -364,12 +389,13 @@ export default function App() {
                     ))
                   ) : (
                     <div className="report-grid">
-                      {results.map((harness) => (
+                      {results.map((harness, index) => (
                         <ModelCard
                           key={harness.id}
                           model={harness}
                           highlightAspect={harnessAspect}
                           onSelect={setSelectedId}
+                          style={{ '--stagger-index': index } as React.CSSProperties}
                         />
                       ))}
                     </div>

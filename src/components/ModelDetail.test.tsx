@@ -89,10 +89,15 @@ describe('ModelDetail', () => {
 
     const copy = screen.getByRole('button', { name: 'Copy link to this model' });
     const close = screen.getByRole('button', { name: 'Close' });
+    const body = screen.getByRole('region', { name: 'Acme Prime 2 report details' });
 
     expect(close).toHaveFocus();
     await user.tab();
+    expect(body).toHaveFocus();
+    await user.tab();
     expect(copy).toHaveFocus();
+    await user.tab({ shift: true });
+    expect(body).toHaveFocus();
     await user.tab({ shift: true });
     expect(close).toHaveFocus();
   });

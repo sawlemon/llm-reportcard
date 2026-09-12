@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { Search, X } from 'lucide-react';
 
 interface FilterBarProps {
@@ -21,6 +22,7 @@ export function FilterBar({
   onAspectChange,
   onReset,
 }: FilterBarProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
   const isFiltered = Boolean(query || aspect);
 
   return (
@@ -28,6 +30,7 @@ export function FilterBar({
       <div className="search">
         <Search aria-hidden="true" size={16} className="search__icon" />
         <input
+          ref={inputRef}
           type="search"
           className="search__input"
           value={query}
@@ -40,7 +43,10 @@ export function FilterBar({
             type="button"
             className="search__clear"
             aria-label="Clear search"
-            onClick={() => onQueryChange('')}
+            onClick={() => {
+              onQueryChange('');
+              inputRef.current?.focus();
+            }}
           >
             <X aria-hidden="true" size={14} />
           </button>
@@ -65,7 +71,14 @@ export function FilterBar({
         </p>
 
         {isFiltered ? (
-          <button type="button" className="text-button" onClick={onReset}>
+          <button
+            type="button"
+            className="text-button"
+            onClick={() => {
+              onReset();
+              inputRef.current?.focus();
+            }}
+          >
             Reset
           </button>
         ) : null}
