@@ -244,6 +244,23 @@ for that task, and never list a model whose task evidence is negative-only.
 | Formatting / output quality | | |
 | Other | Google models made a strong first impression for UI work through Stitch; test further before drawing a broader conclusion | |
 
+### Gemini 3.8 Flash
+
+**Verdict:** preferred · 2026-09-12 · go-to model for Tanglish content (YouTube scripts) at medium effort — coherent Tanglish, fast, and no fluff; a clear step up from Gemini 3.7 Flash
+
+| Aspect | Pros | Cons |
+|---|---|---|
+| Reasoning | | |
+| Coding | | |
+| Instruction-following | | |
+| Tool use / agentic | | |
+| Context handling | | |
+| Speed / latency | fast | |
+| Cost / efficiency | | |
+| Refusals / safety behavior | | |
+| Formatting / output quality | Tanglish sentences make more sense than Gemini 3.7 Flash; does the job without a lot of fluff | |
+| Other | go-to model for Tanglish content — generates Tanglish YouTube scripts at medium effort; overall very happy with it | |
+
 ---
 
 ## DeepSeek
@@ -566,6 +583,7 @@ Harnesses are the apps/CLIs that models run inside. They're judged on different 
 | Speech to text | Parakeet V3 | care | 2026-08-10 | Fast and reliably accurate, but processes the whole input before returning instead of streaming, so it lost the live-transcription role. |
 | Speech to text | Parakeet TDT V2 | care | 2026-08-10 | Testing well with a natural typing style that keeps acronyms lowercase, but it lacks streaming/live transcription. |
 | Speech to text | Nemotron Streaming 3.5 | care | 2026-08-10 | Fast streaming transcription that works fine overall, but once transcribed English speech entirely in Hindi and struggles with single words like Tamil names. |
+| Content writing | Gemini 3.8 Flash | preferred | 2026-09-12 | Go-to model for Tanglish YouTube scripts at medium effort — Tanglish sentences make more sense than Gemini 3.7 Flash, and it is fast and straight to the point. |
 
 ---
 
@@ -580,3 +598,4 @@ Harnesses are the apps/CLIs that models run inside. They're judged on different 
 | Cheap implementation | DeepSeek V4 Flash | Zcode | medium | implementer | Pair with a frontier planner; unreliable at low reasoning effort |
 | Documentation / writing | Claude Opus 5 | Claude Code (desktop) | high | writer | GPT models are weak for documentation output |
 | Speech to text | Parakeet Unified ENG 0.6B | | | | Recognition accuracy has been degrading; needs a custom-vocabulary workaround |
+| Content writing | Gemini 3.8 Flash | | medium | writer | Only tested on Tanglish YouTube script writing so far |
