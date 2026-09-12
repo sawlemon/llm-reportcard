@@ -52,6 +52,22 @@ console.log(`  aspects:         ${orderedCovered.length} of ${card.aspects.lengt
 console.log(`  notes:           ${pros} pros, ${cons} cons`);
 console.log(`  verdicts:        ${verdictCount} of ${card.models.length} models`);
 console.log(`  recommendations: ${card.recommendations.length}`);
+console.log(
+  `  task verdicts:   ${card.taskVerdicts.length} across ${new Set(card.taskVerdicts.map((v) => v.task)).size} tasks`,
+);
+
+// Optional, non-blocking: flag a recommended setup whose model has no Task Verdicts row for
+// that task — the recommended model would then be missing from the Decide list entirely.
+for (const recommendation of card.recommendations) {
+  const covered = card.taskVerdicts.some(
+    (verdict) => verdict.task === recommendation.task && verdict.model === recommendation.model,
+  );
+  if (!covered) {
+    console.warn(
+      `warning: recommendation for "${recommendation.task}" points at "${recommendation.model}", which has no Task Verdicts row for that task; the Decide list will not show it`,
+    );
+  }
+}
 
 // Optional, non-blocking: flag a model whose newest dated note is later than its verdict date,
 // which usually means the verdict line was left stale after a newer observation was added.

@@ -1,63 +1,42 @@
-import type { ModelEntry, Recommendation, VerdictStatus } from '../data/types';
-import { VERDICT_STATUSES } from '../data/types';
+import type {
+  ModelEntry,
+  Recommendation,
+  TaskVerdict,
+  TaskVerdictStatus,
+  VerdictStatus,
+} from '../data/types';
+import { TASK_VERDICT_STATUSES, VERDICT_STATUSES } from '../data/types';
 
 /**
- * Helpers behind the Decide view: which models are the voice-to-text group, how the
- * current verdicts are ordered, and how a recommendation row resolves to a model.
+ * Helpers behind the Decide view: how a recommendation row resolves to a model, and how a
+ * task's Task Verdicts rows are selected, ordered, and paired with their models.
  *
- * These are pure functions over the parsed {@link ReportCard} data so the grouping and
+ * These are pure functions over the parsed {@link ReportCard} data so the selection and
  * ordering rules stay unit-testable independently of the document's daily churn.
  */
 
 /**
- * Whether a provider is the voice-to-text group (its name mentions Speech-to-Text or ASR).
- *
- * Case-insensitive on purpose: the document spells the group "NVIDIA (Speech-to-Text / ASR)"
- * and future renames may vary the casing. Everything else — including the "Unknown Provider"
- * group that hosts Big Pickle — stays in the normal coding verdicts.
+ * The model a name points at, matched by exact {@link ModelEntry.name}. `undefined` unless
+ * exactly one model has that name: model headings are provider-local, so a name shared across
+ * providers cannot be referenced unambiguously, and this helper never silently picks the first.
+ * The parser rejects ambiguous references, so this only guards stale or hand-built callers.
  */
-export function isVoiceToTextProvider(providerName: string): boolean {
-  const needle = providerName.toLowerCase();
-  return needle.includes('speech-to-text') || needle.includes('asr');
+export function modelByName(models: ModelEntry[], name: string): ModelEntry | undefined {
+  const matches = models.filter((model) => model.name === name);
+  return matches.length === 1 ? matches[0] : undefined;
 }
 
-/** Whether a model belongs to the voice-to-text provider group. */
-export function isVoiceToTextModel(model: ModelEntry): boolean {
-  return isVoiceToTextProvider(model.provider);
-}
-
-/** The display order of the Current Verdicts list: preferred, then care, then avoid. */
-const VERDICT_ORDER: VerdictStatus[] = ['preferred', 'care', 'avoid'];
-
-/**
- * Every model that carries a verdict, minus the voice-to-text group, ordered by status
- * (preferred → care → avoid) while preserving source order within each status.
- */
-export function codingVerdictModels(models: ModelEntry[]): ModelEntry[] {
-  const withVerdict = models.filter((model) => model.verdict && !isVoiceToTextModel(model));
-  return VERDICT_ORDER.flatMap((status) => withVerdict.filter((model) => model.verdict?.status === status));
-}
-
-/** The voice-to-text group, in source order, regardless of whether a verdict exists. */
-export function voiceToTextModels(models: ModelEntry[]): ModelEntry[] {
-  return models.filter(isVoiceToTextModel);
+/** The model a recommendation points at, matched by exact name. */
+export function recommendationModel(
+  models: ModelEntry[],
+  recommendation: Recommendation,
+): ModelEntry | undefined {
+  return modelByName(models, recommendation.model);
 }
 
 /** Every distinct recommendation task, in source order. */
 export function recommendationTasks(recommendations: Recommendation[]): string[] {
   return Array.from(new Set(recommendations.map((recommendation) => recommendation.task)));
-}
-
-/**
- * The model a recommendation points at, matched by exact {@link ModelEntry.name} (the same
- * contract the validator enforces on the document). `undefined` when the name has no match,
- * in which case the view renders the name as plain text.
- */
-export function recommendationModel(
-  models: ModelEntry[],
-  recommendation: Recommendation,
-): ModelEntry | undefined {
-  return models.find((model) => model.name === recommendation.model);
 }
 
 /**
@@ -75,6 +54,35 @@ export function recommendationMetaParts(recommendation: Recommendation): string[
   return fields.filter(([, value]) => value.trim().length > 0).map(([label, value]) => `${label}: ${value}`);
 }
 
+/** One render-ready Decide-list entry: a task verdict paired with the model it judges. */
+export interface TaskVerdictRow {
+  verdict: TaskVerdict;
+  model: ModelEntry;
+}
+
+/**
+ * The task verdict rows for one task, ordered preferred before care while preserving Task
+ * Verdicts source order within each status, each resolved to its model.
+ *
+ * This list is the entire lower Decide list for the task: a task with no recorded rows returns
+ * an empty list — there is deliberately no fallback to all coding models, all ASR models, or
+ * any other task's rows. Rows whose model name resolves to nothing cannot be rendered and are
+ * dropped; the parser rejects those, so this only guards stale or hand-built callers.
+ */
+export function taskVerdictRows(
+  models: ModelEntry[],
+  taskVerdicts: TaskVerdict[],
+  task: string,
+): TaskVerdictRow[] {
+  const scoped = taskVerdicts.filter((verdict) => verdict.task === task);
+  return TASK_VERDICT_STATUSES.flatMap((status) =>
+    scoped.filter((verdict) => verdict.status === status),
+  ).flatMap((verdict) => {
+    const model = modelByName(models, verdict.model);
+    return model ? [{ verdict, model }] : [];
+  });
+}
+
 /** Which CSS color family a verdict status renders with (pro green, warn amber, con red). */
 export type StatusTone = 'pro' | 'warn' | 'con';
 
@@ -88,10 +96,14 @@ export function statusTone(status: VerdictStatus): StatusTone {
   return tones[status];
 }
 
-/** The three statuses in display order, paired with their human-facing labels. */
-export function statusLegend(): Array<{ status: VerdictStatus; label: string }> {
-  return (Object.keys(VERDICT_STATUSES) as VerdictStatus[]).map((status) => ({
-    status,
-    label: VERDICT_STATUSES[status],
-  }));
+/**
+ * The legend for a task verdict list: only statuses actually present in the rows, in display
+ * order, paired with their human-facing labels.
+ */
+export function taskVerdictLegend(
+  rows: TaskVerdictRow[],
+): Array<{ status: TaskVerdictStatus; label: string }> {
+  return TASK_VERDICT_STATUSES.filter((status) => rows.some((row) => row.verdict.status === status)).map(
+    (status) => ({ status, label: VERDICT_STATUSES[status] }),
+  );
 }

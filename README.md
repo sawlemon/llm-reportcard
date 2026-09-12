@@ -22,12 +22,13 @@ reads the markdown, parses it, and inlines the result as the `virtual:report-car
 (`src/data/reportCardPlugin.ts`). Every push to `main` redeploys the site from that file, so editing the
 markdown is the only step needed to update the published page.
 
-The same file also carries two optional layers on top of the provider → model → aspect table: an
+The same file also carries three optional layers on top of the provider → model → aspect table: an
 optional per-model `**Verdict:**` line (status, date, one-line summary) directly under a `### Model name`
-heading, and a single reserved `## Recommendations` table at the end of the file cross-referencing task →
-model → harness. Both are parsed by the same `parseReportCard.ts` into typed fields (`ModelEntry.verdict`,
-`ReportCard.recommendations`) — nothing about the single-file, no-database model changes, and the site
-currently renders neither field (data/validation layer only).
+heading, a single reserved `## Recommendations` table at the end of the file cross-referencing task →
+model → harness (the one top recommended setup per task), and a reserved `## Task Verdicts` table of
+task-specific verdict rows feeding the Decide page's per-task lists. All three are parsed by the same
+`parseReportCard.ts` into typed fields (`ModelEntry.verdict`, `ReportCard.recommendations`,
+`ReportCard.taskVerdicts`) — nothing about the single-file, no-database model changes.
 
 A malformed report card **fails the build** with the offending line number, rather than silently shipping a
 broken page. The same parser runs under `npm test`, so problems surface locally too.
@@ -78,6 +79,37 @@ Rules the parser enforces:
   extend `CANONICAL_ASPECTS` first.
 - Fenced code blocks are stripped before parsing, which is why the template in the file's own
   "How to use" section is not treated as data.
+
+### Authoring task verdicts
+
+The reserved `## Task Verdicts` table sits directly above `## Recommendations` and decides the lower
+"Current verdicts" list on the Decide page: exactly which models appear for each task, in what order.
+One row is one task-specific verdict:
+
+```markdown
+| Task | Model | Status | Date | Summary |
+|---|---|---|---|---|
+| Debugging | Claude Sonnet 5 | preferred | 2026-09-03 | Solved the toolset bug others could not. |
+| Debugging | Claude Opus 5 | care | 2026-09-03 | Strong root-cause work, but expensive. |
+```
+
+Rules the parser enforces:
+
+- Columns must be exactly `Task | Model | Status | Date | Summary`, in that order.
+- `Task` must exactly match a task in `## Recommendations`; `Model` must exactly match a model heading.
+  References are by name alone, so a referenced model name must exist under exactly one provider:
+  duplicate model headings across providers may coexist, but such a name cannot be referenced from a
+  reserved table — rename one of the models first.
+- `Status` is `preferred` or `care` only. A model without positive or qualified-positive evidence for
+  the task is omitted from that task entirely — negative-only models are never listed as `avoid`.
+- `Date` must be a calendar-valid `YYYY-MM-DD`; `Summary` must be non-empty and specific to the task,
+  not a repeat of the model's general verdict.
+- One verdict per Task + Model pair; duplicates are a build error.
+- Each reserved section may appear once only, and `## Task Verdicts` must be authored above
+  `## Recommendations`.
+- Absence is meaningful: a task with no rows renders an empty state on the site, never a fallback list
+  of all coding or all speech-to-text models. Within a task, `preferred` rows list before `care` rows,
+  keeping the table's order otherwise.
 
 ## Commands
 

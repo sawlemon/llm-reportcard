@@ -866,6 +866,11 @@ code {
   list-style: none;
 }
 
+.decision-list__empty {
+  margin: 14px 0 0;
+  color: var(--ink-secondary);
+}
+
 .decision-row {
   display: grid;
   grid-template-columns: 130px minmax(170px, 0.8fr) minmax(0, 1.7fr) auto;

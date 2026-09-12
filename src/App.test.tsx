@@ -5,7 +5,7 @@ import reportCard from 'virtual:report-card';
 import App from './App';
 import type { ModelEntry } from './data/types';
 import { EMPTY_FILTERS, filterModels, type Filters } from './lib/filterModels';
-import { codingVerdictModels } from './lib/decision';
+import { recommendationTasks, taskVerdictRows } from './lib/decision';
 
 const { models, providers, harnesses } = reportCard;
 
@@ -192,7 +192,8 @@ describe('decide view', () => {
 
   it('opens a model dialog from a verdict row and returns to Decide when it closes', async () => {
     const user = userEvent.setup();
-    const target = codingVerdictModels(models)[0];
+    const task = recommendationTasks(reportCard.recommendations)[0];
+    const target = taskVerdictRows(models, reportCard.taskVerdicts, task)[0].model;
     const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const rowName = new RegExp(`${escape(target.name)}\\s+${escape(target.provider)}`);
     render(<App />);

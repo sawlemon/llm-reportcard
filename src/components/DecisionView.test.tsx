@@ -2,14 +2,7 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import reportCard from 'virtual:report-card';
-import type { ModelEntry } from '../data/types';
-import {
-  codingVerdictModels,
-  isVoiceToTextModel,
-  recommendationModel,
-  recommendationTasks,
-  voiceToTextModels,
-} from '../lib/decision';
+import { recommendationModel, recommendationTasks, taskVerdictRows } from '../lib/decision';
 import { DecisionView } from './DecisionView';
 
 /**
@@ -17,13 +10,15 @@ import { DecisionView } from './DecisionView';
  * live data (the same pattern App.test.tsx uses) rather than hardcoded document content.
  */
 const tasks = recommendationTasks(reportCard.recommendations);
-const verdicts = codingVerdictModels(reportCard.models);
-const voiceModels = voiceToTextModels(reportCard.models);
+/** The rows the view must render for a task, computed by the same pure helper. */
+function rowsFor(task: string) {
+  return taskVerdictRows(reportCard.models, reportCard.taskVerdicts, task);
+}
 /** The task whose recommendation resolves to a voice-to-text model, if the live data has one. */
 const speechTask = tasks.find((task) => {
   const rec = reportCard.recommendations.find((entry) => entry.task === task);
   const model = rec ? recommendationModel(reportCard.models, rec) : undefined;
-  return model !== undefined && isVoiceToTextModel(model);
+  return model !== undefined && model.provider.toLowerCase().includes('speech-to-text');
 });
 
 function renderView() {
@@ -37,9 +32,9 @@ function section(name: 'Task recommender' | 'Current verdicts') {
 }
 
 /** Row accessible names contain extra text, so match on an escaped name + provider pair. */
-function rowPattern(model: ModelEntry): RegExp {
+function rowPattern(name: string, provider: string): RegExp {
   const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return new RegExp(`${escape(model.name)}\\s+${escape(model.provider)}(\\s|$)`);
+  return new RegExp(`${escape(name)}\\s+${escape(provider)}(\\s|$)`);
 }
 
 describe('DecisionView', () => {
@@ -128,77 +123,104 @@ describe('DecisionView', () => {
     },
   );
 
-  it('orders the verdict list preferred, care, avoid with voice-to-text excluded', () => {
+  it('renders exactly the selected task’s viable rows, preferred before care, with task-specific copy', () => {
     renderView();
 
-    const rows = section('Current verdicts').getAllByRole('button');
-    expect(rows.map((row) => row.textContent)).toEqual(
-      verdicts.map((model) => expect.stringContaining(model.name)),
+    const expected = rowsFor(tasks[0]);
+    expect(expected.length).toBeGreaterThan(0);
+    const verdicts = section('Current verdicts');
+    const rowButtons = verdicts.getAllByRole('button');
+    expect(rowButtons).toHaveLength(expected.length);
+    expect(rowButtons.map((row) => row.textContent)).toEqual(
+      expected.map((row) => expect.stringContaining(row.model.name)),
     );
 
-    const statuses = verdicts.map((model) => model.verdict!.status);
-    const firstAvoid = statuses.indexOf('avoid');
-    expect(firstAvoid).toBeGreaterThanOrEqual(0);
-    expect(statuses.slice(0, firstAvoid)).not.toContain('avoid');
+    const statuses = expected.map((row) => row.verdict.status);
+    expect(statuses).toContain('preferred');
+    const firstCare = statuses.indexOf('care');
+    if (firstCare !== -1) expect(statuses.slice(firstCare)).not.toContain('preferred');
+
+    // Row copy comes from the task verdict, not the model's general verdict.
+    for (const row of expected) {
+      expect(
+        verdicts.getByRole('button', { name: rowPattern(row.model.name, row.model.provider) }),
+      ).toHaveTextContent(row.verdict.summary);
+      expect(
+        verdicts.getByRole('button', { name: rowPattern(row.model.name, row.model.provider) }),
+      ).toHaveTextContent(`updated ${row.verdict.date}`);
+    }
   });
 
-  it('keeps Big Pickle in the main verdict list', () => {
-    const bigPickle = reportCard.models.find((model) => model.name === 'Big Pickle');
-    expect(bigPickle).toBeDefined();
-    expect(verdicts.map((model) => model.id)).toContain(bigPickle!.id);
+  it('shows a task-specific count', () => {
     renderView();
 
+    const expected = rowsFor(tasks[0]);
+    expect(expected.length).toBeGreaterThan(1);
     expect(
-      section('Current verdicts').getByRole('button', { name: rowPattern(bigPickle!) }),
+      section('Current verdicts').getByText(`${expected.length} viable models for ${tasks[0]}`),
     ).toBeInTheDocument();
   });
 
-  it('shows coding verdicts, not ASR models, while a coding task is selected', () => {
-    expect(speechTask).toBeDefined();
-    expect(verdicts.length).toBeGreaterThan(0);
-    expect(voiceModels.length).toBeGreaterThan(0);
+  it('swaps the verdict list when another task is selected, dropping models without evidence', async () => {
+    const user = userEvent.setup();
     renderView();
 
-    expect(section('Current verdicts').getByText(`${verdicts.length} coding models`)).toBeInTheDocument();
-    for (const model of verdicts) {
+    const first = rowsFor(tasks[0]);
+    const second = rowsFor(tasks[1]);
+    expect(second.length).toBeGreaterThan(0);
+
+    await user.click(screen.getByRole('button', { name: tasks[1] }));
+    const verdicts = section('Current verdicts');
+
+    const secondRows = verdicts.getAllByRole('button');
+    expect(secondRows).toHaveLength(second.length);
+    for (const row of second) {
       expect(
-        section('Current verdicts').getByRole('button', { name: rowPattern(model) }),
-      ).toBeInTheDocument();
+        verdicts.getByRole('button', { name: rowPattern(row.model.name, row.model.provider) }),
+      ).toHaveTextContent(row.verdict.summary);
     }
-    for (const model of voiceModels) {
-      expect(screen.queryByRole('button', { name: rowPattern(model) })).not.toBeInTheDocument();
+    for (const row of first) {
+      if (!second.some((entry) => entry.model.id === row.model.id)) {
+        expect(
+          verdicts.queryByRole('button', { name: rowPattern(row.model.name, row.model.provider) }),
+        ).not.toBeInTheDocument();
+      }
     }
   });
 
-  it('shows the ASR models, not coding verdicts, when the speech-to-text task is selected', async () => {
+  it('shows only the recorded speech-to-text rows for the speech task, never a coding fallback', async () => {
     expect(speechTask).toBeDefined();
     const user = userEvent.setup();
     renderView();
 
     await user.click(screen.getByRole('button', { name: speechTask! }));
+    const verdicts = section('Current verdicts');
 
-    expect(
-      section('Current verdicts').getByText(`${voiceModels.length} speech-to-text models`),
-    ).toBeInTheDocument();
-    for (const model of voiceModels) {
+    const expected = rowsFor(speechTask!);
+    expect(expected.length).toBeGreaterThan(0);
+    expect(verdicts.getAllByRole('button')).toHaveLength(expected.length);
+    for (const row of expected) {
       expect(
-        section('Current verdicts').getByRole('button', { name: rowPattern(model) }),
+        verdicts.getByRole('button', { name: rowPattern(row.model.name, row.model.provider) }),
       ).toBeInTheDocument();
     }
-    for (const model of verdicts) {
-      expect(
-        section('Current verdicts').queryByRole('button', { name: rowPattern(model) }),
-      ).not.toBeInTheDocument();
+    for (const model of reportCard.models) {
+      if (!expected.some((row) => row.model.id === model.id)) {
+        expect(
+          verdicts.queryByRole('button', { name: rowPattern(model.name, model.provider) }),
+        ).not.toBeInTheDocument();
+      }
     }
   });
 
-  it('shows a legend built from the VERDICT_STATUSES labels', () => {
+  it('shows a legend limited to the statuses the task list actually uses', () => {
     renderView();
 
+    const showsCare = rowsFor(tasks[0]).some((row) => row.verdict.status === 'care');
     const legend = section('Current verdicts').getByRole('list', { name: 'Verdict status legend' });
     expect(legend).toHaveTextContent('Preferred');
-    expect(legend).toHaveTextContent('Use with care');
-    expect(legend).toHaveTextContent('Avoid');
+    if (showsCare) expect(legend).toHaveTextContent('Use with care');
+    expect(legend).not.toHaveTextContent('Avoid');
   });
 
   it('opens the recommended model when its name is clicked', async () => {
@@ -217,8 +239,10 @@ describe('DecisionView', () => {
     const user = userEvent.setup();
     const { onSelectModel } = renderView();
 
-    const target = verdicts[0];
-    await user.click(section('Current verdicts').getByRole('button', { name: rowPattern(target) }));
+    const target = rowsFor(tasks[0])[0].model;
+    await user.click(
+      section('Current verdicts').getByRole('button', { name: rowPattern(target.name, target.provider) }),
+    );
     expect(onSelectModel).toHaveBeenCalledWith(target.id);
   });
 });

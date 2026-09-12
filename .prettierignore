@@ -11,3 +11,6 @@ plan.md
 
 # Generated design mock captured from Stitch; not hand-maintained source.
 design/
+
+# Generated ZCode plan state; not hand-maintained source.
+.zcode/plans/

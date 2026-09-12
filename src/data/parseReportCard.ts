@@ -4,12 +4,16 @@ import {
   HARNESS_SECTION_NAME,
   RECOMMENDATIONS_SECTION_NAME,
   ReportCardParseError,
+  TASK_VERDICTS_SECTION_NAME,
+  TASK_VERDICT_STATUSES,
   VERDICT_STATUSES,
   type AspectEntry,
   type ModelEntry,
   type ProviderEntry,
   type Recommendation,
   type ReportCard,
+  type TaskVerdict,
+  type TaskVerdictStatus,
   type Verdict,
 } from './types';
 
@@ -17,6 +21,9 @@ const EXPECTED_COLUMNS = ['aspect', 'pros', 'cons'];
 
 /** Column order the reserved "## Recommendations" table must use, verbatim in its header row. */
 const EXPECTED_RECOMMENDATION_COLUMNS = ['task', 'model', 'harness', 'effort', 'role', 'cautions'];
+
+/** Column order the reserved "## Task Verdicts" table must use, verbatim in its header row. */
+const EXPECTED_TASK_VERDICT_COLUMNS = ['task', 'model', 'status', 'date', 'summary'];
 
 /** The literal separator between fields on a `**Verdict:**` line: space, middle dot, space. */
 const VERDICT_FIELD_SEPARATOR = ' · ';
@@ -209,6 +216,26 @@ function unknownAspectError(
   return new ReportCardParseError(`model "${modelName}" has unknown aspect "${aspect}"; ${fix}`, line);
 }
 
+/**
+ * Validates a reserved-table model reference, which is by exact name only: the model heading
+ * stays provider-local, so a name that exists under several providers cannot say which one the
+ * row means. Zero matches is the unknown-model error; more than one is an ambiguity error. Both
+ * point at the referencing row.
+ */
+function validateModelReference(section: string, name: string, models: ModelEntry[], line: number): void {
+  const matches = models.filter((entry) => entry.name === name);
+  if (matches.length === 0) {
+    throw new ReportCardParseError(`${section} references unknown model: ${name}`, line);
+  }
+  if (matches.length > 1) {
+    const providers = matches.map((entry) => entry.provider).join(', ');
+    throw new ReportCardParseError(
+      `${section} references model "${name}", a name that exists under multiple providers (${providers}) and cannot be referenced unambiguously`,
+      line,
+    );
+  }
+}
+
 export function parseReportCard(markdown: string): ReportCard {
   const lines = stripFencedBlocks(markdown);
 
@@ -219,16 +246,26 @@ export function parseReportCard(markdown: string): ReportCard {
   const seenAspects = new Set<string>();
   const seenHarnessAspects = new Set<string>();
   const seenModelIds = new Set<string>();
-  // Cross-referenced against `models` only after the whole document is parsed, since the
-  // reserved Recommendations section is authored at the end, after every model it can reference.
+  // Cross-referenced against `models` and the Recommendation tasks only after the whole document
+  // is parsed, since the reserved sections are authored at the end, after every model and task
+  // they can reference.
   const recommendationRows: Array<{ recommendation: Recommendation; line: number }> = [];
+  const collectedTaskVerdicts: Array<{ verdict: TaskVerdict; line: number }> = [];
 
   let provider: ProviderEntry | null = null;
   // 'model' while under a "## Provider" heading, 'harness' under the reserved "## LLM Harness".
   let sectionKind: SectionKind = 'model';
-  // True while under the reserved "## Recommendations" heading, which is not a provider and
-  // whose table is parsed independently of `sectionKind` (it needs no model in scope).
+  // True while under a reserved end-of-document heading ("## Recommendations" or
+  // "## Task Verdicts"). Neither is a provider, and each parses its table independently of
+  // `sectionKind` (neither needs a model in scope).
   let inRecommendations = false;
+  let inTaskVerdicts = false;
+  // Reserved headings are single-use and ordered — at most one of each, with Task Verdicts
+  // authored above Recommendations. Unlike `in*`, these stay true once the heading is seen.
+  let seenRecommendations = false;
+  let seenTaskVerdicts = false;
+  // One verdict per Task + Model pair, enforced while the rows are parsed.
+  const seenTaskVerdictPairs = new Set<string>();
   let model: ModelEntry | null = null;
   let modelLine = 0;
   let inTable = false;
@@ -262,21 +299,45 @@ export function parseReportCard(markdown: string): ReportCard {
         provider = null;
         sectionKind = 'model';
         inRecommendations = false;
+        inTaskVerdicts = false;
         title = name;
       } else if (level === 2) {
         finishModel();
         if (name === RECOMMENDATIONS_SECTION_NAME) {
+          if (seenRecommendations) {
+            throw new ReportCardParseError(`duplicate "${RECOMMENDATIONS_SECTION_NAME}" section`, number);
+          }
           // Reserved: a single table of cross-references into models parsed above it, not a
           // provider grouping models of its own.
+          seenRecommendations = true;
           inRecommendations = true;
+          inTaskVerdicts = false;
+          provider = null;
+        } else if (name === TASK_VERDICTS_SECTION_NAME) {
+          if (seenTaskVerdicts) {
+            throw new ReportCardParseError(`duplicate "${TASK_VERDICTS_SECTION_NAME}" section`, number);
+          }
+          if (seenRecommendations) {
+            throw new ReportCardParseError(
+              `"${TASK_VERDICTS_SECTION_NAME}" section appears after "${RECOMMENDATIONS_SECTION_NAME}"; it must come before it`,
+              number,
+            );
+          }
+          // Reserved: one task-specific verdict per row, cross-referenced into models and
+          // Recommendation tasks, not a provider grouping models of its own.
+          seenTaskVerdicts = true;
+          inTaskVerdicts = true;
+          inRecommendations = false;
           provider = null;
         } else if (name === HARNESS_SECTION_NAME) {
           // A flat section of harness tools, not a provider grouping models.
           inRecommendations = false;
+          inTaskVerdicts = false;
           sectionKind = 'harness';
           provider = null;
         } else {
           inRecommendations = false;
+          inTaskVerdicts = false;
           sectionKind = 'model';
           provider = { id: slugify(name), name, models: [] };
         }
@@ -392,6 +453,78 @@ export function parseReportCard(markdown: string): ReportCard {
       continue;
     }
 
+    if (inTaskVerdicts) {
+      if (!inTable) {
+        const header = cells.map((cell) => cell.toLowerCase());
+        if (header.join('|') !== EXPECTED_TASK_VERDICT_COLUMNS.join('|')) {
+          throw new ReportCardParseError(
+            `"${TASK_VERDICTS_SECTION_NAME}" table has columns [${cells.join(', ')}]; expected [Task, Model, Status, Date, Summary]`,
+            number,
+          );
+        }
+        inTable = true;
+        continue;
+      }
+
+      if (isDelimiterRow(cells)) continue;
+
+      if (cells.length !== EXPECTED_TASK_VERDICT_COLUMNS.length) {
+        throw new ReportCardParseError(
+          `"${TASK_VERDICTS_SECTION_NAME}" table has a row with ${cells.length} column(s); expected 5 (Task | Model | Status | Date | Summary)`,
+          number,
+        );
+      }
+
+      const [task, verdictModel, status, date, summary] = cells;
+      if (!task) {
+        throw new ReportCardParseError(
+          `"${TASK_VERDICTS_SECTION_NAME}" table has a row with an empty Task`,
+          number,
+        );
+      }
+      if (!verdictModel) {
+        throw new ReportCardParseError(
+          `"${TASK_VERDICTS_SECTION_NAME}" table has a row with an empty Model`,
+          number,
+        );
+      }
+      // Viable statuses only: a model without positive evidence for the task is left out of the
+      // section entirely, so `avoid` rows are a schema violation rather than data.
+      if (!TASK_VERDICT_STATUSES.includes(status as TaskVerdictStatus)) {
+        throw new ReportCardParseError(
+          `"${TASK_VERDICTS_SECTION_NAME}" table has status "${status}"; expected one of [${TASK_VERDICT_STATUSES.join(', ')}]`,
+          number,
+        );
+      }
+      if (!isValidIsoDate(date)) {
+        throw new ReportCardParseError(
+          `"${TASK_VERDICTS_SECTION_NAME}" table has date "${date}"; expected an ISO date (YYYY-MM-DD)`,
+          number,
+        );
+      }
+      if (!summary) {
+        throw new ReportCardParseError(
+          `"${TASK_VERDICTS_SECTION_NAME}" table has a row with an empty Summary`,
+          number,
+        );
+      }
+
+      const pair = JSON.stringify([task, verdictModel]);
+      if (seenTaskVerdictPairs.has(pair)) {
+        throw new ReportCardParseError(
+          `"${TASK_VERDICTS_SECTION_NAME}" table has a duplicate verdict for task "${task}" and model "${verdictModel}"`,
+          number,
+        );
+      }
+      seenTaskVerdictPairs.add(pair);
+
+      collectedTaskVerdicts.push({
+        verdict: { task, model: verdictModel, status: status as TaskVerdictStatus, date, summary },
+        line: number,
+      });
+      continue;
+    }
+
     if (!model) {
       throw new ReportCardParseError(
         'table row found outside of a model section; add a "### Model name" heading above it',
@@ -453,18 +586,25 @@ export function parseReportCard(markdown: string): ReportCard {
 
   const recommendations: Recommendation[] = [];
   for (const { recommendation, line } of recommendationRows) {
-    if (!models.some((entry) => entry.name === recommendation.model)) {
-      throw new ReportCardParseError(
-        `recommendation references unknown model: ${recommendation.model}`,
-        line,
-      );
-    }
+    validateModelReference('recommendation', recommendation.model, models, line);
     recommendations.push(recommendation);
+  }
+
+  // Task verdicts cross-reference both the models and the Recommendation tasks, so they are
+  // validated only once `recommendations` above has settled.
+  const tasks = new Set(recommendations.map((recommendation) => recommendation.task));
+  const taskVerdicts: TaskVerdict[] = [];
+  for (const { verdict, line } of collectedTaskVerdicts) {
+    if (!tasks.has(verdict.task)) {
+      throw new ReportCardParseError(`task verdict references unknown task: ${verdict.task}`, line);
+    }
+    validateModelReference('task verdict', verdict.model, models, line);
+    taskVerdicts.push(verdict);
   }
 
   // Present aspects in canonical order regardless of authoring order, keeping only those used.
   const aspects = CANONICAL_ASPECTS.filter((aspect) => seenAspects.has(aspect));
   const harnessAspects = HARNESS_ASPECTS.filter((aspect) => seenHarnessAspects.has(aspect));
 
-  return { title, providers, models, aspects, harnesses, harnessAspects, recommendations };
+  return { title, providers, models, aspects, harnesses, harnessAspects, recommendations, taskVerdicts };
 }

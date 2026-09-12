@@ -3,14 +3,12 @@ import { TriangleAlert } from 'lucide-react';
 import reportCard from 'virtual:report-card';
 import type { Recommendation } from '../data/types';
 import {
-  codingVerdictModels,
-  isVoiceToTextModel,
   recommendationMetaParts,
   recommendationModel,
   recommendationTasks,
-  statusLegend,
   statusTone,
-  voiceToTextModels,
+  taskVerdictLegend,
+  taskVerdictRows,
 } from '../lib/decision';
 import { VerdictRow } from './VerdictRow';
 
@@ -20,9 +18,9 @@ interface DecisionViewProps {
 }
 
 /**
- * The Decide view: a task-based recommender and the current verdicts, scoped to the selected
- * task's domain (speech-to-text when the recommendation points at an ASR model, coding otherwise).
- * Clicking any model opens the shared detail modal.
+ * The Decide view: a task-based recommender plus the selected task's verdict list. The lower
+ * list renders only the models with an explicitly recorded viable Task Verdict for the selected
+ * task — never a domain-wide fallback — and clicking any row opens the shared detail modal.
  */
 export function DecisionView({ onSelectModel }: DecisionViewProps) {
   const tasks = recommendationTasks(reportCard.recommendations);
@@ -34,13 +32,11 @@ export function DecisionView({ onSelectModel }: DecisionViewProps) {
   const metaParts = recommendation ? recommendationMetaParts(recommendation) : [];
   const recommendationMatches =
     recommendation && selectedTask ? recommendationModel(reportCard.models, recommendation) : undefined;
-  // Domain of the selected task: speech-to-text when the recommendation resolves to an ASR
-  // model, coding otherwise (including when the recommendation has no matching model entry).
-  const speechDomain = recommendationMatches ? isVoiceToTextModel(recommendationMatches) : false;
-  const verdicts = speechDomain
-    ? voiceToTextModels(reportCard.models)
-    : codingVerdictModels(reportCard.models);
-  const verdictCount = `${verdicts.length} ${speechDomain ? 'speech-to-text models' : 'coding models'}`;
+  const rows = selectedTask ? taskVerdictRows(reportCard.models, reportCard.taskVerdicts, selectedTask) : [];
+  const legend = taskVerdictLegend(rows);
+  const count = selectedTask
+    ? `${rows.length} viable ${rows.length === 1 ? 'model' : 'models'} for ${selectedTask}`
+    : null;
 
   return (
     <div className="decision-view">
@@ -94,21 +90,31 @@ export function DecisionView({ onSelectModel }: DecisionViewProps) {
           <h2 className="decision-section__heading" id="decision-verdicts-heading">
             Current verdicts
           </h2>
-          <p className="decision-section__count">{verdictCount}</p>
+          {count ? <p className="decision-section__count">{count}</p> : null}
         </header>
-        <ul className="decision-legend" aria-label="Verdict status legend">
-          {statusLegend().map(({ status, label }) => (
-            <li key={status} className={`decision-status decision-status--${statusTone(status)}`}>
-              <span className="decision-status__dot" aria-hidden="true" />
-              {label}
-            </li>
-          ))}
-        </ul>
-        <ul className="decision-list">
-          {verdicts.map((model) => (
-            <VerdictRow key={model.id} model={model} onSelectModel={onSelectModel} />
-          ))}
-        </ul>
+        {legend.length > 0 ? (
+          <ul className="decision-legend" aria-label="Verdict status legend">
+            {legend.map(({ status, label }) => (
+              <li key={status} className={`decision-status decision-status--${statusTone(status)}`}>
+                <span className="decision-status__dot" aria-hidden="true" />
+                {label}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        {rows.length > 0 ? (
+          <ul className="decision-list">
+            {rows.map((row) => (
+              <VerdictRow key={row.model.id} row={row} onSelectModel={onSelectModel} />
+            ))}
+          </ul>
+        ) : (
+          <p className="decision-list__empty">
+            {selectedTask
+              ? `No viable models recorded for ${selectedTask} yet.`
+              : 'No task verdicts recorded yet.'}
+          </p>
+        )}
       </section>
     </div>
   );

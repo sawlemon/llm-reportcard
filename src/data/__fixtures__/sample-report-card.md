@@ -81,3 +81,24 @@ inside it may show up as a provider, a model, or a note.
 | Resource consumption   |                                   | memory-hungry on long runs    |
 | Model support          | works with every provider I tried |                               |
 | Other                  | daily driver                      |                               |
+
+---
+
+## Task Verdicts
+
+| Task        | Model            | Status    | Date       | Summary                                              |
+| ----------- | ---------------- | --------- | ---------- | ---------------------------------------------------- |
+| Refactoring | Acme Prime 2     | preferred | 2026-09-01 | Patches code without breaking callers                |
+| Refactoring | Acme Mini        | preferred | 2026-08-30 | Quick on small, well-specified refactors             |
+| Refactoring | Globex Echo 0.6B | care      | 2026-09-02 | Handled one scripted refactor end to end, but slowly |
+| Deep search | Acme Prime 2     | care      | 2026-09-03 | Loses the thread past ten steps                      |
+
+---
+
+## Recommendations
+
+| Task          | Model        | Harness         | Effort | Role        | Cautions         |
+| ------------- | ------------ | --------------- | ------ | ----------- | ---------------- |
+| Refactoring   | Acme Prime 2 | Fixture Harness | medium | implementer | keep tests green |
+| Deep search   | Acme Mini    |                 |        |             |                  |
+| Documentation | Acme Mini    |                 |        |             |                  |

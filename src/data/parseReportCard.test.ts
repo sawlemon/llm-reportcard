@@ -136,6 +136,49 @@ describe('parseReportCard on the fixture document', () => {
     expect(harness.prosCount).toBe(6);
     expect(harness.consCount).toBe(2);
   });
+
+  it('collects task verdict rows in source order', () => {
+    expect(card.taskVerdicts).toEqual([
+      {
+        task: 'Refactoring',
+        model: 'Acme Prime 2',
+        status: 'preferred',
+        date: '2026-09-01',
+        summary: 'Patches code without breaking callers',
+      },
+      {
+        task: 'Refactoring',
+        model: 'Acme Mini',
+        status: 'preferred',
+        date: '2026-08-30',
+        summary: 'Quick on small, well-specified refactors',
+      },
+      {
+        task: 'Refactoring',
+        model: 'Globex Echo 0.6B',
+        status: 'care',
+        date: '2026-09-02',
+        summary: 'Handled one scripted refactor end to end, but slowly',
+      },
+      {
+        task: 'Deep search',
+        model: 'Acme Prime 2',
+        status: 'care',
+        date: '2026-09-03',
+        summary: 'Loses the thread past ten steps',
+      },
+    ]);
+  });
+
+  it('collects recommendation rows, including tasks with no task verdicts', () => {
+    expect(card.recommendations.map((recommendation) => recommendation.task)).toEqual([
+      'Refactoring',
+      'Deep search',
+      'Documentation',
+    ]);
+    const verdictTasks = new Set(card.taskVerdicts.map((verdict) => verdict.task));
+    expect(verdictTasks.has('Documentation')).toBe(false);
+  });
 });
 
 /**
@@ -170,6 +213,12 @@ describe('the real report card', () => {
     const modelNames = new Set(card.models.map((m) => m.name));
     for (const recommendation of card.recommendations) {
       expect(modelNames.has(recommendation.model)).toBe(true);
+    }
+
+    const tasks = new Set(card.recommendations.map((recommendation) => recommendation.task));
+    for (const verdict of card.taskVerdicts) {
+      expect(tasks.has(verdict.task)).toBe(true);
+      expect(modelNames.has(verdict.model)).toBe(true);
     }
   });
 });
@@ -380,6 +429,220 @@ describe('parseReportCard verdict and recommendations', () => {
     const wrong = ['| Task | Model |', '|---|---|', '| Debugging | Model X |'].join('\n');
     const doc = `# Card\n\n## Acme\n\n### Model X\n\n${table}\n\n---\n\n## Recommendations\n\n${wrong}\n`;
     expect(() => parseReportCard(doc)).toThrow(/expected \[Task, Model, Harness, Effort, Role, Cautions\]/);
+  });
+});
+
+describe('parseReportCard task verdicts', () => {
+  const table = ['| Aspect | Pros | Cons |', '|---|---|---|', '| Reasoning | fast | |'].join('\n');
+  const recTable = [
+    '| Task | Model | Harness | Effort | Role | Cautions |',
+    '|---|---|---|---|---|---|',
+    '| Debugging | Model X | Zcode | medium | implementer | |',
+    '| Research | Model X | | | | |',
+  ].join('\n');
+
+  const docWith = (verdictRows: string) =>
+    `# Card\n\n## Acme\n\n### Model X\n\n${table}\n\n---\n\n## Task Verdicts\n\n${verdictRows}\n\n---\n\n## Recommendations\n\n${recTable}\n`;
+  const validRows = [
+    '| Task | Model | Status | Date | Summary |',
+    '|---|---|---|---|---|',
+    '| Debugging | Model X | preferred | 2026-09-03 | quick and reliable |',
+    '| Research | Model X | care | 2026-09-04 | slow but usable |',
+  ].join('\n');
+
+  it('parses the reserved Task Verdicts table, keeping rows in source order', () => {
+    const card = parseReportCard(docWith(validRows));
+    expect(card.taskVerdicts).toEqual([
+      {
+        task: 'Debugging',
+        model: 'Model X',
+        status: 'preferred',
+        date: '2026-09-03',
+        summary: 'quick and reliable',
+      },
+      { task: 'Research', model: 'Model X', status: 'care', date: '2026-09-04', summary: 'slow but usable' },
+    ]);
+    expect(card.providers.map((p) => p.name)).not.toContain('Task Verdicts');
+  });
+
+  it('accepts a Task Verdicts section with a header but no rows', () => {
+    const headerOnly = ['| Task | Model | Status | Date | Summary |', '|---|---|---|---|---|'].join('\n');
+    const card = parseReportCard(docWith(headerOnly));
+    expect(card.taskVerdicts).toEqual([]);
+  });
+
+  it('rejects a table with the wrong columns', () => {
+    const wrong = ['| Task | Model |', '|---|---|', '| Debugging | Model X |'].join('\n');
+    expect(() => parseReportCard(docWith(wrong))).toThrow(/expected \[Task, Model, Status, Date, Summary\]/);
+  });
+
+  it('rejects a row with the wrong number of columns', () => {
+    const ragged = [
+      '| Task | Model | Status | Date | Summary |',
+      '|---|---|---|---|---|',
+      '| Debugging | Model X | preferred | 2026-09-03 |',
+    ].join('\n');
+    expect(() => parseReportCard(docWith(ragged))).toThrow(/has a row with 4 column\(s\); expected 5/);
+  });
+
+  it('rejects a task that is not in the Recommendations table', () => {
+    const rows = validRows.replace('| Research | Model X |', '| Refactoring | Model X |');
+    expect(() => parseReportCard(docWith(rows))).toThrow(/task verdict references unknown task: Refactoring/);
+  });
+
+  it('rejects a model that is not in the card', () => {
+    const rows = validRows.replace('| Research | Model X |', '| Research | Missing Model |');
+    expect(() => parseReportCard(docWith(rows))).toThrow(
+      /task verdict references unknown model: Missing Model/,
+    );
+  });
+
+  it('rejects a status outside the viable vocabulary, including avoid', () => {
+    const avoid = validRows.replace('| Research | Model X | care |', '| Research | Model X | avoid |');
+    expect(() => parseReportCard(docWith(avoid))).toThrow(
+      /status "avoid"; expected one of \[preferred, care\]/,
+    );
+    const invented = validRows.replace('| Research | Model X | care |', '| Research | Model X | great |');
+    expect(() => parseReportCard(docWith(invented))).toThrow(/status "great"/);
+  });
+
+  it('rejects a date that is not a valid calendar date', () => {
+    const bad = validRows.replace('2026-09-04', '2026-13-40');
+    expect(() => parseReportCard(docWith(bad))).toThrow(/date "2026-13-40"/);
+  });
+
+  it('rejects an empty summary', () => {
+    const blank = validRows.replace('| slow but usable |', '| |');
+    expect(() => parseReportCard(docWith(blank))).toThrow(/empty Summary/);
+  });
+
+  it('rejects a duplicate task and model pair at the offending row', () => {
+    const duplicated = [
+      '| Task | Model | Status | Date | Summary |',
+      '|---|---|---|---|---|',
+      '| Debugging | Model X | preferred | 2026-09-03 | quick and reliable |',
+      '| Debugging | Model X | care | 2026-09-04 | same pair again |',
+    ].join('\n');
+    try {
+      parseReportCard(docWith(duplicated));
+      expect.unreachable('should have thrown');
+    } catch (error) {
+      expect(error).toBeInstanceOf(ReportCardParseError);
+      const parseError = error as ReportCardParseError;
+      expect(parseError.message).toContain('duplicate verdict for task "Debugging" and model "Model X"');
+      // The offending row, not the section heading five lines above it.
+      expect(parseError.line).toBe(18);
+    }
+  });
+});
+
+describe('parseReportCard model name ambiguity', () => {
+  const table = ['| Aspect | Pros | Cons |', '|---|---|---|', '| Reasoning | fast | |'].join('\n');
+
+  // Two providers may both carry a model heading of the same name: naming is provider-local
+  // and only the provider-scoped ids must be unique.
+  const ambiguousDoc = (reserved: string) =>
+    `# Card\n\n## Acme\n\n### Model X\n\n${table}\n\n## Globex\n\n### Model X\n\n${table}\n\n---\n\n${reserved}\n`;
+
+  it('accepts the same model name under two providers while it is unreferenced', () => {
+    const card = parseReportCard(ambiguousDoc('Just prose, no reserved tables.\n'));
+    expect(card.models.map((model) => `${model.provider}/${model.name}`)).toEqual([
+      'Acme/Model X',
+      'Globex/Model X',
+    ]);
+    expect(card.models.map((model) => model.id)).toEqual(['acme--model-x', 'globex--model-x']);
+  });
+
+  it('rejects a recommendation referencing a name that exists under multiple providers', () => {
+    const recTable = [
+      '| Task | Model | Harness | Effort | Role | Cautions |',
+      '|---|---|---|---|---|---|',
+      '| Debugging | Model X | Zcode | medium | implementer | |',
+    ].join('\n');
+    expect(() => parseReportCard(ambiguousDoc(`## Recommendations\n\n${recTable}\n`))).toThrow(
+      /recommendation references model "Model X", a name that exists under multiple providers \(Acme, Globex\) and cannot be referenced unambiguously/,
+    );
+  });
+
+  it('rejects a task verdict referencing a name that exists under multiple providers', () => {
+    // The recommendation points at a uniquely named model so the task verdict row is what fails.
+    const recTable = [
+      '| Task | Model | Harness | Effort | Role | Cautions |',
+      '|---|---|---|---|---|---|',
+      '| Debugging | Acme Prime | Zcode | medium | implementer | |',
+    ].join('\n');
+    const verdictRows = [
+      '| Task | Model | Status | Date | Summary |',
+      '|---|---|---|---|---|',
+      '| Debugging | Model X | preferred | 2026-09-03 | quick and reliable |',
+    ].join('\n');
+    const doc =
+      `# Card\n\n## Acme\n\n### Model X\n\n${table}\n\n### Acme Prime\n\n${table}\n\n## Globex\n\n### Model X\n\n${table}\n\n---\n\n` +
+      `## Task Verdicts\n\n${verdictRows}\n\n---\n\n## Recommendations\n\n${recTable}\n`;
+    expect(() => parseReportCard(doc)).toThrow(
+      /task verdict references model "Model X", a name that exists under multiple providers \(Acme, Globex\)/,
+    );
+  });
+
+  it('reports the ambiguity at the referencing row', () => {
+    const recTable = [
+      '| Task | Model | Harness | Effort | Role | Cautions |',
+      '|---|---|---|---|---|---|',
+      '| Debugging | Model X | Zcode | medium | implementer | |',
+    ].join('\n');
+    try {
+      parseReportCard(ambiguousDoc(`## Recommendations\n\n${recTable}\n`));
+      expect.unreachable('should have thrown');
+    } catch (error) {
+      expect(error).toBeInstanceOf(ReportCardParseError);
+      // Two provider/model/table blocks (lines 1-17), the separator and section heading
+      // (19-21), then the table header, delimiter and referencing row.
+      expect((error as ReportCardParseError).line).toBe(25);
+    }
+  });
+});
+
+describe('parseReportCard reserved section integrity', () => {
+  const table = ['| Aspect | Pros | Cons |', '|---|---|---|', '| Reasoning | fast | |'].join('\n');
+  const modelDoc = `# Card\n\n## Acme\n\n### Model X\n\n${table}\n`;
+  const recTable = [
+    '| Task | Model | Harness | Effort | Role | Cautions |',
+    '|---|---|---|---|---|---|',
+    '| Debugging | Model X | Zcode | medium | implementer | |',
+  ].join('\n');
+  const tvTable = [
+    '| Task | Model | Status | Date | Summary |',
+    '|---|---|---|---|---|',
+    '| Debugging | Model X | preferred | 2026-09-03 | quick and reliable |',
+  ].join('\n');
+
+  it('accepts Recommendations without Task Verdicts', () => {
+    const card = parseReportCard(`${modelDoc}\n---\n\n## Recommendations\n\n${recTable}\n`);
+    expect(card.recommendations).toHaveLength(1);
+    expect(card.taskVerdicts).toEqual([]);
+  });
+
+  it('accepts a header-only Task Verdicts section without Recommendations', () => {
+    const headerOnly = ['| Task | Model | Status | Date | Summary |', '|---|---|---|---|---|'].join('\n');
+    const card = parseReportCard(`${modelDoc}\n---\n\n## Task Verdicts\n\n${headerOnly}\n`);
+    expect(card.taskVerdicts).toEqual([]);
+  });
+
+  it('rejects a repeated Recommendations section', () => {
+    const doc = `${modelDoc}\n---\n\n## Recommendations\n\n${recTable}\n\n---\n\n## Recommendations\n\n${recTable}\n`;
+    expect(() => parseReportCard(doc)).toThrow(/duplicate "Recommendations" section/);
+  });
+
+  it('rejects a repeated Task Verdicts section', () => {
+    const doc = `${modelDoc}\n---\n\n## Task Verdicts\n\n${tvTable}\n\n---\n\n## Task Verdicts\n\n${tvTable}\n`;
+    expect(() => parseReportCard(doc)).toThrow(/duplicate "Task Verdicts" section/);
+  });
+
+  it('rejects Task Verdicts authored after Recommendations', () => {
+    const doc = `${modelDoc}\n---\n\n## Recommendations\n\n${recTable}\n\n---\n\n## Task Verdicts\n\n${tvTable}\n`;
+    expect(() => parseReportCard(doc)).toThrow(
+      /"Task Verdicts" section appears after "Recommendations"; it must come before it/,
+    );
   });
 });
 

@@ -62,8 +62,21 @@ export const VERDICT_STATUSES = {
 /** One of the {@link VERDICT_STATUSES} keys. */
 export type VerdictStatus = keyof typeof VERDICT_STATUSES;
 
+/**
+ * The only statuses a `## Task Verdicts` row may use. A task's list shows viable models only:
+ * a model with no positive or qualified-positive evidence for that task is omitted from it
+ * entirely rather than recorded as `avoid`.
+ */
+export const TASK_VERDICT_STATUSES = ['preferred', 'care'] as const satisfies readonly VerdictStatus[];
+
+/** One of the {@link TASK_VERDICT_STATUSES} keys. */
+export type TaskVerdictStatus = (typeof TASK_VERDICT_STATUSES)[number];
+
 /** The exact top-level heading for the reserved, end-of-file recommendations table. */
 export const RECOMMENDATIONS_SECTION_NAME = 'Recommendations';
+
+/** The exact top-level heading for the reserved, per-task verdict table. */
+export const TASK_VERDICTS_SECTION_NAME = 'Task Verdicts';
 
 /**
  * A model's current-state call, parsed from the optional `**Verdict:** <status> · <date> ·
@@ -92,6 +105,23 @@ export interface Recommendation {
   role: string;
   /** Free-text cautions; may be empty. */
   cautions: string;
+}
+
+/**
+ * One row of the reserved `## Task Verdicts` table: a task-specific call on one model, which is
+ * what decides the lower list of the Decide view for that task.
+ */
+export interface TaskVerdict {
+  /** Must exactly match a task in the `## Recommendations` table. */
+  task: string;
+  /** Must exactly match a {@link ModelEntry.name} parsed elsewhere in the card. */
+  model: string;
+  /** One of {@link TASK_VERDICT_STATUSES}; `avoid` is not allowed here. */
+  status: TaskVerdictStatus;
+  /** ISO date (`YYYY-MM-DD`) this task-specific verdict was recorded or last updated. */
+  date: string;
+  /** Why this model is viable for this task specifically; never the model's general verdict. */
+  summary: string;
 }
 
 export interface AspectEntry {
@@ -142,6 +172,8 @@ export interface ReportCard {
   harnessAspects: string[];
   /** Rows of the reserved "## Recommendations" table, in source order. */
   recommendations: Recommendation[];
+  /** Rows of the reserved "## Task Verdicts" table, in source order. */
+  taskVerdicts: TaskVerdict[];
 }
 
 export class ReportCardParseError extends Error {

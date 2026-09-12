@@ -9,9 +9,10 @@ way. Author-facing instructions live in `README.md`; this is the design rational
 result as the `virtual:report-card` module, which a static React + TypeScript app renders as a searchable,
 filterable model gallery published to GitHub Pages. There is no backend, database, CMS, account system,
 analytics, or external API call. Editing the Markdown is the only step required to update the site. The same
-file also carries an optional per-model `**Verdict:**` line and a single reserved end-of-file
-`## Recommendations` table, parsed into `ModelEntry.verdict` and `ReportCard.recommendations`; the site does
-not yet render either.
+file also carries an optional per-model `**Verdict:**` line, a single reserved end-of-file
+`## Recommendations` table, and a reserved `## Task Verdicts` table of task-specific verdict rows, parsed
+into `ModelEntry.verdict`, `ReportCard.recommendations`, and `ReportCard.taskVerdicts`; the Decide view
+renders the recommendations and the per-task verdict lists.
 
 The report card doubles as a hand-authored document and as structured data. Every design decision below
 follows from holding that tension: authoring must stay frictionless, while the build must refuse to ship a
@@ -53,6 +54,19 @@ Guarantees the parser enforces, each surfaced as `LLM_REPORT_CARD.md:<line>: <me
   constant first — deliberate friction, in exchange for a vocabulary that cannot drift.
 - `card.aspects` is emitted in canonical order rather than first-seen order, so the aspect dropdown is
   stable regardless of the order sections happen to be authored in.
+- **Reserved `## Task Verdicts` table** (its own parser state, not an overload of Recommendations): exact
+  columns `Task | Model | Status | Date | Summary`; every row's `Task` must match a `## Recommendations`
+  task and its `Model` a model heading; status is `preferred` or `care` only, because a model without
+  positive task evidence is omitted from the task rather than listed as `avoid`; dates must be
+  calendar-valid ISO; summaries must be non-empty; and one Task + Model pair may appear only once.
+  Absence of a row is data, not an error — a task with no rows renders an empty state, never a
+  domain-wide fallback list.
+- **Reserved-table references resolve by exact model name, which is provider-local**: a referenced name
+  must match exactly one model. Zero matches is the unknown-model error; a name existing under several
+  providers is an ambiguity error rather than a silent first match — duplicate model headings across
+  providers may coexist, they just cannot be referenced. The reserved sections themselves are
+  single-use and ordered: at most one `## Recommendations` and one `## Task Verdicts`, with Task
+  Verdicts authored above Recommendations.
 
 Fenced code blocks are stripped before parsing while preserving line numbers, which is what allows the
 file's own "How to use" template to sit in the document without being read as data.
@@ -69,8 +83,9 @@ nothing to do with the change. The rule now:
 
 - **Behavior is tested against fixtures.** `src/data/__fixtures__/` holds a representative card covering
   multiple providers, all ten aspects, empty cells, multi-note cells, nested-parenthesis semicolons,
-  escaped pipes, a fenced template, and inline backticks. Assertions against it are exact and strict,
-  because the fixture never changes underneath the suite.
+  escaped pipes, a fenced template, inline backticks, and a reserved Task Verdicts + Recommendations
+  pair (including a recommendation task with no verdict rows). Assertions against it are exact and
+  strict, because the fixture never changes underneath the suite.
 - **The live document gets one smoke test**, asserting only invariants true of any valid card: it parses,
   ids are unique and URL-safe, each model resolves to a provider that contains it, the flattened model
   count equals the sum of per-provider counts, and every aspect is canonical. No hardcoded counts, names,
@@ -86,6 +101,10 @@ only for a genuine schema violation.
 
 ## Interface and interaction
 
+- The Decide view has two sections. The task recommender picks the one top setup per task from
+  `## Recommendations`. Below it, the "Current verdicts" list renders exactly the selected task's
+  `## Task Verdicts` rows — preferred before care, each with its task-specific status, date, and
+  summary — and never falls back to all coding or all ASR models when a task has no rows.
 - Landing view is a provider-grouped gallery with client-side search across model names, providers, aspect
   names, and note text, plus provider and aspect filters.
 - Selecting a model opens an accessible modal (`role="dialog"`, `aria-modal`, focus moved in, focus
