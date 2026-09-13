@@ -89,7 +89,7 @@ export function ModelDetail({ model, onClose }: ModelDetailProps) {
           <div className="sheet__actions">
             <button
               type="button"
-              className="icon-button"
+              className={`icon-button${copied ? ' icon-button--copied' : ''}`}
               onClick={copyLink}
               aria-label={copied ? 'Link copied' : 'Copy link to this model'}
             >
