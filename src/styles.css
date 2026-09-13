@@ -66,6 +66,65 @@
 }
 
 /* ------------------------------------------------------------------ */
+/* Animations                                                          */
+/* ------------------------------------------------------------------ */
+
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes check-pop {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /* Base                                                                */
 /* ------------------------------------------------------------------ */
 
@@ -223,12 +282,11 @@ code {
 }
 
 .dashboard-tab {
+  position: relative;
   display: inline-flex;
   align-items: center;
   align-self: stretch;
   border: 0;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
   padding: 0 4px;
   background: transparent;
   color: var(--ink-muted);
@@ -236,8 +294,8 @@ code {
   font-weight: 500;
   cursor: pointer;
   transition:
-    color 150ms ease,
-    border-color 150ms ease;
+    color 120ms ease,
+    border-color 120ms ease;
 }
 
 .dashboard-tab:hover {
@@ -245,9 +303,25 @@ code {
 }
 
 .dashboard-tab[aria-selected='true'] {
-  border-bottom-color: var(--accent);
   color: var(--ink);
   font-weight: 600;
+}
+
+.dashboard-tab::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 180ms ease-in-out;
+}
+
+.dashboard-tab[aria-selected='true']::after {
+  transform: scaleX(1);
 }
 
 .dashboard-nav__actions {
@@ -273,9 +347,9 @@ code {
   font-weight: 600;
   cursor: pointer;
   transition:
-    border-color 150ms ease,
-    background-color 150ms ease,
-    color 150ms ease;
+    border-color 120ms ease,
+    background-color 120ms ease,
+    color 120ms ease;
 }
 
 .theme-toggle:hover {
@@ -357,6 +431,7 @@ code {
   width: 100%;
   min-height: 38px;
   border: 0;
+  border-left: 2px solid transparent;
   border-radius: var(--radius-sm);
   padding: 8px 10px;
   background: transparent;
@@ -365,8 +440,9 @@ code {
   text-align: left;
   cursor: pointer;
   transition:
-    background-color 150ms ease,
-    color 150ms ease;
+    background-color 120ms ease,
+    color 120ms ease,
+    border-color 120ms ease;
 }
 
 .provider-nav__item > span:last-child {
@@ -376,11 +452,13 @@ code {
 }
 
 .provider-nav__item:hover {
+  border-left-color: var(--border-hover);
   background: var(--surface-elevated);
   color: var(--ink);
 }
 
 .provider-nav__item[aria-pressed='true'] {
+  border-left-color: var(--accent);
   background: var(--accent-muted);
   color: var(--accent);
   font-weight: 600;
@@ -485,7 +563,7 @@ code {
   background: var(--surface-elevated);
   color: var(--ink);
   font-size: 14px;
-  transition: border-color 150ms ease;
+  transition: border-color 120ms ease;
 }
 
 .search__input::placeholder {
@@ -515,8 +593,8 @@ code {
   color: var(--ink-secondary);
   cursor: pointer;
   transition:
-    background-color 150ms ease,
-    color 150ms ease;
+    background-color 120ms ease,
+    color 120ms ease;
 }
 
 .search__clear:hover {
@@ -540,7 +618,7 @@ code {
   color: var(--ink-secondary);
   font-size: 13px;
   cursor: pointer;
-  transition: border-color 150ms ease;
+  transition: border-color 120ms ease;
 }
 
 .select select:hover {
@@ -562,7 +640,7 @@ code {
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: color 150ms ease;
+  transition: color 120ms ease;
 }
 
 .text-button:hover {
@@ -622,9 +700,11 @@ code {
   text-align: left;
   cursor: pointer;
   transition:
-    border-color 150ms ease,
-    box-shadow 150ms ease,
-    transform 150ms ease;
+    border-color 120ms ease,
+    box-shadow 120ms ease,
+    transform 120ms ease;
+  animation: card-enter 220ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: min(calc(var(--stagger-index, 0) * 30ms), 150ms);
 }
 
 .model-card:hover {
@@ -740,6 +820,7 @@ code {
   padding: 64px 24px;
   background: var(--surface);
   text-align: center;
+  animation: fade-in 300ms ease-out both;
 }
 
 .empty-state__title {
@@ -796,14 +877,21 @@ code {
   font-weight: 500;
   cursor: pointer;
   transition:
-    background-color 150ms ease,
-    color 150ms ease,
-    border-color 150ms ease;
+    background-color 120ms ease,
+    color 120ms ease,
+    border-color 120ms ease,
+    transform 120ms ease;
 }
 
 .decision-chip:hover {
   border-color: var(--border-hover);
   color: var(--ink);
+  transform: scale(1.02);
+}
+
+.decision-chip:active {
+  transform: scale(0.97);
+  transition-duration: 80ms;
 }
 
 .decision-chip[aria-pressed='true'] {
@@ -928,8 +1016,10 @@ code {
   text-align: left;
   cursor: pointer;
   transition:
-    border-color 150ms ease,
-    transform 150ms ease;
+    border-color 120ms ease,
+    transform 120ms ease;
+  animation: card-enter 200ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: min(calc(var(--stagger-index, 0) * 30ms), 120ms);
 }
 
 .decision-row:hover {
@@ -1016,6 +1106,7 @@ code {
   justify-content: center;
   padding: 24px;
   background: rgb(0 0 0 / 0.5);
+  animation: backdrop-in 200ms ease-out both;
 }
 
 .sheet {
@@ -1028,6 +1119,7 @@ code {
   border-radius: var(--radius-lg);
   background: var(--surface);
   box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  animation: sheet-in 200ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 :root[data-theme='dark'] .sheet {
@@ -1077,15 +1169,19 @@ code {
   color: var(--ink-secondary);
   cursor: pointer;
   transition:
-    border-color 150ms ease,
-    background-color 150ms ease,
-    color 150ms ease;
+    border-color 120ms ease,
+    background-color 120ms ease,
+    color 120ms ease;
 }
 
 .icon-button:hover {
   border-color: var(--border-hover);
   background: var(--surface-elevated);
   color: var(--ink);
+}
+
+.icon-button--copied svg {
+  animation: check-pop 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .sheet__body {
@@ -1148,11 +1244,15 @@ code {
 }
 
 .aspect-table tbody tr {
-  transition: background-color 150ms ease;
+  border-left: 2px solid transparent;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
 }
 
 .aspect-table tbody tr:hover {
   background: var(--surface-elevated);
+  border-left-color: var(--accent);
 }
 
 .aspect-table tr.is-empty {
@@ -1415,12 +1515,16 @@ code {
   *,
   *::before,
   *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 
   .model-card:hover,
   .decision-row:hover,
-  .decision-chip:hover {
+  .decision-chip:hover,
+  .decision-chip:active {
     transform: none !important;
   }
 }
