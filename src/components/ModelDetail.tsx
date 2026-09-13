@@ -101,6 +101,10 @@ export function ModelDetail({ model, onClose }: ModelDetailProps) {
           </div>
         </header>
 
+        <span className="visually-hidden" role="status" aria-live="polite">
+          {copied ? 'Link copied to clipboard' : ''}
+        </span>
+
         <div className="sheet__body" tabIndex={0} role="region" aria-label={`${model.name} report details`}>
           {hasNotes ? (
             <table className="aspect-table">

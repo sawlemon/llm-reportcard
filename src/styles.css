@@ -72,7 +72,7 @@
 @keyframes card-enter {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -92,11 +92,11 @@
 @keyframes sheet-in {
   from {
     opacity: 0;
-    transform: translateY(16px) scale(0.98);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
@@ -111,11 +111,11 @@
 
 @keyframes check-pop {
   0% {
-    transform: scale(0.6);
+    transform: scale(0.8);
     opacity: 0;
   }
-  50% {
-    transform: scale(1.15);
+  60% {
+    transform: scale(1.05);
     opacity: 1;
   }
   100% {
@@ -294,8 +294,8 @@ code {
   font-weight: 500;
   cursor: pointer;
   transition:
-    color 150ms ease,
-    border-color 150ms ease;
+    color 120ms ease,
+    border-color 120ms ease;
 }
 
 .dashboard-tab:hover {
@@ -317,7 +317,7 @@ code {
   background: var(--accent);
   transform: scaleX(0);
   transform-origin: center;
-  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 180ms ease-in-out;
 }
 
 .dashboard-tab[aria-selected='true']::after {
@@ -347,9 +347,9 @@ code {
   font-weight: 600;
   cursor: pointer;
   transition:
-    border-color 150ms ease,
-    background-color 150ms ease,
-    color 150ms ease;
+    border-color 120ms ease,
+    background-color 120ms ease,
+    color 120ms ease;
 }
 
 .theme-toggle:hover {
@@ -359,11 +359,7 @@ code {
 }
 
 .theme-toggle svg {
-  transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.theme-toggle:active svg {
-  transform: rotate(180deg);
+  transition: opacity 150ms ease-out;
 }
 
 /* ------------------------------------------------------------------ */
@@ -448,9 +444,9 @@ code {
   text-align: left;
   cursor: pointer;
   transition:
-    background-color 150ms ease,
-    color 150ms ease,
-    border-color 150ms ease;
+    background-color 120ms ease,
+    color 120ms ease,
+    border-color 120ms ease;
 }
 
 .provider-nav__item > span:last-child {
@@ -571,7 +567,7 @@ code {
   background: var(--surface-elevated);
   color: var(--ink);
   font-size: 14px;
-  transition: border-color 150ms ease;
+  transition: border-color 120ms ease;
 }
 
 .search__input::placeholder {
@@ -601,8 +597,8 @@ code {
   color: var(--ink-secondary);
   cursor: pointer;
   transition:
-    background-color 150ms ease,
-    color 150ms ease;
+    background-color 120ms ease,
+    color 120ms ease;
 }
 
 .search__clear:hover {
@@ -626,7 +622,7 @@ code {
   color: var(--ink-secondary);
   font-size: 13px;
   cursor: pointer;
-  transition: border-color 150ms ease;
+  transition: border-color 120ms ease;
 }
 
 .select select:hover {
@@ -648,7 +644,7 @@ code {
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: color 150ms ease;
+  transition: color 120ms ease;
 }
 
 .text-button:hover {
@@ -708,11 +704,11 @@ code {
   text-align: left;
   cursor: pointer;
   transition:
-    border-color 150ms ease,
-    box-shadow 150ms ease,
-    transform 150ms ease;
-  animation: card-enter 400ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
-  animation-delay: calc(var(--stagger-index, 0) * 60ms);
+    border-color 120ms ease,
+    box-shadow 120ms ease,
+    transform 120ms ease;
+  animation: card-enter 220ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: min(calc(var(--stagger-index, 0) * 30ms), 150ms);
 }
 
 .model-card:hover {
@@ -885,10 +881,10 @@ code {
   font-weight: 500;
   cursor: pointer;
   transition:
-    background-color 150ms ease,
-    color 150ms ease,
-    border-color 150ms ease,
-    transform 150ms ease;
+    background-color 120ms ease,
+    color 120ms ease,
+    border-color 120ms ease,
+    transform 120ms ease;
 }
 
 .decision-chip:hover {
@@ -1024,10 +1020,10 @@ code {
   text-align: left;
   cursor: pointer;
   transition:
-    border-color 150ms ease,
-    transform 150ms ease;
-  animation: card-enter 350ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
-  animation-delay: calc(var(--stagger-index, 0) * 50ms);
+    border-color 120ms ease,
+    transform 120ms ease;
+  animation: card-enter 200ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: min(calc(var(--stagger-index, 0) * 30ms), 120ms);
 }
 
 .decision-row:hover {
@@ -1127,7 +1123,7 @@ code {
   border-radius: var(--radius-lg);
   background: var(--surface);
   box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-  animation: sheet-in 250ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: sheet-in 200ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 :root[data-theme='dark'] .sheet {
@@ -1177,9 +1173,9 @@ code {
   color: var(--ink-secondary);
   cursor: pointer;
   transition:
-    border-color 150ms ease,
-    background-color 150ms ease,
-    color 150ms ease;
+    border-color 120ms ease,
+    background-color 120ms ease,
+    color 120ms ease;
 }
 
 .icon-button:hover {
@@ -1254,8 +1250,8 @@ code {
 .aspect-table tbody tr {
   border-left: 2px solid transparent;
   transition:
-    background-color 150ms ease,
-    border-color 150ms ease;
+    background-color 120ms ease,
+    border-color 120ms ease;
 }
 
 .aspect-table tbody tr:hover {
@@ -1523,21 +1519,16 @@ code {
   *,
   *::before,
   *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 
   .model-card:hover,
   .decision-row:hover,
-  .decision-chip:hover {
+  .decision-chip:hover,
+  .decision-chip:active {
     transform: none !important;
-  }
-
-  .model-card,
-  .decision-row,
-  .sheet-backdrop,
-  .sheet,
-  .empty-state,
-  .icon-button--copied svg {
-    animation: none !important;
   }
 }
