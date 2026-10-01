@@ -1,150 +1,65 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Menu, Moon, PanelLeftClose, Sun, X } from 'lucide-react';
+import { flushSync } from 'react-dom';
 import reportCard from 'virtual:report-card';
-import type { ModelEntry, ProviderEntry } from './data/types';
-import { FilterBar } from './components/FilterBar';
-import { DecisionView } from './components/DecisionView';
-import { ModelCard } from './components/ModelCard';
-import { ModelDetail } from './components/ModelDetail';
-import { filterModels } from './lib/filterModels';
+import { DeckView } from './components/DeckView';
+import { Dossier } from './components/Dossier';
+import { ShelfView } from './components/ShelfView';
+import { SlotMachine } from './components/SlotMachine';
+import { Ticker } from './components/Ticker';
+import { VersusView } from './components/VersusView';
+import { isAsrEntry } from './lib/redesign';
 import { useHashModel } from './lib/useHashModel';
 import { useTheme } from './lib/useTheme';
 
-type View = 'decide' | 'models' | 'harnesses';
+type View = 'decide' | 'deck' | 'versus' | 'harness' | 'voice';
 
-const FOCUSABLE = 'a[href], button:not([disabled]), input, select, [tabindex]:not([tabindex="-1"])';
+const VIEWS: View[] = ['decide', 'deck', 'versus', 'harness', 'voice'];
+const TAB_EMOJIS: Record<View, string> = {
+  decide: '🎰',
+  deck: '🃏',
+  versus: '🥊',
+  harness: '🧰',
+  voice: '🎙️',
+};
+const TAB_LABELS: Record<View, string> = {
+  decide: 'Decide',
+  deck: 'The Deck',
+  versus: 'Versus',
+  harness: 'Harness',
+  voice: 'Voice',
+};
 
-interface ProviderNavigationProps {
-  providers: ProviderEntry[];
-  selectedProviderId: string | null;
-  onSelect: (providerId: string | null) => void;
-}
-
-function ProviderNavigation({ providers, selectedProviderId, onSelect }: ProviderNavigationProps) {
-  return (
-    <nav className="provider-nav" aria-label="Provider index">
-      <div className="provider-nav__intro">
-        <PanelLeftClose aria-hidden="true" size={18} />
-        <div>
-          <p className="provider-nav__eyebrow">Provider index</p>
-          <p className="provider-nav__caption">Technical reports</p>
-        </div>
-      </div>
-
-      <p className="provider-nav__label">Providers</p>
-      <div className="provider-nav__items">
-        <button
-          type="button"
-          className="provider-nav__item"
-          aria-pressed={selectedProviderId === null}
-          onClick={() => onSelect(null)}
-        >
-          <span>All models</span>
-          <span aria-hidden="true">{reportCard.models.length}</span>
-        </button>
-        {providers.map((provider) => (
-          <button
-            key={provider.id}
-            type="button"
-            className="provider-nav__item"
-            aria-pressed={selectedProviderId === provider.id}
-            onClick={() => onSelect(provider.id)}
-          >
-            <span>{provider.name}</span>
-            <span aria-hidden="true">{provider.models.length}</span>
-          </button>
-        ))}
-      </div>
-    </nav>
-  );
-}
-
-interface ProviderDrawerProps extends ProviderNavigationProps {
-  onClose: () => void;
-}
-
-function ProviderDrawer({ onClose, ...navigation }: ProviderDrawerProps) {
-  const dialogRef = useRef<HTMLDivElement>(null);
-  const closeRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    closeRef.current?.focus();
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, []);
-
-  const onKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === 'Escape') {
-      event.stopPropagation();
-      onClose();
-      return;
-    }
-    if (event.key !== 'Tab') return;
-
-    const focusable = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? []);
-    if (!focusable.length) return;
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
-  };
-
-  return (
-    <div
-      className="drawer-backdrop"
-      onMouseDown={(event) => event.target === event.currentTarget && onClose()}
-    >
-      <div
-        ref={dialogRef}
-        className="provider-drawer"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Provider navigation"
-        onKeyDown={onKeyDown}
-      >
-        <div className="provider-drawer__header">
-          <span>Browse reports</span>
-          <button
-            ref={closeRef}
-            type="button"
-            className="icon-button"
-            onClick={onClose}
-            aria-label="Close provider menu"
-          >
-            <X aria-hidden="true" size={18} />
-          </button>
-        </div>
-        <ProviderNavigation {...navigation} />
-      </div>
-    </div>
-  );
+/**
+ * The view a deep link opens: a harness id → Harness, an ASR model → Voice, any other
+ * model → Deck, anything else → Decide.
+ */
+function viewForHash(id: string | null): View {
+  if (!id) return 'decide';
+  if (reportCard.harnesses.some((harness) => harness.id === id)) return 'harness';
+  const model = reportCard.models.find((entry) => entry.id === id);
+  if (model) return isAsrEntry(model) ? 'voice' : 'deck';
+  return 'decide';
 }
 
 export default function App() {
   const [selectedId, setSelectedId] = useHashModel();
-  const [view, setView] = useState<View>(() =>
-    reportCard.harnesses.some((harness) => harness.id === selectedId) ? 'harnesses' : 'decide',
-  );
-  const [query, setQuery] = useState('');
-  const [providerId, setProviderId] = useState<string | null>(null);
-  const [modelAspect, setModelAspect] = useState<string | null>(null);
-  const [harnessAspect, setHarnessAspect] = useState<string | null>(null);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const [theme, toggleTheme] = useTheme();
 
-  const selected =
-    reportCard.models.find((model) => model.id === selectedId) ??
-    reportCard.harnesses.find((harness) => harness.id === selectedId) ??
-    null;
+  const selected = useMemo(
+    () =>
+      reportCard.models.find((model) => model.id === selectedId) ??
+      reportCard.harnesses.find((harness) => harness.id === selectedId) ??
+      null,
+    [selectedId],
+  );
+
+  // Deep links set the starting view; in-app selections (sticky notes, cards, reels) open
+  // the dossier over whichever view the user is already on.
+  const [view, setView] = useState<View>(() => viewForHash(selectedId));
+
+  const searchRef = useRef<HTMLInputElement>(null);
+  /** Registered by DeckView so the "r" shortcut can deal a random card once the Deck mounts. */
+  const dealRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     if (selectedId && !selected) {
@@ -152,285 +67,135 @@ export default function App() {
     }
   }, [selectedId, selected, setSelectedId]);
 
-  const selectedIsHarness = selected
-    ? reportCard.harnesses.some((harness) => harness.id === selected.id)
-    : false;
-  const activeView: View = selectedIsHarness ? 'harnesses' : view;
-  const activeAspect = activeView === 'models' ? modelAspect : harnessAspect;
-  const activeEntries = activeView === 'models' ? reportCard.models : reportCard.harnesses;
-  const results = useMemo(
-    () =>
-      filterModels(activeEntries, {
-        query,
-        providerId: activeView === 'models' ? providerId : null,
-        aspect: activeAspect,
-      }),
-    [activeAspect, activeEntries, providerId, query, activeView],
-  );
-
-  const groups = useMemo(() => {
-    const byProvider = new Map<string, ModelEntry[]>();
-    for (const model of results) {
-      const bucket = byProvider.get(model.provider);
-      if (bucket) bucket.push(model);
-      else byProvider.set(model.provider, [model]);
-    }
-    return Array.from(byProvider, ([provider, models]) => ({ provider, models }));
-  }, [results]);
-
-  const selectedProvider = reportCard.providers.find((provider) => provider.id === providerId) ?? null;
-  const title =
-    activeView === 'harnesses'
-      ? 'Harness reports'
-      : selectedProvider
-        ? `${selectedProvider.name} suite`
-        : 'Model reports';
-  const subtitle =
-    activeView === 'harnesses'
-      ? 'The apps and CLIs that shape how these models are actually used.'
-      : selectedProvider
-        ? `${results.length} observed ${results.length === 1 ? 'model' : 'models'} from ${selectedProvider.name}.`
-        : `${reportCard.models.length} models from ${reportCard.providers.length} providers, organised by first-hand observations.`;
-  const aspects = activeView === 'models' ? reportCard.aspects : reportCard.harnessAspects;
-
-  const closeDrawer = () => {
-    setDrawerOpen(false);
-    menuButtonRef.current?.focus();
-  };
-
-  const selectProvider = (nextProviderId: string | null) => {
-    setProviderId(nextProviderId);
-    closeDrawer();
-  };
-
-  const switchView = (nextView: View) => {
-    setView(nextView);
-    setDrawerOpen(false);
-  };
-
-  const views: View[] = ['decide', 'models', 'harnesses'];
-  const tabLabels = { decide: 'Decide', models: 'Models', harnesses: 'Harnesses' };
+  // Global shortcuts: 1–5 switch views, "/" deals into the Deck search, "r" deals a random
+  // card. Ignored while typing, while a dialog is open, or with a modifier held.
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.metaKey || event.ctrlKey) return;
+      const target = event.target as HTMLElement | null;
+      if (target?.closest?.('input, select, textarea')) return;
+      if (document.querySelector('[role="dialog"]')) return;
+      if (/^[1-5]$/.test(event.key)) {
+        setView(VIEWS[Number(event.key) - 1]);
+      } else if (event.key === '/') {
+        event.preventDefault();
+        flushSync(() => setView('deck'));
+        searchRef.current?.focus();
+      } else if (event.key.toLowerCase() === 'r') {
+        flushSync(() => setView('deck'));
+        dealRef.current?.();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   const onTabKeyDown = (event: React.KeyboardEvent) => {
-    const currentIndex = views.indexOf(activeView);
+    const currentIndex = VIEWS.indexOf(view);
     let nextIndex: number;
     if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
       event.preventDefault();
-      nextIndex = (currentIndex + 1) % views.length;
+      nextIndex = (currentIndex + 1) % VIEWS.length;
     } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
       event.preventDefault();
-      nextIndex = (currentIndex - 1 + views.length) % views.length;
+      nextIndex = (currentIndex - 1 + VIEWS.length) % VIEWS.length;
     } else if (event.key === 'Home') {
       event.preventDefault();
       nextIndex = 0;
     } else if (event.key === 'End') {
       event.preventDefault();
-      nextIndex = views.length - 1;
+      nextIndex = VIEWS.length - 1;
     } else {
       return;
     }
-    const nextView = views[nextIndex];
-    switchView(nextView);
+    const nextView = VIEWS[nextIndex];
+    setView(nextView);
     document.getElementById(`tab-${nextView}`)?.focus();
   };
 
+  const voiceEntries = useMemo(() => reportCard.models.filter((model) => isAsrEntry(model)), []);
+
   return (
-    <div className="app-shell">
-      <a className="skip-link" href="#dashboard-content">
-        Skip to reports
+    <>
+      <a className="skip-link" href="#main-content">
+        Skip to content
       </a>
 
-      <header className="dashboard-nav">
-        <div className="dashboard-nav__inner">
-          <div className="dashboard-nav__left">
-            <span className="dashboard-nav__brand">{reportCard.title}</span>
-            <nav
-              className="dashboard-tabs"
-              aria-label="Report category"
-              role="tablist"
-              onKeyDown={onTabKeyDown}
-            >
-              {views.map((v) => (
-                <button
-                  key={v}
-                  type="button"
-                  role="tab"
-                  id={`tab-${v}`}
-                  aria-selected={activeView === v}
-                  aria-controls="dashboard-content"
-                  tabIndex={activeView === v ? 0 : -1}
-                  className="dashboard-tab"
-                  onClick={() => switchView(v)}
-                >
-                  {tabLabels[v]}
-                </button>
-              ))}
-            </nav>
-          </div>
-          <div className="dashboard-nav__actions">
-            {activeView === 'models' ? (
-              <button
-                ref={menuButtonRef}
-                type="button"
-                className="icon-button dashboard-nav__menu"
-                aria-label="Open provider menu"
-                aria-expanded={drawerOpen}
-                onClick={() => setDrawerOpen(true)}
-              >
-                <Menu aria-hidden="true" size={18} />
-              </button>
-            ) : null}
-            <button
-              type="button"
-              className="theme-toggle"
-              aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
-              onClick={toggleTheme}
-            >
-              {theme === 'light' ? (
-                <Moon aria-hidden="true" size={16} />
-              ) : (
-                <Sun aria-hidden="true" size={16} />
-              )}
-              <span>{theme === 'light' ? 'Dark' : 'Light'}</span>
-            </button>
-          </div>
+      <header className="top">
+        <div className="logo">
+          <span className="logo__badge" aria-hidden="true">
+            A+
+          </span>
+          {reportCard.title}
         </div>
+        <nav className="tabs" role="tablist" aria-label="Views" onKeyDown={onTabKeyDown}>
+          {VIEWS.map((v) => (
+            <button
+              key={v}
+              type="button"
+              role="tab"
+              id={`tab-${v}`}
+              aria-selected={view === v}
+              aria-controls="main-content"
+              tabIndex={view === v ? 0 : -1}
+              className="tab"
+              onClick={() => setView(v)}
+            >
+              <span aria-hidden="true">{TAB_EMOJIS[v]} </span>
+              {TAB_LABELS[v]}
+            </button>
+          ))}
+        </nav>
+        <button
+          type="button"
+          className="chalk-toggle"
+          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+          onClick={toggleTheme}
+        >
+          <span aria-hidden="true">{theme === 'light' ? '🧑‍🏫 ' : '📄 '}</span>
+          {theme === 'light' ? 'Chalkboard' : 'Paper'}
+        </button>
       </header>
 
-      <div className={`dashboard-layout dashboard-layout--${activeView}`}>
-        {activeView === 'models' ? (
-          <aside className="dashboard-sidebar" aria-hidden={drawerOpen}>
-            <ProviderNavigation
-              providers={reportCard.providers}
-              selectedProviderId={providerId}
-              onSelect={setProviderId}
-            />
-          </aside>
+      <Ticker />
+
+      <main id="main-content" role="tabpanel" aria-labelledby={`tab-${view}`}>
+        {view === 'decide' ? <SlotMachine onSelectModel={setSelectedId} /> : null}
+        {view === 'deck' ? (
+          <DeckView onSelectModel={setSelectedId} searchRef={searchRef} dealRef={dealRef} />
         ) : null}
-
-        <main
-          className="dashboard-main"
-          id="dashboard-content"
-          role="tabpanel"
-          aria-labelledby={`tab-${activeView}`}
-        >
-          <div className="dashboard-main__inner">
-            {activeView === 'decide' ? (
-              <DecisionView onSelectModel={setSelectedId} />
-            ) : (
+        {view === 'versus' ? <VersusView /> : null}
+        {view === 'harness' ? (
+          <ShelfView
+            title={
               <>
-                <header className="dashboard-heading">
-                  <div>
-                    <p className="dashboard-heading__eyebrow">
-                      {activeView === 'models' ? 'Model evaluation' : 'Tool evaluation'}
-                    </p>
-                    <h1>{title}</h1>
-                    <p>{subtitle}</p>
-                  </div>
-                  <p className="dashboard-heading__count">
-                    {results.length} {activeView === 'models' ? 'models' : 'harnesses'}
-                  </p>
-                </header>
-
-                <FilterBar
-                  aspects={aspects}
-                  query={query}
-                  aspect={activeAspect}
-                  resultCount={results.length}
-                  itemLabels={activeView === 'models' ? ['model', 'models'] : ['harness', 'harnesses']}
-                  onQueryChange={setQuery}
-                  onAspectChange={activeView === 'models' ? setModelAspect : setHarnessAspect}
-                  onReset={() => {
-                    setQuery('');
-                    if (activeView === 'models') setModelAspect(null);
-                    else setHarnessAspect(null);
-                  }}
-                />
-
-                <section
-                  className="report-gallery"
-                  aria-label={activeView === 'models' ? 'Model reports' : 'Harness reports'}
-                >
-                  {results.length === 0 ? (
-                    <div className="empty-state">
-                      <p className="empty-state__title">No reports match those filters.</p>
-                      <button
-                        type="button"
-                        className="text-button"
-                        onClick={() => {
-                          setQuery('');
-                          if (activeView === 'models') setModelAspect(null);
-                          else setHarnessAspect(null);
-                        }}
-                      >
-                        Reset filters
-                      </button>
-                    </div>
-                  ) : activeView === 'models' ? (
-                    groups.map((group) => (
-                      <section
-                        className="report-group"
-                        key={group.provider}
-                        aria-label={`${group.provider} reports`}
-                      >
-                        {providerId === null ? <h2>{group.provider}</h2> : null}
-                        <div className="report-grid">
-                          {group.models.map((model, index) => (
-                            <ModelCard
-                              key={model.id}
-                              model={model}
-                              highlightAspect={modelAspect}
-                              onSelect={setSelectedId}
-                              style={{ '--stagger-index': index } as React.CSSProperties}
-                            />
-                          ))}
-                        </div>
-                      </section>
-                    ))
-                  ) : (
-                    <div className="report-grid">
-                      {results.map((harness, index) => (
-                        <ModelCard
-                          key={harness.id}
-                          model={harness}
-                          highlightAspect={harnessAspect}
-                          onSelect={setSelectedId}
-                          style={{ '--stagger-index': index } as React.CSSProperties}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </section>
+                <mark>Harness</mark>.
               </>
-            )}
-          </div>
-        </main>
-      </div>
+            }
+            scribble="where models live"
+            entries={reportCard.harnesses}
+            aspects={reportCard.harnessAspects}
+            onSelectModel={setSelectedId}
+          />
+        ) : null}
+        {view === 'voice' ? (
+          <ShelfView
+            title={
+              <>
+                Voice-to-<mark>text</mark>.
+              </>
+            }
+            scribble="not coding models!"
+            entries={voiceEntries}
+            aspects={reportCard.aspects}
+            onSelectModel={setSelectedId}
+          />
+        ) : null}
+      </main>
 
-      <footer className="footer">
-        <p>
-          A personal, continuously updated record of first-hand use. These notes are not benchmark results,
-          measurements, or universal advice. Generated from <code>LLM_REPORT_CARD.md</code>.
-        </p>
-      </footer>
+      <footer className="footer">first-hand notes, not benchmarks ✏️</footer>
 
-      {drawerOpen ? (
-        <ProviderDrawer
-          providers={reportCard.providers}
-          selectedProviderId={providerId}
-          onSelect={selectProvider}
-          onClose={closeDrawer}
-        />
-      ) : null}
-      {selected ? (
-        <ModelDetail
-          model={selected}
-          onClose={() => {
-            if (selectedIsHarness) setView('harnesses');
-            setSelectedId(null);
-          }}
-        />
-      ) : null}
-    </div>
+      {selected ? <Dossier model={selected} onClose={() => setSelectedId(null)} /> : null}
+    </>
   );
 }
