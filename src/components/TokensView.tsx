@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import reportCard from 'virtual:report-card';
 import { cardColor } from '../lib/redesign';
+import { CostChip } from './CostChip';
 import {
-  formatCost,
   formatTokens,
   shortDate,
   sortUsageRows,
@@ -43,12 +43,18 @@ export function TokensView({ onSelectModel }: TokensViewProps) {
       </h1>
 
       {rows.length > 0 ? (
-        <p className="tokens-sticker">
-          <b>{formatTokens(totals.billedTokens)}</b> tokens · {totals.calls.toLocaleString('en-US')} calls
-          <small>
-            ~{formatCost(totals.cost)} at list prices · {shortDate(totals.from)} – {shortDate(totals.to)}
-          </small>
-        </p>
+        <div className="tokens-pot">
+          <p className="tokens-sticker">
+            <b>{formatTokens(totals.billedTokens)}</b> tokens
+            <small>
+              {shortDate(totals.from)} – {shortDate(totals.to)}
+            </small>
+          </p>
+          <div className="tokens-pot__chip">
+            <CostChip cost={totals.cost} size="lg" />
+            <span className="tokens-pot__label">the pot, at list prices</span>
+          </div>
+        </div>
       ) : null}
 
       <div className="tokens-sort" role="group" aria-label="Sort the leaderboard">
@@ -100,12 +106,7 @@ export function TokensView({ onSelectModel }: TokensViewProps) {
                   </span>
                   <span className="tokens-figures">
                     <b className="tokens-value">{formatTokens(row.usage.billedTokens)}</b>
-                    <span className="tokens-calls">{row.usage.calls.toLocaleString('en-US')} calls</span>
-                    {row.usage.cost !== null ? (
-                      <span className="tokens-cost">~{formatCost(row.usage.cost)}</span>
-                    ) : (
-                      <span className="tokens-cost tokens-cost--none">no price</span>
-                    )}
+                    <CostChip cost={row.usage.cost} />
                   </span>
                 </li>
               );

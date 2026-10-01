@@ -7,8 +7,8 @@
  *   ZCODE_DB=/path/db.sqlite npm run usage:export -- --days 60 --write
  *
  * The database is opened read-only. Rows are grouped by model id only (the same model reached
- * through two provider accounts is one model), and only completed calls are counted. Session,
- * provider and message ids are never exported.
+ * through two provider accounts is one model), and only completed requests are counted. Call counts,
+ * session, provider and message ids are never exported.
  *
  * Token semantics, as Zcode records them: `input` already includes cache reads and cache
  * writes, and `output` already includes reasoning.
@@ -36,7 +36,6 @@ const db = new DatabaseSync(DB_PATH, { readOnly: true });
 const rows = db
   .prepare(
     `select model_id as id,
-            count(*) as calls,
             sum(input_tokens) as input,
             sum(output_tokens) as output,
             sum(reasoning_tokens) as reasoning,
@@ -69,7 +68,7 @@ const usage = {
 
 for (const [id, m] of Object.entries(usage.models)) {
   console.log(
-    `${id.padEnd(36)} ${String(m.calls).padStart(6)} calls  ${(m.input / 1e6).toFixed(1).padStart(7)}M in  ${(m.output / 1e6).toFixed(2).padStart(6)}M out`,
+    `${id.padEnd(36)} ${(m.input / 1e6).toFixed(1).padStart(7)}M in  ${(m.output / 1e6).toFixed(2).padStart(6)}M out`,
   );
 }
 console.log(`${rows.length} models, ${usage.from} to ${usage.to}`);

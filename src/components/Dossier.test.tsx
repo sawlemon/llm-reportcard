@@ -77,9 +77,10 @@ describe('Dossier', () => {
     render(<Dossier model={logged!} onClose={() => {}} />);
 
     const usage = modelUsage(logged!)!;
-    expect(screen.getByText(/30 days in Zcode/, { selector: '.folder__usage' })).toHaveTextContent(
-      `${formatTokens(usage.billedTokens)} tokens · ${usage.calls.toLocaleString('en-US')} calls · 30 days in Zcode`,
-    );
+    const line = screen.getByText(/30 days in Zcode/, { selector: '.folder__usage' });
+    expect(line).toHaveTextContent(`${formatTokens(usage.billedTokens)} tokens · 30 days in Zcode`);
+    expect(line).not.toHaveTextContent(/calls/);
+    expect(line.querySelector('.chip')).not.toBeNull();
   });
 
   it('shows no token-usage line for a harness or an unlogged model', () => {

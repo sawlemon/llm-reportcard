@@ -5,6 +5,7 @@ import type { ModelEntry } from '../data/types';
 import { renderNote } from '../lib/renderNote';
 import { ASPECT_ICONS, cardNumber } from '../lib/redesign';
 import { formatTokens, modelUsage } from '../lib/tokenUsage';
+import { CostChip } from './CostChip';
 import { Stamp } from './Stamp';
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input, [tabindex]:not([tabindex="-1"])';
@@ -103,8 +104,8 @@ export function Dossier({ model, onClose }: DossierProps) {
               {usage ? (
                 <p className="folder__usage">
                   <span aria-hidden="true">🔥 </span>
-                  {formatTokens(usage.billedTokens)} tokens · {usage.calls.toLocaleString('en-US')} calls · 30
-                  days in Zcode
+                  {formatTokens(usage.billedTokens)} tokens · 30 days in Zcode
+                  <CostChip cost={usage.cost} size="sm" />
                 </p>
               ) : null}
             </div>
