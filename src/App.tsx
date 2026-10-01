@@ -6,18 +6,20 @@ import { Dossier } from './components/Dossier';
 import { ShelfView } from './components/ShelfView';
 import { SlotMachine } from './components/SlotMachine';
 import { Ticker } from './components/Ticker';
+import { TokensView } from './components/TokensView';
 import { VersusView } from './components/VersusView';
 import { isAsrEntry } from './lib/redesign';
 import { useHashModel } from './lib/useHashModel';
 import { useTheme } from './lib/useTheme';
 
-type View = 'decide' | 'deck' | 'versus' | 'harness' | 'voice';
+type View = 'decide' | 'deck' | 'versus' | 'tokens' | 'harness' | 'voice';
 
-const VIEWS: View[] = ['decide', 'deck', 'versus', 'harness', 'voice'];
+const VIEWS: View[] = ['decide', 'deck', 'versus', 'tokens', 'harness', 'voice'];
 const TAB_EMOJIS: Record<View, string> = {
   decide: '🎰',
   deck: '🃏',
   versus: '🥊',
+  tokens: '🔥',
   harness: '🧰',
   voice: '🎙️',
 };
@@ -25,6 +27,7 @@ const TAB_LABELS: Record<View, string> = {
   decide: 'Decide',
   deck: 'The Deck',
   versus: 'Versus',
+  tokens: 'Tokens',
   harness: 'Harness',
   voice: 'Voice',
 };
@@ -67,7 +70,7 @@ export default function App() {
     }
   }, [selectedId, selected, setSelectedId]);
 
-  // Global shortcuts: 1–5 switch views, "/" deals into the Deck search, "r" deals a random
+  // Global shortcuts: 1–6 switch views, "/" deals into the Deck search, "r" deals a random
   // card. Ignored while typing, while a dialog is open, or with a modifier held.
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -75,7 +78,7 @@ export default function App() {
       const target = event.target as HTMLElement | null;
       if (target?.closest?.('input, select, textarea')) return;
       if (document.querySelector('[role="dialog"]')) return;
-      if (/^[1-5]$/.test(event.key)) {
+      if (/^[1-6]$/.test(event.key)) {
         setView(VIEWS[Number(event.key) - 1]);
       } else if (event.key === '/') {
         event.preventDefault();
@@ -165,6 +168,7 @@ export default function App() {
           <DeckView onSelectModel={setSelectedId} searchRef={searchRef} dealRef={dealRef} />
         ) : null}
         {view === 'versus' ? <VersusView /> : null}
+        {view === 'tokens' ? <TokensView onSelectModel={setSelectedId} /> : null}
         {view === 'harness' ? (
           <ShelfView
             title={

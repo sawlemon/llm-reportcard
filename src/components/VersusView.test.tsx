@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import reportCard from 'virtual:report-card';
 import type { ModelEntry } from '../data/types';
 import { isAsrEntry } from '../lib/redesign';
+import { formatTokens, modelUsage } from '../lib/tokenUsage';
 import { VersusView } from './VersusView';
 
 const codingModels = reportCard.models.filter((model) => !isAsrEntry(model));
@@ -44,6 +45,18 @@ function rowFor(aspect: string): HTMLElement {
   return screen.getByRole('button', { name: new RegExp(escaped) });
 }
 
+/** The tokens row is the second static row, right after the Verdict row. */
+function tokensRow(): HTMLElement {
+  return table().querySelectorAll('.vs-row')[1] as HTMLElement;
+}
+
+/** The per-side text of the tokens row, computed independently from the lib. */
+function usageCellText(model: ModelEntry): string {
+  const usage = modelUsage(model);
+  if (!usage) return 'no data';
+  return `${formatTokens(usage.billedTokens)} · ${usage.calls.toLocaleString('en-US')} calls`;
+}
+
 describe('VersusView', () => {
   it('defaults to the first two preferred models', () => {
     render(<VersusView />);
@@ -59,8 +72,32 @@ describe('VersusView', () => {
 
     const headers = aspectHeaderNames();
     expect(headers[0]).toContain('Verdict');
-    expect(headers.slice(1)).toEqual(expectedAspects(left, right));
-    expect(headers.length).toBeGreaterThan(1);
+    expect(headers[1]).toContain('Tokens (30d)');
+    expect(headers.slice(2)).toEqual(expectedAspects(left, right));
+    expect(headers.length).toBeGreaterThan(2);
+  });
+
+  it('shows a non-expandable tokens row with per-side usage or "no data"', () => {
+    render(<VersusView />);
+    const [left, right] = defaultPair();
+
+    const row = tokensRow();
+    expect(row).not.toHaveAttribute('aria-expanded');
+    const cells = row.querySelectorAll('.vs-cell');
+    expect(cells[0]).toHaveTextContent(usageCellText(left));
+    expect(cells[1]).toHaveTextContent(usageCellText(right));
+  });
+
+  it('falls back to "no data" on a side without a usage log', async () => {
+    const user = userEvent.setup();
+    render(<VersusView />);
+
+    const silent = codingModels.find((model) => modelUsage(model) === null);
+    expect(silent).toBeDefined();
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Left model' }), silent!.id);
+
+    const cells = tokensRow().querySelectorAll('.vs-cell');
+    expect(cells[0]).toHaveTextContent('no data');
   });
 
   it('updates the rows when a select changes', async () => {
@@ -75,7 +112,7 @@ describe('VersusView', () => {
     await user.selectOptions(screen.getByRole('combobox', { name: 'Left model' }), replacement!.id);
 
     expect(screen.getByRole('combobox', { name: 'Left model' })).toHaveValue(replacement!.id);
-    expect(aspectHeaderNames().slice(1)).toEqual(expectedAspects(replacement!, right));
+    expect(aspectHeaderNames().slice(2)).toEqual(expectedAspects(replacement!, right));
   });
 
   it('reveals the first note of a side when its row is expanded', async () => {

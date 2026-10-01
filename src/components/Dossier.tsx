@@ -4,6 +4,7 @@ import reportCard from 'virtual:report-card';
 import type { ModelEntry } from '../data/types';
 import { renderNote } from '../lib/renderNote';
 import { ASPECT_ICONS, cardNumber } from '../lib/redesign';
+import { formatTokens, modelUsage } from '../lib/tokenUsage';
 import { Stamp } from './Stamp';
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input, [tabindex]:not([tabindex="-1"])';
@@ -78,6 +79,7 @@ export function Dossier({ model, onClose }: DossierProps) {
   const number = cardNumber(model, [...reportCard.models, ...reportCard.harnesses]);
   const hasNotes = model.prosCount + model.consCount > 0;
   const notedAspects = model.aspects.filter((entry) => entry.pros.length > 0 || entry.cons.length > 0);
+  const usage = modelUsage(model);
 
   return (
     <div
@@ -98,6 +100,13 @@ export function Dossier({ model, onClose }: DossierProps) {
             <div>
               <h2 id="dossier-title">{model.name}</h2>
               <p>{model.verdict ? `${model.verdict.summary} — ${model.verdict.date}` : model.provider}</p>
+              {usage ? (
+                <p className="folder__usage">
+                  <span aria-hidden="true">🔥 </span>
+                  {formatTokens(usage.billedTokens)} tokens · {usage.calls.toLocaleString('en-US')} calls · 30
+                  days in Zcode
+                </p>
+              ) : null}
             </div>
             <div className="folder__actions">
               <span className="folder__stamp">

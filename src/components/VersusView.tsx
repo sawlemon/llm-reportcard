@@ -3,6 +3,7 @@ import reportCard from 'virtual:report-card';
 import type { ModelEntry } from '../data/types';
 import { renderNote } from '../lib/renderNote';
 import { ASPECT_ICONS, cardColor, isAsrEntry } from '../lib/redesign';
+import { formatTokens, modelUsage } from '../lib/tokenUsage';
 import { Stamp } from './Stamp';
 
 const codingModels = reportCard.models.filter((model) => !isAsrEntry(model));
@@ -37,6 +38,17 @@ function side(model: ModelEntry, aspect: string, open: boolean): React.ReactNode
       </span>
       {open ? <span className="vs-note">{note}</span> : null}
     </>
+  );
+}
+
+/** One side of the tokens row: "564M · 3,023 calls", or "no data" without a usage log. */
+function usageSide(model: ModelEntry): React.ReactNode {
+  const usage = modelUsage(model);
+  if (!usage) return <span className="vs-empty">no data</span>;
+  return (
+    <span className="vs-usage">
+      {formatTokens(usage.billedTokens)} · {usage.calls.toLocaleString('en-US')} calls
+    </span>
   );
 }
 
@@ -120,6 +132,11 @@ export function VersusView() {
             <div className="vs-cell">
               <Stamp status={right.verdict?.status} />
             </div>
+          </div>
+          <div className="vs-row">
+            <div className="vs-cell vs-cell--left">{usageSide(left)}</div>
+            <div className="vs-aspect">🔥 Tokens (30d)</div>
+            <div className="vs-cell">{usageSide(right)}</div>
           </div>
           {reportCard.aspects
             .filter((aspect) => hasNotes(left, aspect) || hasNotes(right, aspect))

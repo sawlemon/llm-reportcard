@@ -24,23 +24,24 @@ beforeEach(() => {
 afterEach(() => setHash(''));
 
 describe('tabs and navigation', () => {
-  it('renders five tabs with Decide selected initially and exact accessible names', () => {
+  it('renders six tabs with Decide selected initially and exact accessible names', () => {
     render(<App />);
 
     const tabs = screen.getAllByRole('tab');
-    expect(tabs).toHaveLength(5);
+    expect(tabs).toHaveLength(6);
     expect(tabs.map((tab) => tab.textContent?.trim())).toEqual([
       '🎰 Decide',
       '🃏 The Deck',
       '🥊 Versus',
+      '🔥 Tokens',
       '🧰 Harness',
       '🎙️ Voice',
     ]);
-    for (const name of ['Decide', 'The Deck', 'Versus', 'Harness', 'Voice']) {
+    for (const name of ['Decide', 'The Deck', 'Versus', 'Tokens', 'Harness', 'Voice']) {
       expect(screen.getByRole('tab', { name })).toHaveAccessibleName(name);
     }
     expect(screen.getByRole('tab', { name: 'Decide' })).toHaveAttribute('aria-selected', 'true');
-    for (const name of ['The Deck', 'Versus', 'Harness', 'Voice']) {
+    for (const name of ['The Deck', 'Versus', 'Tokens', 'Harness', 'Voice']) {
       expect(screen.getByRole('tab', { name })).toHaveAttribute('aria-selected', 'false');
     }
   });
@@ -52,6 +53,10 @@ describe('tabs and navigation', () => {
     await user.click(screen.getByRole('tab', { name: 'Versus' }));
     expect(screen.getByRole('tab', { name: 'Versus' })).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByRole('combobox', { name: 'Left model' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('tab', { name: 'Tokens' }));
+    expect(screen.getByRole('tab', { name: 'Tokens' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('heading', { name: /Token burn/ })).toBeInTheDocument();
 
     await user.click(screen.getByRole('tab', { name: 'The Deck' }));
     expect(screen.getByRole('textbox', { name: 'Search models' })).toBeInTheDocument();
@@ -82,7 +87,7 @@ describe('tabs and navigation', () => {
     render(<App />);
 
     expect(screen.getByRole('heading', { name: /What are we building today/ })).toBeInTheDocument();
-    expect(screen.getAllByRole('tab')).toHaveLength(5);
+    expect(screen.getAllByRole('tab')).toHaveLength(6);
     expect(screen.queryByRole('textbox', { name: 'Search models' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Surprise me: spin a random task' })).toBeInTheDocument();
   });
@@ -203,12 +208,16 @@ describe('theme toggle', () => {
 });
 
 describe('keyboard shortcuts', () => {
-  it('switches views with 1–5', async () => {
+  it('switches views with 1–6', async () => {
     const user = userEvent.setup();
     render(<App />);
 
     await user.keyboard('3');
     expect(screen.getByRole('tab', { name: 'Versus' })).toHaveAttribute('aria-selected', 'true');
+    await user.keyboard('4');
+    expect(screen.getByRole('tab', { name: 'Tokens' })).toHaveAttribute('aria-selected', 'true');
+    await user.keyboard('6');
+    expect(screen.getByRole('tab', { name: 'Voice' })).toHaveAttribute('aria-selected', 'true');
     await user.keyboard('1');
     expect(screen.getByRole('tab', { name: 'Decide' })).toHaveAttribute('aria-selected', 'true');
   });

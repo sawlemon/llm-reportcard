@@ -199,6 +199,13 @@ button {
   color: var(--paper);
 }
 
+/* The dark theme flips --ink to a light value; keep the strip itself dark so the
+   yellow model names stay readable on it. */
+[data-theme='dark'] .ticker {
+  background: #0c120f;
+  color: #f4f1e8;
+}
+
 .ticker__track {
   display: flex;
   gap: 40px;
@@ -897,9 +904,25 @@ main {
   margin: 0 0 12px;
 }
 
-.face__stamp {
-  align-self: flex-start;
+.face__stamprow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
   margin: -4px 0 12px 2px;
+}
+
+/* The "🔥 564M" chip beside the stamp on card fronts with a usage log. */
+.face__usage {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper-2);
+  white-space: nowrap;
 }
 
 .face__quote {
@@ -952,7 +975,10 @@ main {
   margin-top: 10px;
 }
 
-.aspects span {
+/* Child combinator: each aspect tile is the outer span only — the nested
+   aria-hidden icon span and the visually-hidden label inside must not get the
+   tile's border/aspect-ratio styling (and .visually-hidden stays hidden). */
+.aspects > span {
   aspect-ratio: 1;
   max-width: 24px;
   display: grid;
@@ -964,7 +990,7 @@ main {
   opacity: 0.3;
 }
 
-.aspects span.on {
+.aspects > span.on {
   opacity: 1;
   background: var(--hi);
   color: #141210;
@@ -1167,6 +1193,163 @@ main {
   font-size: 18px;
 }
 
+/* The non-expandable "Tokens (30d)" row's per-side figure. */
+.vs-usage {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* ---------- tokens ---------- */
+.tokens-sticker {
+  display: inline-block;
+  margin: 0 0 26px;
+  padding: 16px 26px 18px;
+  background: var(--hi);
+  color: #141210;
+  border: 3px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transform: rotate(-2deg);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.tokens-sticker b {
+  font-size: 46px;
+  letter-spacing: -0.04em;
+}
+
+.tokens-sticker small {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.tokens-sort {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.tokens-board {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 16px;
+}
+
+.tokens-row {
+  display: grid;
+  grid-template-columns: 44px minmax(150px, 240px) 1fr auto;
+  gap: 14px;
+  align-items: center;
+}
+
+.tokens-rank {
+  font-family: var(--hand);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  text-align: center;
+  transform: rotate(-6deg);
+}
+
+.tokens-name {
+  padding: 7px 12px;
+  border: 3px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: -0.02em;
+  text-align: left;
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform 0.12s,
+    box-shadow 0.12s;
+}
+
+.tokens-name:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--line);
+}
+
+.fuel {
+  display: block;
+  height: 22px;
+  min-width: 0;
+}
+
+.fuel__fill {
+  display: block;
+  height: 100%;
+  width: var(--w);
+  background: var(--c, var(--hi));
+  border: 3px solid var(--line);
+  border-radius: 999px;
+  box-shadow: var(--shadow-sm);
+  /* Fill from 0 on mount; the global reduced-motion rule disables the animation. */
+  animation: fuel-fill 0.9s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+
+@keyframes fuel-fill {
+  from {
+    width: 0;
+  }
+}
+
+.tokens-figures {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.tokens-value {
+  font-size: 19px;
+  letter-spacing: -0.02em;
+}
+
+.tokens-calls {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.tokens-cost {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border: 2px solid currentColor;
+  border-radius: 6px;
+  transform: rotate(-5deg);
+  color: var(--bad);
+}
+
+.tokens-note {
+  margin: 28px 0 0;
+  font-family: var(--hand);
+  font-size: 24px;
+  color: var(--ink-soft);
+  transform: rotate(-2deg);
+}
+
+.tokens-empty {
+  font-family: var(--hand);
+  font-size: 26px;
+  color: var(--ink-soft);
+}
+
 /* ---------- dossier modal ---------- */
 .dossier-backdrop {
   position: fixed;
@@ -1240,6 +1423,13 @@ main {
   margin: 8px 0 0;
   font-family: var(--hand);
   font-size: 22px;
+}
+
+/* The "🔥 564M tokens · 3,023 calls · 30 days in Zcode" line under the subtitle. */
+.folder__usage {
+  margin: 8px 0 0;
+  font-family: var(--mono);
+  font-size: 12px;
 }
 
 .folder__stamp .stamp {
@@ -1411,6 +1601,15 @@ main {
 
   .aspect-row {
     grid-template-columns: 1fr;
+  }
+
+  .tokens-row {
+    grid-template-columns: 34px 1fr auto;
+  }
+
+  .fuel {
+    grid-column: 2 / -1;
+    grid-row: 2;
   }
 }
 

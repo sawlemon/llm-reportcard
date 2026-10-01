@@ -1,10 +1,11 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import reportCard from 'virtual:report-card';
 import type { ModelEntry } from '../data/types';
 import { EMPTY_FILTERS, filterModels } from '../lib/filterModels';
 import { isAsrEntry } from '../lib/redesign';
+import { formatTokens, modelUsage } from '../lib/tokenUsage';
 import { DeckView } from './DeckView';
 
 const { models } = reportCard;
@@ -110,6 +111,30 @@ describe('DeckView', () => {
     await user.click(screen.getByRole('button', { name: 'Reset' }));
     expect(flipButton(codingModels[0].name)).toBeInTheDocument();
     expect(screen.queryByText('No cards match. Try another search ✏️')).not.toBeInTheDocument();
+  });
+
+  it('shows a token chip on cards with a usage log and none without one', () => {
+    const { container } = render(<DeckView onSelectModel={vi.fn()} />);
+
+    const logged = codingModels.filter((model) => modelUsage(model) !== null);
+    expect(logged.length).toBeGreaterThan(0);
+    expect(container.querySelectorAll('.face__usage')).toHaveLength(logged.length);
+
+    const sonnet = logged.find((model) => model.name === 'Claude Sonnet 5');
+    expect(sonnet).toBeDefined();
+    const chip = flipButton(sonnet!.name).closest('.card')!.querySelector('.face__usage');
+    expect(chip).not.toBeNull();
+    const chipText = formatTokens(modelUsage(sonnet!)!.billedTokens);
+    expect(chip!).toHaveTextContent(chipText);
+    // The emoji is aria-hidden; the amount is carried by a visually-hidden span.
+    const hiddenLabel = within(chip as HTMLElement).getByText(`${chipText} tokens in 30 days`);
+    expect(hiddenLabel).toHaveClass('visually-hidden');
+    // The chip sits on the stamp's line, in the shared stamp row.
+    expect(chip!.parentElement).toHaveClass('face__stamprow');
+
+    const unlogged = codingModels.find((model) => modelUsage(model) === null);
+    expect(unlogged).toBeDefined();
+    expect(flipButton(unlogged!.name).closest('.card')!.querySelector('.face__usage')).toBeNull();
   });
 
   it('flips via aria-pressed and keeps the back face unreachable until flipped', async () => {

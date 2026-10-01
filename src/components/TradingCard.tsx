@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import reportCard from 'virtual:report-card';
 import type { ModelEntry } from '../data/types';
 import { firstNote, cardColor, cardNumber, isAsrEntry, ASPECT_ICONS } from '../lib/redesign';
+import { formatTokens, modelUsage } from '../lib/tokenUsage';
 import { Stamp } from './Stamp';
 
 interface TradingCardProps {
@@ -56,6 +57,7 @@ export function TradingCard({ model, aspects, index, onOpen, flipped, onToggleFl
     ? verdict.summary
     : (firstNote(model, 'pros') ?? firstNote(model, 'cons') ?? 'No verdict yet.');
   const number = cardNumber(model, [...reportCard.models, ...reportCard.harnesses]);
+  const usage = modelUsage(model);
 
   return (
     <div
@@ -78,9 +80,19 @@ export function TradingCard({ model, aspects, index, onOpen, flipped, onToggleFl
           </div>
           <div className="face__body">
             <h3 className="face__name">{model.name}</h3>
-            <span className="face__stamp">
-              <Stamp status={status} short />
-            </span>
+            <div className="face__stamprow">
+              <span className="face__stamp">
+                <Stamp status={status} short />
+              </span>
+              {usage ? (
+                <span className="face__usage">
+                  <span aria-hidden="true">🔥 {formatTokens(usage.billedTokens)}</span>
+                  <span className="visually-hidden">
+                    {formatTokens(usage.billedTokens)} tokens in 30 days
+                  </span>
+                </span>
+              ) : null}
+            </div>
             <div className="meter">
               <span>✓{model.prosCount}</span>
               <span className="meter__bar">

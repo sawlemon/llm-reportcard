@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import reportCard from 'virtual:report-card';
 import { fixtureModel } from '../data/__fixtures__/fixtureCard';
+import { formatTokens, modelUsage } from '../lib/tokenUsage';
 import { Dossier } from './Dossier';
 
 const prime = fixtureModel('Acme Prime 2');
@@ -68,6 +69,28 @@ describe('Dossier', () => {
 
     expect(screen.getByText('Harness file')).toBeInTheDocument();
     expect(screen.getByRole('dialog', { name: reportCard.harnesses[0].name })).toBeInTheDocument();
+  });
+
+  it('shows a mono token-usage line under the subtitle of logged models', () => {
+    const logged = reportCard.models.find((model) => modelUsage(model) !== null);
+    expect(logged).toBeDefined();
+    render(<Dossier model={logged!} onClose={() => {}} />);
+
+    const usage = modelUsage(logged!)!;
+    expect(screen.getByText(/30 days in Zcode/, { selector: '.folder__usage' })).toHaveTextContent(
+      `${formatTokens(usage.billedTokens)} tokens · ${usage.calls.toLocaleString('en-US')} calls · 30 days in Zcode`,
+    );
+  });
+
+  it('shows no token-usage line for a harness or an unlogged model', () => {
+    const unlogged = reportCard.models.find((model) => modelUsage(model) === null);
+    expect(unlogged).toBeDefined();
+    const { unmount } = render(<Dossier model={unlogged!} onClose={() => {}} />);
+    expect(document.querySelector('.folder__usage')).toBeNull();
+    unmount();
+
+    render(<Dossier model={reportCard.harnesses[0]} onClose={() => {}} />);
+    expect(document.querySelector('.folder__usage')).toBeNull();
   });
 
   it('focuses Close on open, traps Tab, closes on Escape and restores focus', async () => {
