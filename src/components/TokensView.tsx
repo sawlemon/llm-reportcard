@@ -1,7 +1,15 @@
 import { useMemo, useState } from 'react';
 import reportCard from 'virtual:report-card';
 import { cardColor } from '../lib/redesign';
-import { formatTokens, sortUsageRows, usageRows, zcodeTotals, type UsageSort } from '../lib/tokenUsage';
+import {
+  formatCost,
+  formatTokens,
+  shortDate,
+  sortUsageRows,
+  usageRows,
+  usageTotals,
+  type UsageSort,
+} from '../lib/tokenUsage';
 
 interface TokensViewProps {
   /** Opens the dossier for a model id (App wires this to `setSelectedId`). */
@@ -13,27 +21,20 @@ const SORTS: Array<{ value: UsageSort; label: string }> = [
   { value: 'cost', label: 'By est. cost' },
 ];
 
-/** The "small mono line" under the sticker headline: cache reads and/or the log window. */
-function stickerDetail(cacheReads: number | null, window: string | null): string | null {
-  const parts: string[] = [];
-  if (cacheReads !== null) parts.push(`+${formatTokens(cacheReads)} cache reads`);
-  if (window !== null) parts.push(window);
-  return parts.length > 0 ? parts.join(' · ') : null;
-}
+const UNCARDED_COLOR = '#ffe14d';
 
 /**
- * The token-burn leaderboard: one row per model with a "Zcode 30-day usage log" note,
- * under a tilted sticker with the harness totals. Bars are scaled to the largest billed
- * volume; the toggle re-ranks by indicative dollar cost.
+ * The token-burn leaderboard: one row per model in the Zcode usage export, priced from
+ * `model-prices.json`, under a tilted sticker with the totals. Bars are scaled to the largest
+ * billed volume; the toggle re-ranks by indicative dollar cost.
  */
 export function TokensView({ onSelectModel }: TokensViewProps) {
   const [sort, setSort] = useState<UsageSort>('tokens');
 
-  const rows = useMemo(() => usageRows(reportCard.models, reportCard.harnesses), []);
-  const totals = useMemo(() => zcodeTotals(reportCard.harnesses), []);
+  const rows = useMemo(() => usageRows(reportCard.models), []);
+  const totals = useMemo(() => usageTotals(rows), [rows]);
   const sorted = useMemo(() => sortUsageRows(rows, sort), [rows, sort]);
   const maxBilled = Math.max(...rows.map((row) => row.usage.billedTokens), 1);
-  const detail = totals ? stickerDetail(totals.cacheReads, totals.window) : null;
 
   return (
     <div className="view">
@@ -41,10 +42,12 @@ export function TokensView({ onSelectModel }: TokensViewProps) {
         Token <mark>burn</mark>. <span className="scribble">last 30 days in Zcode</span>
       </h1>
 
-      {totals ? (
+      {rows.length > 0 ? (
         <p className="tokens-sticker">
           <b>{formatTokens(totals.billedTokens)}</b> tokens · {totals.calls.toLocaleString('en-US')} calls
-          {detail ? <small>{detail}</small> : null}
+          <small>
+            ~{formatCost(totals.cost)} at list prices · {shortDate(totals.from)} – {shortDate(totals.to)}
+          </small>
         </p>
       ) : null}
 
@@ -69,32 +72,48 @@ export function TokensView({ onSelectModel }: TokensViewProps) {
           <ol className="tokens-board">
             {sorted.map((row, index) => {
               const width = Math.max((row.usage.billedTokens / maxBilled) * 100, 2);
+              const color = row.model ? cardColor(row.model) : UNCARDED_COLOR;
               return (
-                <li key={row.model.id} className="tokens-row">
+                <li key={row.key} className="tokens-row">
                   <span className="tokens-rank" aria-hidden="true">
                     {index + 1}
                   </span>
-                  <button type="button" className="tokens-name" onClick={() => onSelectModel(row.model.id)}>
-                    {row.model.name}
-                  </button>
+                  {row.model ? (
+                    <button
+                      type="button"
+                      className="tokens-name"
+                      onClick={() => onSelectModel(row.model!.id)}
+                    >
+                      {row.name}
+                    </button>
+                  ) : (
+                    <span className="tokens-name tokens-name--uncarded">
+                      {row.name}
+                      <small>not on the report card yet</small>
+                    </span>
+                  )}
                   <span className="fuel" aria-hidden="true">
                     <span
                       className="fuel__fill"
-                      style={{ '--c': cardColor(row.model), '--w': `${width}%` } as React.CSSProperties}
+                      style={{ '--c': color, '--w': `${width}%` } as React.CSSProperties}
                     />
                   </span>
                   <span className="tokens-figures">
                     <b className="tokens-value">{formatTokens(row.usage.billedTokens)}</b>
                     <span className="tokens-calls">{row.usage.calls.toLocaleString('en-US')} calls</span>
-                    {row.cost !== undefined ? (
-                      <span className="tokens-cost">~${row.cost.toLocaleString('en-US')}</span>
-                    ) : null}
+                    {row.usage.cost !== null ? (
+                      <span className="tokens-cost">~{formatCost(row.usage.cost)}</span>
+                    ) : (
+                      <span className="tokens-cost tokens-cost--none">no price</span>
+                    )}
                   </span>
                 </li>
               );
             })}
           </ol>
-          <p className="tokens-note">est. cost at list prices — subscriptions make it cheaper</p>
+          <p className="tokens-note">
+            est. cost at list prices, cached tokens at cache rates — subscriptions make it cheaper
+          </p>
         </>
       )}
     </div>

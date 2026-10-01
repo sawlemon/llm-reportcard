@@ -12,11 +12,13 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "validate": "node scripts/validate-report-card.mjs",
+    "validate": "node scripts/validate-report-card.mjs && node scripts/validate-prices.mjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prices:sync": "node scripts/sync-prices.mjs",
+    "usage:export": "node scripts/export-usage.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.469.0",
