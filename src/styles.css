@@ -1276,9 +1276,24 @@ main {
     box-shadow 0.12s;
 }
 
-.tokens-name:hover {
+button.tokens-name:hover {
   transform: translate(-2px, -2px);
   box-shadow: 5px 5px 0 var(--line);
+}
+
+.tokens-name--uncarded {
+  border-style: dashed;
+  box-shadow: none;
+  font-family: var(--mono);
+  font-size: 14px;
+}
+
+.tokens-name--uncarded small {
+  display: block;
+  font-family: var(--hand);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink-soft);
 }
 
 .fuel {
@@ -1334,6 +1349,11 @@ main {
   border-radius: 6px;
   transform: rotate(-5deg);
   color: var(--bad);
+}
+
+.tokens-cost--none {
+  color: var(--ink-soft);
+  border-style: dashed;
 }
 
 .tokens-note {

@@ -111,6 +111,27 @@ Rules the parser enforces:
   of all coding or all speech-to-text models. Within a task, `preferred` rows list before `care` rows,
   keeping the table's order otherwise.
 
+## Token usage and prices
+
+The Tokens view is built from two JSON files, not from the report card's prose:
+
+- `src/data/token-usage.json` — the last 30 days of per-model token counts, exported from Zcode's
+  local usage database (`~/.zcode/cli/db/db.sqlite`, opened read-only). Regenerate it with
+  `npm run usage:export -- --write` (a dry run without `--write`; `--days N` changes the window).
+- `src/data/model-prices.json` — list prices in USD per 1M tokens, keyed by the model's name in
+  `LLM_REPORT_CARD.md`. Each entry names its key in
+  [LiteLLM's price map](https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json)
+  and the model ids Zcode logs it under. `npm run prices:sync -- --write` refreshes every price from
+  LiteLLM.
+
+Cost is computed per model: uncached input, cache reads, cache writes and output each at their own
+rate (Zcode's input count already includes cached tokens, and output already includes reasoning).
+
+To add a new model: add an entry to `model-prices.json` with its report-card name, its LiteLLM key
+(or `"litellm": null` and hand-entered prices if LiteLLM doesn't list it) and its Zcode model ids, then
+run `npm run prices:sync -- --write`. `npm run validate` warns about any model in the usage export
+that no price entry claims, and about priced models that have no report-card entry yet.
+
 ## Commands
 
 Node **26** (see `.nvmrc`; enforced by `engines.node` in `package.json`).
