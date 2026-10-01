@@ -29,7 +29,6 @@ export interface PriceFile {
 
 /** Raw token counts for one Zcode model id over the export window. */
 export interface UsageCounts {
-  calls: number;
   input: number;
   output: number;
   reasoning: number;
@@ -60,10 +59,21 @@ export function formatTokens(tokens: number): string {
   return String(tokens);
 }
 
-/** $172.34 → "$172", $8.14 → "$8.14", $0.27 → "$0.27". */
+/** $172.34 → "$172", $95.82 → "$96", $8.14 → "$8.14", $0.27 → "$0.27". */
 export function formatCost(dollars: number): string {
-  const rounded = dollars >= 100 ? Math.round(dollars) : Math.round(dollars * 100) / 100;
+  const rounded = dollars >= 10 ? Math.round(dollars) : Math.round(dollars * 100) / 100;
   return `$${rounded.toLocaleString('en-US')}`;
+}
+
+export type ChipTier = 'white' | 'red' | 'green' | 'black' | 'purple';
+
+/** Casino chip colour for a cost, by the usual denominations: $1 white, $5 red, $25 green, $100 black, $500 purple. */
+export function chipTier(dollars: number): ChipTier {
+  if (dollars >= 500) return 'purple';
+  if (dollars >= 100) return 'black';
+  if (dollars >= 25) return 'green';
+  if (dollars >= 5) return 'red';
+  return 'white';
 }
 
 /** Cost in USD of `counts` at `price`; null when the model has no input or output price. */
@@ -80,7 +90,6 @@ export function costOf(counts: UsageCounts, price: ModelPrice | undefined): numb
 
 /** A model's usage over the export window, summed across every Zcode id its price entry claims. */
 export interface ModelUsage {
-  calls: number;
   /** Input + output tokens (input includes cached tokens). */
   billedTokens: number;
   cacheReads: number;
@@ -91,20 +100,18 @@ export interface ModelUsage {
 function sumCounts(list: UsageCounts[]): UsageCounts {
   return list.reduce(
     (sum, counts) => ({
-      calls: sum.calls + counts.calls,
       input: sum.input + counts.input,
       output: sum.output + counts.output,
       reasoning: sum.reasoning + counts.reasoning,
       cacheRead: sum.cacheRead + counts.cacheRead,
       cacheWrite: sum.cacheWrite + counts.cacheWrite,
     }),
-    { calls: 0, input: 0, output: 0, reasoning: 0, cacheRead: 0, cacheWrite: 0 },
+    { input: 0, output: 0, reasoning: 0, cacheRead: 0, cacheWrite: 0 },
   );
 }
 
 function toUsage(counts: UsageCounts, price: ModelPrice | undefined): ModelUsage {
   return {
-    calls: counts.calls,
     billedTokens: counts.input + counts.output,
     cacheReads: counts.cacheRead,
     cost: costOf(counts, price),
@@ -115,7 +122,7 @@ function usageById(usage: UsageFile): Map<string, UsageCounts> {
   return new Map(Object.entries(usage.models).map(([id, counts]) => [id.toLowerCase(), counts]));
 }
 
-/** Usage for a price-file name, or null when none of its Zcode ids logged any calls. */
+/** Usage for a price-file name, or null when none of its Zcode ids logged any usage. */
 export function usageForName(
   name: string,
   prices: PriceFile = PRICES,
@@ -169,7 +176,6 @@ export function usageRows(
 }
 
 export interface UsageTotals {
-  calls: number;
   billedTokens: number;
   cacheReads: number;
   /** Sum of every priced model's cost. */
@@ -180,7 +186,6 @@ export interface UsageTotals {
 
 export function usageTotals(rows: UsageRow[], usage: UsageFile = USAGE): UsageTotals {
   return {
-    calls: rows.reduce((sum, row) => sum + row.usage.calls, 0),
     billedTokens: rows.reduce((sum, row) => sum + row.usage.billedTokens, 0),
     cacheReads: rows.reduce((sum, row) => sum + row.usage.cacheReads, 0),
     cost: rows.reduce((sum, row) => sum + (row.usage.cost ?? 0), 0),

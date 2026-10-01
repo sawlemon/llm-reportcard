@@ -6,7 +6,6 @@
   "to": "2026-10-01",
   "models": {
     "claude-sonnet-5": {
-      "calls": 3015,
       "input": 561211658,
       "output": 3017554,
       "reasoning": 0,
@@ -14,7 +13,6 @@
       "cacheWrite": 13002308
     },
     "gpt-5.6-luna": {
-      "calls": 3958,
       "input": 404226730,
       "output": 3803312,
       "reasoning": 2219853,
@@ -22,7 +20,6 @@
       "cacheWrite": 0
     },
     "gpt-5.6-sol": {
-      "calls": 1449,
       "input": 214325762,
       "output": 691631,
       "reasoning": 156257,
@@ -30,7 +27,6 @@
       "cacheWrite": 0
     },
     "GLM-5.3-Flash": {
-      "calls": 1628,
       "input": 204975894,
       "output": 1422421,
       "reasoning": 0,
@@ -38,7 +34,6 @@
       "cacheWrite": 0
     },
     "claude-opus-5-5": {
-      "calls": 910,
       "input": 195655613,
       "output": 1006682,
       "reasoning": 0,
@@ -46,7 +41,6 @@
       "cacheWrite": 5939645
     },
     "gpt-6.1-sol": {
-      "calls": 688,
       "input": 146748532,
       "output": 214879,
       "reasoning": 15677,
@@ -54,7 +48,6 @@
       "cacheWrite": 0
     },
     "claude-opus-4-8": {
-      "calls": 347,
       "input": 115646212,
       "output": 503501,
       "reasoning": 0,
@@ -62,7 +55,6 @@
       "cacheWrite": 6072190
     },
     "claude-opus-4-6": {
-      "calls": 767,
       "input": 114427525,
       "output": 403596,
       "reasoning": 0,
@@ -70,7 +62,6 @@
       "cacheWrite": 4952481
     },
     "gpt-6-astra": {
-      "calls": 978,
       "input": 86482186,
       "output": 244035,
       "reasoning": 21770,
@@ -78,7 +69,6 @@
       "cacheWrite": 0
     },
     "gpt-6-luna": {
-      "calls": 892,
       "input": 66490771,
       "output": 1286720,
       "reasoning": 769847,
@@ -86,7 +76,6 @@
       "cacheWrite": 0
     },
     "claude-opus-5": {
-      "calls": 239,
       "input": 32626697,
       "output": 214766,
       "reasoning": 0,
@@ -94,7 +83,6 @@
       "cacheWrite": 1361500
     },
     "gpt-6-sol": {
-      "calls": 299,
       "input": 27965193,
       "output": 89049,
       "reasoning": 21635,
@@ -102,7 +90,6 @@
       "cacheWrite": 0
     },
     "gpt-5.6-terra": {
-      "calls": 149,
       "input": 12971017,
       "output": 73610,
       "reasoning": 32263,
@@ -110,7 +97,6 @@
       "cacheWrite": 0
     },
     "claude-sonnet-5-5": {
-      "calls": 114,
       "input": 5827397,
       "output": 133620,
       "reasoning": 0,
@@ -118,7 +104,6 @@
       "cacheWrite": 514930
     },
     "~deepseek/deepseek-v4-flash-latest": {
-      "calls": 39,
       "input": 3725617,
       "output": 25737,
       "reasoning": 13398,
@@ -126,7 +111,6 @@
       "cacheWrite": 0
     },
     "gemini-3.8-flash-high": {
-      "calls": 18,
       "input": 1729187,
       "output": 13776,
       "reasoning": 11349,

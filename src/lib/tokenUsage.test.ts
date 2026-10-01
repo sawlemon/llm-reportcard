@@ -4,6 +4,7 @@ import type { ModelEntry } from '../data/types';
 import {
   PRICES,
   USAGE,
+  chipTier,
   costOf,
   formatCost,
   formatTokens,
@@ -18,7 +19,7 @@ import {
 } from './tokenUsage';
 
 function counts(partial: Partial<UsageCounts>): UsageCounts {
-  return { calls: 1, input: 0, output: 0, reasoning: 0, cacheRead: 0, cacheWrite: 0, ...partial };
+  return { input: 0, output: 0, reasoning: 0, cacheRead: 0, cacheWrite: 0, ...partial };
 }
 
 function entry(name: string): ModelEntry {
@@ -63,15 +64,14 @@ const usage: UsageFile = {
   to: '2026-10-01',
   models: {
     'big-model': counts({
-      calls: 10,
       input: 1_000_000,
       output: 100_000,
       cacheRead: 800_000,
       cacheWrite: 100_000,
     }),
-    'big-model-alt': counts({ calls: 5, input: 1_000_000, output: 0 }),
-    cheap: counts({ calls: 3, input: 2_000_000, output: 1_000_000, cacheRead: 1_000_000 }),
-    'mystery-model': counts({ calls: 7, input: 4_000_000, output: 0 }),
+    'big-model-alt': counts({ input: 1_000_000, output: 0 }),
+    cheap: counts({ input: 2_000_000, output: 1_000_000, cacheRead: 1_000_000 }),
+    'mystery-model': counts({ input: 4_000_000, output: 0 }),
   },
 };
 
@@ -86,8 +86,21 @@ describe('formatting', () => {
 
   it('formats costs: whole dollars from $100, cents below', () => {
     expect(formatCost(1295.4)).toBe('$1,295');
+    expect(formatCost(95.82)).toBe('$96');
     expect(formatCost(8.144)).toBe('$8.14');
     expect(formatCost(0.27)).toBe('$0.27');
+  });
+
+  it('colours chips by casino denomination', () => {
+    expect([0.4, 5, 24.9, 25, 100, 499, 500].map(chipTier)).toEqual([
+      'white',
+      'red',
+      'red',
+      'green',
+      'black',
+      'black',
+      'purple',
+    ]);
   });
 
   it('formats ISO days as short month dates', () => {
@@ -115,13 +128,12 @@ describe('costOf', () => {
 describe('modelUsage', () => {
   it('sums every Zcode id an entry claims, case-insensitively', () => {
     const found = modelUsage(entry('Big Model'), prices, usage)!;
-    expect(found.calls).toBe(15);
     expect(found.billedTokens).toBe(2_100_000);
     expect(found.cacheReads).toBe(800_000);
     expect(found.cost).toBeCloseTo(1.61 + 2, 10);
   });
 
-  it('is null for a priced model with no logged calls, and for an unpriced name', () => {
+  it('is null for a priced model with no logged usage, and for an unpriced name', () => {
     expect(modelUsage(entry('Idle Model'), prices, usage)).toBeNull();
     expect(modelUsage(entry('Nobody'), prices, usage)).toBeNull();
   });
@@ -137,9 +149,8 @@ describe('usageRows, totals and sorting', () => {
     expect(rows[2].usage.cost).toBeNull();
   });
 
-  it('totals calls, tokens and priced cost over the window', () => {
+  it('totals tokens and priced cost over the window', () => {
     const totals = usageTotals(rows, usage);
-    expect(totals.calls).toBe(25);
     expect(totals.billedTokens).toBe(2_100_000 + 3_000_000 + 4_000_000);
     expect(totals.cost).toBeCloseTo(3.61 + 0.7, 10);
     expect([totals.from, totals.to]).toEqual(['2026-09-01', '2026-10-01']);
@@ -160,6 +171,10 @@ describe('usageRows, totals and sorting', () => {
 });
 
 describe('the committed data files', () => {
+  it('never store call counts', () => {
+    for (const counts of Object.values(USAGE.models)) expect(counts).not.toHaveProperty('calls');
+  });
+
   it('price every model in the usage export', () => {
     const claimed = new Set(
       Object.values(PRICES.models).flatMap((price) => price.zcodeIds.map((id) => id.toLowerCase())),

@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import reportCard from 'virtual:report-card';
 import type { ModelEntry } from '../data/types';
 import { isAsrEntry } from '../lib/redesign';
-import { formatTokens, modelUsage } from '../lib/tokenUsage';
+import { formatCost, formatTokens, modelUsage } from '../lib/tokenUsage';
 import { VersusView } from './VersusView';
 
 const codingModels = reportCard.models.filter((model) => !isAsrEntry(model));
@@ -54,7 +54,8 @@ function tokensRow(): HTMLElement {
 function usageCellText(model: ModelEntry): string {
   const usage = modelUsage(model);
   if (!usage) return 'no data';
-  return `${formatTokens(usage.billedTokens)} · ${usage.calls.toLocaleString('en-US')} calls`;
+  const cost = usage.cost === null ? 'no price' : `estimated cost ${formatCost(usage.cost)}`;
+  return `${formatTokens(usage.billedTokens)}${cost}`;
 }
 
 describe('VersusView', () => {

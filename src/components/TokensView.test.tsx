@@ -2,7 +2,7 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import reportCard from 'virtual:report-card';
-import { formatCost, formatTokens, sortUsageRows, usageRows, usageTotals } from '../lib/tokenUsage';
+import { chipTier, formatCost, formatTokens, sortUsageRows, usageRows, usageTotals } from '../lib/tokenUsage';
 import { TokensView } from './TokensView';
 
 const rows = usageRows(reportCard.models);
@@ -27,16 +27,15 @@ describe('TokensView', () => {
     expect(ranks).toEqual(tokensOrder.map((_, index) => index + 1));
   });
 
-  it('shows the totals sticker with tokens, calls, cost and window', () => {
+  it('shows the token total, the pot chip with the total cost, and no call counts', () => {
     render(<TokensView onSelectModel={vi.fn()} />);
     const totals = usageTotals(rows);
 
     expect(
       screen.getByText(formatTokens(totals.billedTokens), { selector: '.tokens-sticker b' }),
     ).toBeInTheDocument();
-    const sticker = document.querySelector('.tokens-sticker')!;
-    expect(sticker).toHaveTextContent(`${totals.calls.toLocaleString('en-US')} calls`);
-    expect(sticker).toHaveTextContent(`~${formatCost(totals.cost)} at list prices`);
+    expect(document.querySelector('.tokens-pot .chip--lg')).toHaveTextContent(formatCost(totals.cost));
+    expect(document.querySelector('.view')).not.toHaveTextContent(/\bcalls\b/);
   });
 
   it('reorders by estimated cost when the toggle is pressed, and back', async () => {
@@ -72,16 +71,19 @@ describe('TokensView', () => {
     );
   });
 
-  it('renders figures, cost stamp and a max-scaled bar on the top row', () => {
+  it('renders tokens, a denomination-coloured cost chip and a max-scaled bar on the top row', () => {
     render(<TokensView onSelectModel={vi.fn()} />);
 
     const top = tokensOrder[0];
     const firstRow = screen.getAllByRole('listitem')[0];
     expect(firstRow).toHaveTextContent(formatTokens(top.usage.billedTokens));
-    expect(firstRow).toHaveTextContent(`${top.usage.calls.toLocaleString('en-US')} calls`);
-    expect(firstRow).toHaveTextContent(
-      top.usage.cost === null ? 'no price' : `~${formatCost(top.usage.cost)}`,
-    );
+    const chip = firstRow.querySelector('.chip')!;
+    if (top.usage.cost === null) {
+      expect(chip).toHaveTextContent('no price');
+    } else {
+      expect(chip).toHaveTextContent(formatCost(top.usage.cost));
+      expect(chip).toHaveClass(`chip--${chipTier(top.usage.cost)}`);
+    }
     const fill = firstRow.querySelector('.fuel__fill') as HTMLElement;
     expect(fill.style.getPropertyValue('--w')).toBe('100%');
   });
