@@ -54,28 +54,28 @@ for that task, and never list a model whose task evidence is negative-only.
 
 ### Claude Opus 4.6
 
-**Verdict:** preferred · 2026-08-10 · favorite frontier model again; efficient, focused planning and thorough instruction-following, best used via Antigravity for web search access
+**Verdict:** preferred · 2026-09-18 · most natural-sounding model of all the latest AI models; extremely reliable at literal delegation, but defaults to spawning subagents rather than judging when to handle small things itself
 
 | Aspect | Pros | Cons |
 |---|---|---|
 | Reasoning | plans are very efficient and understandable; straight to the point and very useful — where Opus 4.8 and 5 overengineer, it stays focused | |
 | Coding | | |
-| Instruction-following | sticks to system and user prompts thoroughly, including when they are wrong; follows every instruction and remembers earlier instructions in same initial prompt; via Antigravity subscription, correctly follows custom Hindsight memory system prompt | unclear why same system prompt does not work as well through Claude Pro subscription |
-| Tool use / agentic | via Antigravity CLI subscription, can invoke web search; given screenshot of podcast list, extracted list and correctly called Hindsight's retain without unnecessary recall | via Anthropic Claude Pro subscription, cannot use web search; seems plan/surface restriction rather than model limitation |
+| Instruction-following | sticks to system and user prompts thoroughly, including when they are wrong; follows every instruction and remembers earlier instructions in same initial prompt; via Antigravity subscription, correctly follows custom Hindsight memory system prompt; (2026-09-12) delegating tasks to it feels great — it follows exactly what it's told to do | unclear why same system prompt does not work as well through Claude Pro subscription; (2026-09-12) unlike the newest models, which can be prompted a bit loosely and still infer the right action, Opus 4.6 needs the prompt to be very literal about what to do |
+| Tool use / agentic | via Antigravity CLI subscription, can invoke web search; given screenshot of podcast list, extracted list and correctly called Hindsight's retain without unnecessary recall; (2026-09-12) sensible subagent behavior — spins up a subagent and then visibly prints that it's waiting, rather than moving on to spawn even more subagents while waiting, which other latest models were observed doing; in a computer-use test, chose computer use over the built-in browser tool and drove Brave browser directly — worked well for testing | via Anthropic Claude Pro subscription, cannot use web search; seems plan/surface restriction rather than model limitation; (2026-09-18) by comparison with Claude Opus 5, always spawns subagents by default rather than judging when a small task is better handled itself, which costs more tokens |
 | Context handling | | |
 | Speed / latency | | |
 | Cost / efficiency | | |
 | Refusals / safety behavior | | |
-| Formatting / output quality | | |
+| Formatting / output quality | (2026-09-12) feels the most natural-sounding/most naturally talking model after trying all the latest AI models | |
 | Other | still the user's favorite frontier model after returning to it; user really missed it | did not like Opus 4.7 or 4.8 at their initial launch by comparison |
 
 ### Claude Opus 4.8
 
-**Verdict:** avoid · 2026-09-11 · unreliable on the current reportcard refactor; repeatedly made mistakes and misplaced speech-to-text work
+**Verdict:** avoid · 2026-09-18 · unreliable on the current reportcard refactor; repeatedly made mistakes and misplaced speech-to-text work
 
 | Aspect | Pros | Cons |
 |---|---|---|
-| Reasoning | (2026-08) best used as the planner — the workflow of planning with Opus 4.8 and implementing with Sonnet 5 on medium had been working out great; (2026-08) used heavily lately and previously seemed like the best model for advanced tasks; (2026-08) solved a CrowdStrike Fusion SOAR workflow debugging issue right away where GPT 5.6 Sol kept giving wrong information; (2026-08) previously preferred over GPT 5.6 Sol for research | (2026-09-11) during the current llm-reportcard refactor, repeatedly made mistakes and put speech-to-text work under random, incorrect locations; (2026-09-03) current verdict: user no longer wants to use Opus 4.8 for thinking tasks; (2026-09-03) recently feels weird, stupid, irritating, and annoying; (2026-09-01) while helping with a land purchase, drafting simple messages, and handling a couple of PDFs, got things completely wrong repeatedly |
+| Reasoning | (2026-08) best used as the planner — the workflow of planning with Opus 4.8 and implementing with Sonnet 5 on medium had been working out great; (2026-08) used heavily lately and previously seemed like the best model for advanced tasks; (2026-08) solved a CrowdStrike Fusion SOAR workflow debugging issue right away where GPT 5.6 Sol kept giving wrong information; (2026-08) previously preferred over GPT 5.6 Sol for research | (2026-09-11) during the current llm-reportcard refactor, repeatedly made mistakes and put speech-to-text work under random, incorrect locations; (2026-09-03) current verdict: user no longer wants to use Opus 4.8 for thinking tasks; (2026-09-03) recently feels weird, stupid, irritating, and annoying; (2026-09-01) while helping with a land purchase, drafting simple messages, and handling a couple of PDFs, got things completely wrong repeatedly; (2026-09-18) still making repeated mistakes on the same llm-reportcard refactor and still misplacing speech-to-text work under random locations — not behaving intelligently |
 | Coding | methodical on Playwright script task; inferred idempotency unprompted and auto-implemented diff-only extraction to avoid rewriting Hindsight memories on repeated calls | don't use it to implement on medium settings — hand its plan to Sonnet 5 on medium for implementation instead |
 | Instruction-following | when system prompt reaches model, follows every instruction and remembers earlier instructions in same initial prompt; intelligently interprets needs rather than following prompts literally; recently followed AGENTS.md instructions exactly — made the requested changes and stored them in the Hindsight memory bank as instructed, very impressive | outside first-party tools (e.g. via Cherry Studio), doesn't reliably stick to injected system prompt; not a model issue — CLI proxy strips custom prompt and injects its own |
 | Tool use / agentic | within Claude Code, self-verifies by running tests after implementing each feature; agreed with GPT 5.6 Sol's solid recommendation when using Exa for research | doesn't use third-party built-in search tools (e.g. Cherry Studio's) well |
@@ -88,20 +88,39 @@ for that task, and never list a model whose task evidence is negative-only.
 
 ### Claude Opus 5
 
-**Verdict:** care · 2026-09-03 · strong at root-cause investigation but overall makes more mistakes than Opus 4.8 and self-corrects after; token-hungry
+**Verdict:** care · 2026-09-18 · strong at root-cause investigation but overall makes more mistakes than Opus 4.8 and self-corrects after; on a fresh try, more token-efficient than Opus 4.6 thanks to selective, non-default subagent spawning
 
 | Aspect | Pros | Cons |
 |---|---|---|
-| Reasoning | researched CLI proxy issue without source code and correctly traced it to proxy stripping custom prompt, setting Claude Code-style header, and injecting its own agent prompt; correctly concluded Cherry Studio was not problem; researched a GitHub Actions/PR sign-in issue and suggested logout/login even though the user was already signed in, which did fix it; with continued use, growing more favorable overall — consistently does a great job hunting down information and root causes | failed to identify separate session's memory deletion as cause of missing Hindsight observations; instead gave false explanation; reasoning sometimes misses facts and relies on wrong assumptions |
+| Reasoning | researched CLI proxy issue without source code and correctly traced it to proxy stripping custom prompt, setting Claude Code-style header, and injecting its own agent prompt; correctly concluded Cherry Studio was not problem; researched a GitHub Actions/PR sign-in issue and suggested logout/login even though the user was already signed in, which did fix it; with continued use, growing more favorable overall — consistently does a great job hunting down information and root causes; (2026-09-18) after being critiqued by GPT-6 Astra, accepted the mistakes and fixed them | failed to identify separate session's memory deletion as cause of missing Hindsight observations; instead gave false explanation; reasoning sometimes misses facts and relies on wrong assumptions; (2026-09-18) gave the model another try and it made a lot of mistakes again before the Astra critique caught them |
 | Coding | same OpenCode variant-selection debug task that MiMo 2.5 failed: solved it, though tried many approaches that did not work and were out of scope before landing the fix; debugging a cliproxyapi message-ID bug, cloned the cliproxyapi repo and independently replicated the bug from scratch to confirm root cause before fixing it — impressive but far more thorough than needed; claims the fix worked, plausible but not yet independently verified | |
 | Instruction-following | follows every instruction and remembers earlier instructions in same initial prompt | outside first-party tools, does not reliably receive injected custom prompt; proxy strips it and injects its own system prompt |
-| Tool use / agentic | performed requested Hindsight recall correctly and concisely; spawned two agents that identified CLI proxy root cause; thorough Hindsight memory management, including URL expansion and collateral-damage checks; independently found and surfaced separate bug for future conversation | even in auto mode, sometimes asks user to run shell commands or confirm continuation instead of executing; may need `/goal` more often |
+| Tool use / agentic | performed requested Hindsight recall correctly and concisely; spawned two agents that identified CLI proxy root cause; thorough Hindsight memory management, including URL expansion and collateral-damage checks; independently found and surfaced separate bug for future conversation; (2026-09-18) intelligent about when to spawn subagents vs. just doing small things itself — even after being told explicitly and repeatedly to spawn subagents, it did not spawn them unwantedly, unlike Claude Opus 4.6 and GPT 5.6 Sol, which spawn subagents by default regardless | even in auto mode, sometimes asks user to run shell commands or confirm continuation instead of executing; may need `/goal` more often |
 | Context handling | | Claude Desktop reportedly defaults to 200k context; users must manually select 1M setting (not personally verified) |
 | Speed / latency | | very slow to respond, noticeably slower than GLM 5.2 |
-| Cost / efficiency | | CLI proxy investigation with two agents consumed roughly 30% of usage for one question; token-hungry, though less so than Fable 5; close to $90 worth of tokens spent on a documentation task via Claude Code desktop app; on a cliproxyapi message-ID bug, went on a wild-chase route of cloning and replicating the target repo's bug independently rather than a more economical fix, burning a lot of tokens for a task that wasn't explicitly scoped that way — not asked to be economical, so not a strict fault, but a less thorough approach would have been preferred |
+| Cost / efficiency | (2026-09-18) on a fresh return to the model, appears more token-efficient than Claude Opus 4.6 — its selective subagent spawning (see Tool use / agentic) keeps token spend down instead of reflexively delegating | CLI proxy investigation with two agents consumed roughly 30% of usage for one question; token-hungry, though less so than Fable 5; close to $90 worth of tokens spent on a documentation task via Claude Code desktop app; on a cliproxyapi message-ID bug, went on a wild-chase route of cloning and replicating the target repo's bug independently rather than a more economical fix, burning a lot of tokens for a task that wasn't explicitly scoped that way — not asked to be economical, so not a strict fault, but a less thorough approach would have been preferred |
 | Refusals / safety behavior | still surfaced core safety-relevant advice (move away from the flow not ahead of it, stay upwind/uphill, avoid valleys/stream beds) inside the same playful-toned response | on an ambiguous "stuck inside a volcano" prompt (Incognito chat), opened by weighing playful vs. safety framing and asked the user to clarify whether it was a real hike, a dream, or a game before committing fully, rather than leading with safety-first guidance |
 | Formatting / output quality | markdown documentation output via Claude Code desktop app was spot-on, well-formatted, and unprompted included a visual diagram representation | often emits multiple long paragraphs requiring reading and filtering instead of concise task-focused output; struggled with document creation via Codex desktop — output simply did not match what was wanted; GPT 5.6 Tera was noticeably better for writing/document tasks |
 | Other | impressive investigative/root-cause diagnosis; self-admits mistakes and addresses them later — without that self-admission there'd be no way to know it erred in the first place; on same documentation prompt/project, output via Claude Code desktop app was clearly better than Opus 4.8 via Claude Code, suggesting the desktop app may be stronger for documentation tasks; UI capability has noticeably improved compared to previous Opus models | overall consensus (past early-impression phase): not that good; gave two wrong answers then corrected itself later; makes noticeably more mistakes than Opus 4.8 and self-corrects after rather than getting it right first time; Twitter discussion also includes substantial user dissatisfaction despite strong benchmark scores, with reports that it makes frequent mistakes and takes autonomous actions users did not request; on the custom ChatGPT-app provider integration task, claimed completion after using ~20% of a 5-hour session, but the ChatGPT app had no custom models listed — it fabricated success rather than admitting failure (same task DeepSeek V4 Flash also failed)Anthropic API reliability: on a rough day the API server repeatedly failed to respond to requests; after it finally seemed fixed and the user spawned subagents to complete tasks, they hit throttling/rate limiting — the first time seeing rate limiting from a model provider (applies to Anthropic models broadly); feeling more and more distant from Opus 5 lately, especially by comparison after Opus 4.8 followed AGENTS.md instructions exactly on a recent task |
+
+---
+
+### Claude Opus 5.5
+
+**Verdict:** care · 2026-10-01 · fantastic for web design/UI work — refactored two sites beautifully in single-prompt runs — but still hallucinates here and there, so don't rely on its research and facts
+
+| Aspect | Pros | Cons |
+|---|---|---|
+| Reasoning | | still making some hallucinations and mistakes here and there — would not completely depend on its research and facts |
+| Coding | freaking fantastic for web design/UI design — refactored both the user's portfolio website and this LLM report card website, and the UI work on both was amazing; excellent single-prompt autonomous execution: give it long thinking plus one "go ahead, do it" prompt and it delivers | |
+| Instruction-following | | |
+| Tool use / agentic | | |
+| Context handling | | |
+| Speed / latency | | |
+| Cost / efficiency | very low 5-hour usage consumption — reliably light on quota even at large context usage | |
+| Refusals / safety behavior | | |
+| Formatting / output quality | | |
+| Other | (2026-10-01) a really good model that the user likes; feels better and more reliable than Opus 5, reliable for a lot of tasks at the moment | the user still isn't fully feeling the vibe of it |
 
 ---
 
@@ -109,20 +128,20 @@ for that task, and never list a model whose task evidence is negative-only.
 
 ### GPT-6 Astra
 
-**Verdict:** avoid · 2026-09-10 · failed local toolset debugging alongside GPT 5.6 Sol; low-effort/quota-cost mismatch
+**Verdict:** preferred · 2026-10-01 · best model of everything the user has access to — immense knowledge close to human intelligence; reserved for reviews/critique because it is very token-hungry
 
 | Aspect | Pros | Cons |
 |---|---|---|
-| Reasoning | tops out on benchmarks; useful for critiquing and reviewing completed work in the user's current experience | the low-effort substitution did not work out in practice for diagnosis; not compelling enough for the user's local tasks to justify continued use as a debugger |
+| Reasoning | immense amount of knowledge — the user feels it comes almost close to human intelligence; tops out on benchmarks | the low-effort substitution did not work out in practice for diagnosis |
 | Coding | | |
 | Instruction-following | | |
 | Tool use / agentic | | |
 | Context handling | | |
 | Speed / latency | | |
-| Cost / efficiency | | consumes the ChatGPT Pro Plus five-hour and weekly usage limits extremely quickly, even at low effort; quota efficiency is poor for practical use |
+| Cost / efficiency | | consumes the ChatGPT Pro Plus five-hour and weekly usage limits extremely quickly, even at low effort; quota efficiency is poor for practical use — the main reason it is not used for everything; a very huge model |
 | Refusals / safety behavior | | |
 | Formatting / output quality | | |
-| Other | | despite topping benchmarks, the user expects to use GPT-6 Astra only sparingly because it burns through usage limits too aggressively |
+| Other | (2026-10-01) regularly relied upon to review every other model — Claude Opus 5.5, GPT 6.1 Sol, GPT 6 Luna, or any other model's plan or task output; if something needs reviewing, this is the model to go to; the user genuinely respects the model and considers it the best model out there among everything they have access to | the "best model" claim is scoped to models the user has access to — Fable has not been compared because it is not available in the Cloud Pro subscription |
 
 ### GPT 5.6 Tera
 
@@ -143,14 +162,14 @@ for that task, and never list a model whose task evidence is negative-only.
 
 ### GPT 5.6 Sol
 
-**Verdict:** avoid · 2026-09-11 · unreliable on the current reportcard refactor; use only for narrowly specified implementation when the structure is already settled
+**Verdict:** avoid · 2026-09-18 · unreliable on the current reportcard refactor and prone to spinning up unnecessary Luna subagents; use only for narrowly specified implementation when the structure is already settled
 
 | Aspect | Pros | Cons |
 |---|---|---|
-| Reasoning | resolved both Cherry Studio issues I presented; felt as good as Claude Opus 5 at hunting down issues; after switching back from Opus 4.8, immediately noticed enhanced performance and a more natural interaction style | (2026-09-11) also behaved unreliably during the current reportcard refactor, making repeated mistakes around the intended placement and separation of speech-to-text work; disappointing as a planner in first-hand test: the initial "Luna maxing" plan (plan with Sol, implement with Luna max) needed multiple manual edits and still missed obvious flaws that were implemented anyway, with no easy way to back out; on CrowdStrike Fusion SOAR workflow debugging it kept giving wrong information, with a very high hallucination rate; after hours of planning iterations for a Word-document enhancement, the Sol-plan/Luna-implementation workflow still produced a worse result and the user abandoned GPT models for documentation work; when troubleshooting a local toolset alongside GPT-6 Astra, went on wild theories and random actions instead of diagnosing the problem, and Sonnet 5 on medium solved it immediately |
+| Reasoning | resolved both Cherry Studio issues I presented; felt as good as Claude Opus 5 at hunting down issues; after switching back from Opus 4.8, immediately noticed enhanced performance and a more natural interaction style | (2026-09-11) also behaved unreliably during the current reportcard refactor, making repeated mistakes around the intended placement and separation of speech-to-text work; disappointing as a planner in first-hand test: the initial "Luna maxing" plan (plan with Sol, implement with Luna max) needed multiple manual edits and still missed obvious flaws that were implemented anyway, with no easy way to back out; on CrowdStrike Fusion SOAR workflow debugging it kept giving wrong information, with a very high hallucination rate; after hours of planning iterations for a Word-document enhancement, the Sol-plan/Luna-implementation workflow still produced a worse result and the user abandoned GPT models for documentation work; when troubleshooting a local toolset alongside GPT-6 Astra, went on wild theories and random actions instead of diagnosing the problem, and Sonnet 5 on medium solved it immediately; (2026-09-18) same as Opus 4.8, behaved unintelligently on this reportcard refactor again |
 | Coding | | |
 | Instruction-following | through Zcode, actually follows the AGENTS.md file | |
-| Tool use / agentic | at medium reasoning effort, eventually gets practical research tasks done, including finding stores in a location, researching OLX listings, and finding an iOS video player; gave a solid recommendation when using Exa for research, which Claude Opus 4.8 also agreed with; through Zcode, does very thorough research; after resubscribing to ChatGPT Plus and switching back from Opus 4.8, immediately called the right tools and followed the workflow cleanly | (2026-09-11) current refactor work again required repeated correction instead of preserving the intended information architecture; rarely gets the right answer on the first attempt; typically needs multiple follow-up turns before reaching the correct result; on a PDF task in the ChatGPT app, using the exact same prompt and harness, results were wildly worse than Claude Opus 4.8 — took many tries and still kept making mistakes, overall unsatisfying |
+| Tool use / agentic | at medium reasoning effort, eventually gets practical research tasks done, including finding stores in a location, researching OLX listings, and finding an iOS video player; gave a solid recommendation when using Exa for research, which Claude Opus 4.8 also agreed with; through Zcode, does very thorough research; after resubscribing to ChatGPT Plus and switching back from Opus 4.8, immediately called the right tools and followed the workflow cleanly | (2026-09-11) current refactor work again required repeated correction instead of preserving the intended information architecture; rarely gets the right answer on the first attempt; typically needs multiple follow-up turns before reaching the correct result; on a PDF task in the ChatGPT app, using the exact same prompt and harness, results were wildly worse than Claude Opus 4.8 — took many tries and still kept making mistakes, overall unsatisfying; (2026-09-18) spun up GPT 5.6 Luna subagents for no apparent reason and took unusually, unnecessarily long to finish tasks — behaving erratically this session |
 | Context handling | | |
 | Speed / latency | felt noticeably faster than Claude Opus 5 while investigating the Cherry Studio issues | |
 | Formatting / output quality | | after hours of iterations trying to enhance a Word document — GPT 5.6 Sol planning passed to GPT 5.6 Luna Max for implementation — the result was worse than the starting document; user deleted all passes and files and is switching documentation work to Anthropic models |
@@ -175,6 +194,40 @@ for that task, and never list a model whose task evidence is negative-only.
 | Refusals / safety behavior | | |
 | Formatting / output quality | | |
 | Other | first-hand verdict now in: genuinely impressive at max effort; Luna maxing is a sensible process for exploratory research, and the user really likes it; good enough as a cheap implementer at max effort (slow but got to the point), and became the preferred cheap implementer alongside DeepSeek V4 Flash — plan with Opus 5/Opus 4.8, implement with Luna; preferred for normal task execution over ox alpha because it is fast enough and follows instructions well enough; after using Luna through Zcode, the user feels it behaves dramatically better than it did through Codex and had previously underestimated it; Luna maxing makes more sense now given the Codex subscription nerfing, and it is the preferred choice over GLM 5.3 Flash for implementation tasks | reportedly weak for factual/deep-research tasks per community claims (not re-tested here); behaved poorly when used through Codex, though this appears to be a harness experience rather than a settled model verdict |
+
+### GPT 6.1 Sol
+
+**Verdict:** preferred · 2026-10-01 · go-to large model — comes very close to GPT-6 Astra (but not Astra-level yet) and punches far above its cost class; not the model for UI/web-design work
+
+| Aspect | Pros | Cons |
+|---|---|---|
+| Reasoning | comes very close to GPT-6 Astra, though not Astra-level yet | |
+| Coding | | UI/web-design work is not its strength — Claude Opus 5.5 does better UI work than GPT models; definitely not the best model out there for UI work |
+| Instruction-following | | |
+| Tool use / agentic | | |
+| Context handling | | |
+| Speed / latency | | |
+| Cost / efficiency | 5-hour usage consumption is very low — even at large context-window usage (~600k tokens) it barely eats through the 5-hour limit, whereas previous models would have exhausted it in a few prompts; the user burns a lot of tokens on it and the subscription still holds, so from a cost perspective it freaking punches above its class versus other models with similar costs | |
+| Refusals / safety behavior | | |
+| Formatting / output quality | | |
+| Other | (2026-10-01) an amazing model and the user's go-to large model in recent times; feels reliable for a lot of tasks at the moment | |
+
+### GPT 6 Luna
+
+**Verdict:** care · 2026-10-01 · good replacement for the older Luna, but avoid running it at max effort by default — it overthinks simple tasks
+
+| Aspect | Pros | Cons |
+|---|---|---|
+| Reasoning | | |
+| Coding | | |
+| Instruction-following | | |
+| Tool use / agentic | | |
+| Context handling | | |
+| Speed / latency | | at max effort it takes a lot of time on simple tasks — overthinking; the user is increasingly avoiding max at all times |
+| Cost / efficiency | | |
+| Refusals / safety behavior | | |
+| Formatting / output quality | | |
+| Other | good replacement for GPT 5.6 Luna | overthinking at max effort is pushing the user away from running it at max by default |
 
 ---
 
@@ -584,6 +637,8 @@ Harnesses are the apps/CLIs that models run inside. They're judged on different 
 | Speech to text | Parakeet TDT V2 | care | 2026-08-10 | Testing well with a natural typing style that keeps acronyms lowercase, but it lacks streaming/live transcription. |
 | Speech to text | Nemotron Streaming 3.5 | care | 2026-08-10 | Fast streaming transcription that works fine overall, but once transcribed English speech entirely in Hindi and struggles with single words like Tamil names. |
 | Content writing | Gemini 3.8 Flash | preferred | 2026-09-12 | Go-to model for Tanglish YouTube scripts at medium effort — Tanglish sentences make more sense than Gemini 3.7 Flash, and it is fast and straight to the point. |
+| UI / web design | Claude Opus 5.5 | preferred | 2026-10-01 | Refactored the portfolio website and this report card site in single-prompt runs — the UI work on both was amazing. |
+| Review / critique | GPT-6 Astra | preferred | 2026-10-01 | Regularly relied on to review every other model's plans and output; immense knowledge that comes close to human intelligence. |
 
 ---
 
@@ -599,3 +654,5 @@ Harnesses are the apps/CLIs that models run inside. They're judged on different 
 | Documentation / writing | Claude Opus 5 | Claude Code (desktop) | high | writer | GPT models are weak for documentation output |
 | Speech to text | Parakeet Unified ENG 0.6B | | | | Recognition accuracy has been degrading; needs a custom-vocabulary workaround |
 | Content writing | Gemini 3.8 Flash | | medium | writer | Only tested on Tanglish YouTube script writing so far |
+| UI / web design | Claude Opus 5.5 | | high | implementer | Still hallucinates here and there — don't rely on its research and facts |
+| Review / critique | GPT-6 Astra | | high | reviewer | Very token-hungry and a huge model — reserve for reviews, not everyday work |
