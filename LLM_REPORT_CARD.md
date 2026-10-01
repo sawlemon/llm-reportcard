@@ -190,7 +190,7 @@ for that task, and never list a model whose task evidence is negative-only.
 | Tool use / agentic | preferred for exploratory research when paired with Exa at max effort; the user is genuinely impressed with GPT 5.6 Luna max | |
 | Context handling | | |
 | Speed / latency | output speed is relatively high compared with other huge models, even at max effort | super slow at max effort compared with smaller models: the thinking phase takes a long time, so output arrives late |
-| Cost / efficiency | incredibly cheap relative to Tera/Sol for reportedly comparable intelligence at matched effort levels, driving the "Luna maxing" trend of using it for everyday tasks; in the first-hand test the implementation consumed a low amount of the monthly usage budget; (2026-10-01) Zcode 30-day usage log: the most-called model overall — 3,978 calls and 410M billed tokens (including 2.2M reasoning) plus 382M cache reads; the Luna-maxing workhorse, with cheap per-token cost absorbing the huge volume | |
+| Cost / efficiency | incredibly cheap relative to Tera/Sol for reportedly comparable intelligence at matched effort levels, driving the "Luna maxing" trend of using it for everyday tasks; in the first-hand test the implementation consumed a low amount of the monthly usage budget; (2026-10-01) Zcode 30-day usage log: the most-called model overall — 3,978 calls and 410M billed tokens (including 2.2M reasoning) plus 382M cache reads; the Luna-maxing workhorse through that period, with cheap per-token cost absorbing the huge volume; (2026-10-01) the user has since switched to GPT 6 Luna, so this volume reflects the pre-switch period | |
 | Refusals / safety behavior | | |
 | Formatting / output quality | | |
 | Other | first-hand verdict now in: genuinely impressive at max effort; Luna maxing is a sensible process for exploratory research, and the user really likes it; good enough as a cheap implementer at max effort (slow but got to the point), and became the preferred cheap implementer alongside DeepSeek V4 Flash — plan with Opus 5/Opus 4.8, implement with Luna; preferred for normal task execution over ox alpha because it is fast enough and follows instructions well enough; after using Luna through Zcode, the user feels it behaves dramatically better than it did through Codex and had previously underestimated it; Luna maxing makes more sense now given the Codex subscription nerfing, and it is the preferred choice over GLM 5.3 Flash for implementation tasks | reportedly weak for factual/deep-research tasks per community claims (not re-tested here); behaved poorly when used through Codex, though this appears to be a harness experience rather than a settled model verdict |
@@ -214,7 +214,7 @@ for that task, and never list a model whose task evidence is negative-only.
 
 ### GPT 6 Luna
 
-**Verdict:** care · 2026-10-01 · good replacement for the older Luna, but avoid running it at max effort by default — it overthinks simple tasks
+**Verdict:** care · 2026-10-01 · the user's active Luna after switching from GPT 5.6 Luna, but avoid running it at max effort by default — it overthinks simple tasks
 
 | Aspect | Pros | Cons |
 |---|---|---|
@@ -227,7 +227,7 @@ for that task, and never list a model whose task evidence is negative-only.
 | Cost / efficiency | (2026-10-01) Zcode 30-day usage log: 893 calls, 69M billed tokens plus 60M cache reads | |
 | Refusals / safety behavior | | |
 | Formatting / output quality | | |
-| Other | good replacement for GPT 5.6 Luna | overthinking at max effort is pushing the user away from running it at max by default |
+| Other | (2026-10-01) the user has switched to GPT 6 Luna from GPT 5.6 Luna | overthinking at max effort is pushing the user away from running it at max by default |
 
 ---
 
