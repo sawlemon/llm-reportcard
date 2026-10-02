@@ -1402,6 +1402,10 @@ button.tokens-name:hover {
   line-height: 1;
 }
 
+.chip--long .chip__value {
+  font-size: calc(var(--size) * 0.2);
+}
+
 .chip--sm {
   --size: 56px;
   vertical-align: middle;
@@ -1467,6 +1471,63 @@ button.tokens-name:hover {
 .tokens-empty {
   font-family: var(--hand);
   font-size: 26px;
+  color: var(--ink-soft);
+}
+
+/* ---------- fair board (1M in + 1M out) ---------- */
+.fair-board {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 16px;
+}
+
+.fair-row {
+  display: grid;
+  grid-template-columns: 44px minmax(150px, 240px) 1fr auto;
+  gap: 14px;
+  align-items: center;
+}
+
+.fair-row--list {
+  opacity: 0.75;
+}
+
+.fair-id {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fair-sub {
+  font-family: var(--hand);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.fair-rates {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.fair-pill {
+  padding: 4px 10px;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  background: var(--paper);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--mono);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.fair-pill s {
+  margin-left: 6px;
+  font-size: 11px;
   color: var(--ink-soft);
 }
 
@@ -1730,6 +1791,16 @@ button.tokens-name:hover {
   .fuel {
     grid-column: 2 / -1;
     grid-row: 2;
+  }
+
+  .fair-row {
+    grid-template-columns: 34px 1fr auto;
+  }
+
+  .fair-rates {
+    grid-column: 2 / -1;
+    grid-row: 2;
+    justify-content: flex-start;
   }
 }
 

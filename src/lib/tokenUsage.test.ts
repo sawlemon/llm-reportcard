@@ -6,9 +6,12 @@ import {
   USAGE,
   chipTier,
   costOf,
+  effectiveInputRate,
   formatCost,
+  formatRate,
   formatTokens,
   modelUsage,
+  perMillionRows,
   shortDate,
   sortUsageRows,
   usageRows,
@@ -55,6 +58,14 @@ const prices: PriceFile = {
       cacheWrite: null,
     },
     'Idle Model': { litellm: 'idle', zcodeIds: ['idle'], input: 1, output: 1, cacheRead: 0.1, cacheWrite: 1 },
+    'Ghost Model': {
+      litellm: 'ghost',
+      zcodeIds: ['ghost'],
+      input: 3,
+      output: 4,
+      cacheRead: null,
+      cacheWrite: null,
+    },
   },
 };
 
@@ -167,6 +178,106 @@ describe('usageRows, totals and sorting', () => {
       'Cheap Model',
       'mystery-model',
     ]);
+  });
+});
+
+describe('effectiveInputRate', () => {
+  it('charges uncached input, cache reads and cache writes at their own rates, per 1M', () => {
+    const rate = effectiveInputRate(usage.models['big-model'], prices.models['Big Model']);
+    // 100K uncached × $2 + 800K read × $0.2 + 100K write × $2.5 over 1M input tokens
+    expect(rate).toBeCloseTo(0.61, 10);
+  });
+
+  it('falls back to the input price when a cache price is null', () => {
+    expect(effectiveInputRate(usage.models.cheap, prices.models['Cheap Model'])).toBeCloseTo(0.1, 10);
+  });
+
+  it('is null without input tokens or without input/output prices', () => {
+    expect(effectiveInputRate(counts({ input: 0, output: 5 }), prices.models['Big Model'])).toBeNull();
+    expect(
+      effectiveInputRate(usage.models.cheap, { ...prices.models['Cheap Model'], input: null }),
+    ).toBeNull();
+  });
+});
+
+describe('formatRate', () => {
+  it('formats per-1M rates with the fewest decimals that keep the value', () => {
+    expect(formatRate(0.019)).toBe('$0.019');
+    expect(formatRate(0.25)).toBe('$0.25');
+    expect(formatRate(10.25)).toBe('$10.25');
+    expect(formatRate(51.92)).toBe('$51.92');
+    expect(formatRate(10)).toBe('$10');
+    expect(formatRate(0.5)).toBe('$0.5');
+    expect(formatRate(123.45)).toBe('$123');
+  });
+});
+
+describe('perMillionRows', () => {
+  const rows = perMillionRows([entry('Big Model'), entry('Idle Model')], prices, usage);
+  const byName = new Map(rows.map((row) => [row.name, row]));
+
+  it('gives used models an effective pair from their real cache mix', () => {
+    const big = byName.get('Big Model')!;
+    expect(big.model?.name).toBe('Big Model');
+    expect(big.listPair).toBe(12);
+    // 1.1M uncached at $2 + 0.8M reads at $0.2 + 0.1M writes at $2.5 over 2M input tokens
+    expect(big.effectiveInput).toBeCloseTo(1.305, 10);
+    expect(big.effectivePair).toBeCloseTo(11.305, 10);
+    expect(big.cacheHitRate).toBeCloseTo(0.4, 10);
+    // used but uncarded: rates still come from usage, no dossier button
+    const cheap = byName.get('Cheap Model')!;
+    expect(cheap.model).toBeUndefined();
+    expect(cheap.effectiveInput).toBeCloseTo(0.1, 10);
+    expect(cheap.effectivePair).toBeCloseTo(0.6, 10);
+  });
+
+  it('keeps unused carded models at list prices with null rates', () => {
+    const idle = byName.get('Idle Model')!;
+    expect(idle.model?.name).toBe('Idle Model');
+    expect(idle.listPair).toBe(2);
+    expect(idle.effectiveInput).toBeNull();
+    expect(idle.effectivePair).toBeNull();
+    expect(idle.cacheHitRate).toBeNull();
+  });
+
+  it('skips priced entries with neither usage nor a report-card entry, sorted cheapest pair first', () => {
+    expect(rows.map((row) => row.name)).toEqual(['Cheap Model', 'Idle Model', 'Big Model']);
+  });
+});
+
+describe('perMillionRows on the committed data', () => {
+  const rows = perMillionRows(reportCard.models);
+  const round2 = (dollars: number) => Math.round(dollars * 100) / 100;
+  const find = (name: string) => rows.find((row) => row.name === name)!;
+
+  it('sorts ascending by the pair each row is shown at', () => {
+    const pairs = rows.map((row) => row.effectivePair ?? row.listPair);
+    expect([...pairs].sort((a, b) => a - b)).toEqual(pairs);
+  });
+
+  it('matches the real committed numbers', () => {
+    // Unused carded models sort by list pair, and MiMo 2.5's list pair is $0.42, so the first
+    // row with an effective pair is GPT 6 Luna.
+    const firstUsed = rows.find((row) => row.effectivePair !== null)!;
+    expect(firstUsed.name).toBe('GPT 6 Luna');
+    expect(round2(firstUsed.effectivePair!)).toBe(0.52);
+    expect(round2(find('GLM 5.3 Flash').effectivePair!)).toBe(0.54);
+
+    const sonnet = find('Claude Sonnet 5');
+    expect(round2(sonnet.effectiveInput!)).toBe(0.25);
+    expect(round2(sonnet.effectivePair!)).toBe(10.25);
+    expect(sonnet.listPair).toBe(12);
+    expect(round2(sonnet.cacheHitRate!)).toBe(0.98);
+
+    const astra = find('GPT-6 Astra');
+    expect(round2(astra.effectivePair!)).toBe(51.92);
+    const usedPairs = rows.flatMap((row) => (row.effectivePair === null ? [] : [row.effectivePair]));
+    expect(Math.max(...usedPairs)).toBe(astra.effectivePair);
+
+    const grok = find('Grok 4.5');
+    expect(grok.effectivePair).toBeNull();
+    expect(grok.listPair).toBe(8);
+    expect(grok.model?.name).toBe('Grok 4.5');
   });
 });
 
