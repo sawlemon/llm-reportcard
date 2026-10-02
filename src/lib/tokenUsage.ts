@@ -289,6 +289,46 @@ export function perMillionRows(
   );
 }
 
+export type FairSort = 'pair' | 'input' | 'output' | 'cache' | 'name';
+export type SortDirection = 'asc' | 'desc';
+
+/** The direction each key starts in: cheapest first, best cache rate first, A–Z. */
+export const FAIR_SORT_DEFAULT_DIRECTION: Record<FairSort, SortDirection> = {
+  pair: 'asc',
+  input: 'asc',
+  output: 'asc',
+  cache: 'desc',
+  name: 'asc',
+};
+
+/**
+ * Re-sorts per-million rows. Prices use the effective rate where there is usage, else list.
+ * Rows without a cache rate always sort last, whatever the direction; ties fall back to name.
+ */
+export function sortPerMillionRows(
+  rows: PerMillionRow[],
+  sort: FairSort,
+  direction: SortDirection = FAIR_SORT_DEFAULT_DIRECTION[sort],
+): PerMillionRow[] {
+  const value = (row: PerMillionRow): number | null => {
+    if (sort === 'pair') return row.effectivePair ?? row.listPair;
+    if (sort === 'input') return row.effectiveInput ?? row.listInput;
+    if (sort === 'output') return row.listOutput;
+    if (sort === 'cache') return row.cacheHitRate;
+    return null;
+  };
+  const sign = direction === 'asc' ? 1 : -1;
+  return [...rows].sort((a, b) => {
+    if (sort === 'name') return sign * a.name.localeCompare(b.name);
+    const va = value(a);
+    const vb = value(b);
+    if (va === null && vb === null) return a.name.localeCompare(b.name);
+    if (va === null) return 1;
+    if (vb === null) return -1;
+    return sign * (va - vb) || a.name.localeCompare(b.name);
+  });
+}
+
 /** "2026-09-01" → "Sep 1". */
 export function shortDate(iso: string): string {
   return new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-US', {

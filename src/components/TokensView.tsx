@@ -5,11 +5,15 @@ import { CostChip } from './CostChip';
 import {
   formatRate,
   formatTokens,
+  FAIR_SORT_DEFAULT_DIRECTION,
   perMillionRows,
+  sortPerMillionRows,
   shortDate,
   sortUsageRows,
   usageRows,
   usageTotals,
+  type FairSort,
+  type SortDirection,
   type UsageSort,
 } from '../lib/tokenUsage';
 
@@ -21,6 +25,14 @@ interface TokensViewProps {
 const SORTS: Array<{ value: UsageSort; label: string }> = [
   { value: 'tokens', label: 'By tokens' },
   { value: 'cost', label: 'By est. cost' },
+];
+
+const FAIR_SORTS: Array<{ value: FairSort; label: string }> = [
+  { value: 'pair', label: 'Total' },
+  { value: 'input', label: 'Input' },
+  { value: 'output', label: 'Output' },
+  { value: 'cache', label: 'Cache hits' },
+  { value: 'name', label: 'Name' },
 ];
 
 const UNCARDED_COLOR = '#ffe14d';
@@ -36,7 +48,21 @@ export function TokensView({ onSelectModel }: TokensViewProps) {
   const rows = useMemo(() => usageRows(reportCard.models), []);
   const totals = useMemo(() => usageTotals(rows), [rows]);
   const sorted = useMemo(() => sortUsageRows(rows, sort), [rows, sort]);
-  const fairRows = useMemo(() => perMillionRows(reportCard.models), []);
+  const [fairSort, setFairSort] = useState<{ key: FairSort; direction: SortDirection }>({
+    key: 'pair',
+    direction: 'asc',
+  });
+  const fairBase = useMemo(() => perMillionRows(reportCard.models), []);
+  const fairRows = useMemo(
+    () => sortPerMillionRows(fairBase, fairSort.key, fairSort.direction),
+    [fairBase, fairSort],
+  );
+  const chooseFairSort = (key: FairSort) =>
+    setFairSort((current) =>
+      current.key === key
+        ? { key, direction: current.direction === 'asc' ? 'desc' : 'asc' }
+        : { key, direction: FAIR_SORT_DEFAULT_DIRECTION[key] },
+    );
   const maxBilled = Math.max(...rows.map((row) => row.usage.billedTokens), 1);
 
   return (
@@ -123,6 +149,30 @@ export function TokensView({ onSelectModel }: TokensViewProps) {
             <h2 id="fair-title" className="section-title">
               1M in + 1M out <span className="hand">a level playing field</span>
             </h2>
+            <div className="tokens-sort" role="group" aria-label="Sort the comparison">
+              {FAIR_SORTS.map((option) => {
+                const active = fairSort.key === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    className="filter"
+                    aria-pressed={active}
+                    onClick={() => chooseFairSort(option.value)}
+                  >
+                    {option.label}
+                    {active ? (
+                      <span className="fair-dir">
+                        <span aria-hidden="true">{fairSort.direction === 'asc' ? ' ↑' : ' ↓'}</span>
+                        <span className="visually-hidden">
+                          {fairSort.direction === 'asc' ? 'sorted ascending' : 'sorted descending'}
+                        </span>
+                      </span>
+                    ) : null}
+                  </button>
+                );
+              })}
+            </div>
             <ol className="fair-board">
               {fairRows.map((row, index) => (
                 <li

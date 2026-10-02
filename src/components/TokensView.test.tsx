@@ -8,6 +8,7 @@ import {
   formatRate,
   formatTokens,
   perMillionRows,
+  sortPerMillionRows,
   sortUsageRows,
   usageRows,
   usageTotals,
@@ -120,6 +121,27 @@ describe('the fair board', () => {
       .getAllByText(/^\d+$/, { selector: '.tokens-rank' })
       .map((rank) => Number(rank.textContent));
     expect(ranks).toEqual(fairRows.map((_, index) => index + 1));
+  });
+
+  it('re-sorts the comparison with the sort pills and flips direction on a second click', async () => {
+    const user = userEvent.setup();
+    render(<TokensView onSelectModel={vi.fn()} />);
+    const names = () =>
+      within(fair())
+        .getAllByRole('listitem')
+        .map((item) => item.querySelector('.tokens-name')!.firstChild!.textContent!);
+    const group = within(fair()).getByRole('group', { name: 'Sort the comparison' });
+
+    expect(within(group).getByRole('button', { name: /^Total/ })).toHaveAttribute('aria-pressed', 'true');
+    await user.click(within(group).getByRole('button', { name: /^Output/ }));
+    expect(names()).toEqual(sortPerMillionRows(fairRows, 'output', 'asc').map((row) => row.name));
+    await user.click(within(group).getByRole('button', { name: /^Output/ }));
+    expect(within(group).getByRole('button', { name: /^Output/ })).toHaveAccessibleName(
+      /^Output\s+sorted descending$/,
+    );
+    expect(names()).toEqual(sortPerMillionRows(fairRows, 'output', 'desc').map((row) => row.name));
+    await user.click(within(group).getByRole('button', { name: /^Cache hits/ }));
+    expect(names()).toEqual(sortPerMillionRows(fairRows, 'cache').map((row) => row.name));
   });
 
   it('shows the first row’s pair as a precise chip value', () => {
