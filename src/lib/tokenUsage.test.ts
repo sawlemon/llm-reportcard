@@ -12,6 +12,7 @@ import {
   formatTokens,
   modelUsage,
   perMillionRows,
+  sortPerMillionRows,
   shortDate,
   sortUsageRows,
   usageRows,
@@ -303,5 +304,36 @@ describe('the committed data files', () => {
     const sonnet = reportCard.models.find((model) => model.name === 'Claude Sonnet 5')!;
     const found = modelUsage(sonnet)!;
     expect(found.cost!).toBeLessThan(found.billedTokens * 2e-6);
+  });
+});
+
+describe('sortPerMillionRows', () => {
+  const rows = perMillionRows(reportCard.models);
+
+  it('sorts by each price key ascending by default, cache descending, ties by name', () => {
+    const pairs = sortPerMillionRows(rows, 'pair').map((row) => row.effectivePair ?? row.listPair);
+    expect(pairs).toEqual([...pairs].sort((a, b) => a - b));
+    const outs = sortPerMillionRows(rows, 'output').map((row) => row.listOutput);
+    expect(outs).toEqual([...outs].sort((a, b) => a - b));
+    const ins = sortPerMillionRows(rows, 'input', 'desc').map((row) => row.effectiveInput ?? row.listInput);
+    expect(ins).toEqual([...ins].sort((a, b) => b - a));
+    const names = sortPerMillionRows(rows, 'name').map((row) => row.name);
+    expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b)));
+  });
+
+  it('keeps rows without a cache rate last in both directions', () => {
+    for (const direction of ['asc', 'desc'] as const) {
+      const sorted = sortPerMillionRows(rows, 'cache', direction);
+      const firstNull = sorted.findIndex((row) => row.cacheHitRate === null);
+      expect(firstNull).toBeGreaterThan(0);
+      expect(sorted.slice(firstNull).every((row) => row.cacheHitRate === null)).toBe(true);
+    }
+    expect(sortPerMillionRows(rows, 'cache')[0].name).toBe('Claude Sonnet 5');
+  });
+
+  it('does not mutate its input', () => {
+    const before = rows.map((row) => row.name);
+    sortPerMillionRows(rows, 'name', 'desc');
+    expect(rows.map((row) => row.name)).toEqual(before);
   });
 });
