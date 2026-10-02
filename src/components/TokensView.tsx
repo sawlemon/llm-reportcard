@@ -3,7 +3,9 @@ import reportCard from 'virtual:report-card';
 import { cardColor } from '../lib/redesign';
 import { CostChip } from './CostChip';
 import {
+  formatRate,
   formatTokens,
+  perMillionRows,
   shortDate,
   sortUsageRows,
   usageRows,
@@ -34,6 +36,7 @@ export function TokensView({ onSelectModel }: TokensViewProps) {
   const rows = useMemo(() => usageRows(reportCard.models), []);
   const totals = useMemo(() => usageTotals(rows), [rows]);
   const sorted = useMemo(() => sortUsageRows(rows, sort), [rows, sort]);
+  const fairRows = useMemo(() => perMillionRows(reportCard.models), []);
   const maxBilled = Math.max(...rows.map((row) => row.usage.billedTokens), 1);
 
   return (
@@ -115,6 +118,58 @@ export function TokensView({ onSelectModel }: TokensViewProps) {
           <p className="tokens-note">
             est. cost at list prices, cached tokens at cache rates — subscriptions make it cheaper
           </p>
+
+          <section className="fair" aria-labelledby="fair-title">
+            <h2 id="fair-title" className="section-title">
+              1M in + 1M out <span className="hand">a level playing field</span>
+            </h2>
+            <ol className="fair-board">
+              {fairRows.map((row, index) => (
+                <li
+                  key={row.key}
+                  className={`fair-row${row.effectivePair === null ? ' fair-row--list' : ''}`}
+                >
+                  <span className="tokens-rank" aria-hidden="true">
+                    {index + 1}
+                  </span>
+                  <span className="fair-id">
+                    {row.model ? (
+                      <button
+                        type="button"
+                        className="tokens-name"
+                        onClick={() => onSelectModel(row.model!.id)}
+                      >
+                        {row.name}
+                      </button>
+                    ) : (
+                      <span className="tokens-name tokens-name--uncarded">{row.name}</span>
+                    )}
+                    <small className="fair-sub">
+                      {row.cacheHitRate !== null
+                        ? `${Math.round(row.cacheHitRate * 100)}% from cache`
+                        : 'list price · not used yet'}
+                    </small>
+                  </span>
+                  <span className="fair-rates">
+                    <span className="fair-pill">
+                      in {formatRate(row.effectiveInput ?? row.listInput)}
+                      {row.effectiveInput !== null && (
+                        <span className="fair-list">
+                          <span className="visually-hidden">list price </span>
+                          <s>{formatRate(row.listInput)}</s>
+                        </span>
+                      )}
+                    </span>
+                    <span className="fair-pill">out {formatRate(row.listOutput)}</span>
+                  </span>
+                  <CostChip cost={row.effectivePair ?? row.listPair} precise />
+                </li>
+              ))}
+            </ol>
+            <p className="tokens-note">
+              in = what your input really cost after caching · out is never cached
+            </p>
+          </section>
         </>
       )}
     </div>

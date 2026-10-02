@@ -76,16 +76,38 @@ export function chipTier(dollars: number): ChipTier {
   return 'white';
 }
 
+/** Input-side cost of `counts` (uncached + cache reads + cache writes) at per-1M prices. */
+function inputCost(counts: UsageCounts, price: ModelPrice): number {
+  const uncached = Math.max(counts.input - counts.cacheRead - counts.cacheWrite, 0);
+  return (
+    uncached * (price.input ?? 0) +
+    counts.cacheRead * (price.cacheRead ?? price.input ?? 0) +
+    counts.cacheWrite * (price.cacheWrite ?? price.input ?? 0)
+  );
+}
+
 /** Cost in USD of `counts` at `price`; null when the model has no input or output price. */
 export function costOf(counts: UsageCounts, price: ModelPrice | undefined): number | null {
   if (!price || price.input === null || price.output === null) return null;
-  const uncached = Math.max(counts.input - counts.cacheRead - counts.cacheWrite, 0);
-  const total =
-    uncached * price.input +
-    counts.cacheRead * (price.cacheRead ?? price.input) +
-    counts.cacheWrite * (price.cacheWrite ?? price.input) +
-    counts.output * price.output;
-  return total / 1e6;
+  return (inputCost(counts, price) + counts.output * price.output) / 1e6;
+}
+
+/**
+ * USD per 1M input tokens actually paid, after cache discounts; null without input tokens or a
+ * full price. Prices are already per 1M, so the result is per 1M.
+ */
+export function effectiveInputRate(counts: UsageCounts, price: ModelPrice): number | null {
+  if (counts.input === 0 || price.input === null || price.output === null) return null;
+  return inputCost(counts, price) / counts.input;
+}
+
+/**
+ * Per-1M rates: < 0.1 → up to 3 decimals ("$0.019"), < 100 → up to 2 ("$10.25"), from $100 whole
+ * dollars; trailing zeros stripped ("$10", "$0.5").
+ */
+export function formatRate(dollars: number): string {
+  const decimals = dollars < 0.1 ? 3 : dollars < 100 ? 2 : 0;
+  return `$${Number(dollars.toFixed(decimals)).toLocaleString('en-US')}`;
 }
 
 /** A model's usage over the export window, summed across every Zcode id its price entry claims. */
@@ -122,17 +144,23 @@ function usageById(usage: UsageFile): Map<string, UsageCounts> {
   return new Map(Object.entries(usage.models).map(([id, counts]) => [id.toLowerCase(), counts]));
 }
 
+/** Raw counts for a price-file name, summed across its Zcode ids; null when none logged any usage. */
+function countsForName(name: string, prices: PriceFile, usage: UsageFile): UsageCounts | null {
+  const price = prices.models[name];
+  if (!price) return null;
+  const byId = usageById(usage);
+  const matched = price.zcodeIds.flatMap((id) => byId.get(id.toLowerCase()) ?? []);
+  return matched.length ? sumCounts(matched) : null;
+}
+
 /** Usage for a price-file name, or null when none of its Zcode ids logged any usage. */
 export function usageForName(
   name: string,
   prices: PriceFile = PRICES,
   usage: UsageFile = USAGE,
 ): ModelUsage | null {
-  const price = prices.models[name];
-  if (!price) return null;
-  const byId = usageById(usage);
-  const matched = price.zcodeIds.flatMap((id) => byId.get(id.toLowerCase()) ?? []);
-  return matched.length ? toUsage(sumCounts(matched), price) : null;
+  const counts = countsForName(name, prices, usage);
+  return counts ? toUsage(counts, prices.models[name]) : null;
 }
 
 /** Usage for a report-card model or harness entry, matched by exact name. */
@@ -206,6 +234,59 @@ export function sortUsageRows(rows: UsageRow[], sort: UsageSort): UsageRow[] {
     if (b.usage.cost !== null) return 1;
     return byTokens(a, b);
   });
+}
+
+/** One "1M in + 1M out" row: what exactly 1M input + 1M output tokens cost a model. */
+export interface PerMillionRow {
+  key: string;
+  name: string;
+  /** The report-card entry with this exact name, when one exists. */
+  model?: ModelEntry;
+  listInput: number;
+  listOutput: number;
+  listPair: number;
+  /** Input rate the user actually pays after caching; null without usage. */
+  effectiveInput: number | null;
+  /** effectiveInput + listOutput — output is never cached; null without usage. */
+  effectivePair: number | null;
+  /** Share of input tokens served from cache; null without usage. */
+  cacheHitRate: number | null;
+}
+
+/**
+ * One row per price-file entry with input and output prices that either has usage or is on the
+ * report card, cheapest pair first (effective when used, list otherwise), ties by name.
+ */
+export function perMillionRows(
+  models: ModelEntry[],
+  prices: PriceFile = PRICES,
+  usage: UsageFile = USAGE,
+): PerMillionRow[] {
+  const byName = new Map(models.map((model) => [model.name, model]));
+  const rows = Object.entries(prices.models).flatMap(([name, price]) => {
+    if (price.input === null || price.output === null) return [];
+    const model = byName.get(name);
+    const counts = countsForName(name, prices, usage);
+    if (!model && !counts) return [];
+    const effectiveInput = counts ? effectiveInputRate(counts, price) : null;
+    return [
+      {
+        key: name,
+        name,
+        model,
+        listInput: price.input,
+        listOutput: price.output,
+        listPair: price.input + price.output,
+        effectiveInput,
+        effectivePair: effectiveInput === null ? null : effectiveInput + price.output,
+        cacheHitRate: counts && counts.input > 0 ? counts.cacheRead / counts.input : null,
+      },
+    ];
+  });
+  return rows.sort(
+    (a, b) =>
+      (a.effectivePair ?? a.listPair) - (b.effectivePair ?? b.listPair) || a.name.localeCompare(b.name),
+  );
 }
 
 /** "2026-09-01" → "Sep 1". */
