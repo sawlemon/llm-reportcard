@@ -379,7 +379,7 @@ for that task, and never list a model whose task evidence is negative-only.
 
 | Aspect | Pros | Cons |
 |---|---|---|
-| Reasoning | | |
+| Reasoning | (2026-10-07) feels better at max thinking effort; working conclusion: use GLM 5.3 with max thinking effort | (2026-10-07) feels a lot worse at high thinking effort, which the user attributes to their own baseline — they are used to keeping medium thinking effort on Anthropic and OpenAI models, so effort habits don't transfer one-to-one |
 | Coding | | |
 | Instruction-following | | (2026-10-07) asked it to provide a command and it ran the command itself instead of just giving it — one-off so far; the same over-eager execution has happened with Anthropic and OpenAI models too, so the user reads it as a training bias toward running commands rather than a GLM-specific flaw, and plans to be more explicit when a command should only be provided, not executed |
 | Tool use / agentic | | |
