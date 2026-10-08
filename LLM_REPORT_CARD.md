@@ -375,19 +375,19 @@ for that task, and never list a model whose task evidence is negative-only.
 
 ### GLM 5.3
 
-**Verdict:** care · 2026-10-02 · early impression on the new Zcode Lite plan: awesome to use and talks more naturally than Anthropic or OpenAI models — full capability still to be tested
+**Verdict:** care · 2026-10-08 · early impressions on the Zcode Lite plan are strongly positive: awesome to use, talks naturally, and it shipped a full GitHub repo end-to-end with a top-tier README — full capability still being tested; notable gap: no image input
 
 | Aspect | Pros | Cons |
 |---|---|---|
 | Reasoning | (2026-10-07) feels better at max thinking effort; working conclusion: use GLM 5.3 with max thinking effort | (2026-10-07) feels a lot worse at high thinking effort, which the user attributes to their own baseline — they are used to keeping medium thinking effort on Anthropic and OpenAI models, so effort habits don't transfer one-to-one |
 | Coding | | |
 | Instruction-following | | (2026-10-07) asked it to provide a command and it ran the command itself instead of just giving it — one-off so far; the same over-eager execution has happened with Anthropic and OpenAI models too, so the user reads it as a training bias toward running commands rather than a GLM-specific flaw, and plans to be more explicit when a command should only be provided, not executed |
-| Tool use / agentic | | |
-| Context handling | | |
+| Tool use / agentic | (2026-10-08) autonomously created the GitHub repo itself and pushed everything for the new vivaldi-profile-sync project — the user did not even have to create the repo manually; full end-to-end agentic shipping in one go | |
+| Context handling | | (2026-10-08) no image input — breaks the user's flow whenever they want GLM 5.3 to look at a website or screenshot and help visually; (for screenshot work GLM 5.3 Flash is natively multimodal per Z.ai docs, so vision tasks can fall back to Flash) |
 | Speed / latency | | |
 | Cost / efficiency | (2026-10-02) the user bought the Zcode Lite plan today — first paid z.ai commitment beyond the free-token giveaways | |
 | Refusals / safety behavior | | |
-| Formatting / output quality | (2026-10-02) the way it talks is very natural and digestible, unlike Anthropic or OpenAI models; (2026-10-07) interaction feels better than with other frontier models — it explains things in a way the user can understand more easily | |
+| Formatting / output quality | (2026-10-02) the way it talks is very natural and digestible, unlike Anthropic or OpenAI models; (2026-10-07) interaction feels better than with other frontier models — it explains things in a way the user can understand more easily; (2026-10-08) the README it generated for vivaldi-profile-sync with no explicit prompting is one of the best LLM-generated READMEs the user has ever had — clear scope ("what it syncs" / "what it never touches"), a flag table, and honest limitations | |
 | Other | (2026-10-02) awesome to use so far, but this is only a first impression — the full capability is still to be tested | |
 
 ---
