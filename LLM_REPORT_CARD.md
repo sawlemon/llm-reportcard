@@ -107,12 +107,12 @@ for that task, and never list a model whose task evidence is negative-only.
 
 ### Claude Opus 5.5
 
-**Verdict:** care · 2026-10-22 · fantastic for web design/UI work — refactored two sites beautifully in single-prompt runs — and behaving really well for visual document work like PowerPoint decks; still hallucinates here and there, so don't rely on its research and facts
+**Verdict:** care · 2026-11-12 · fantastic for web design/UI work, with two beautiful single-prompt site refactors and considered miles ahead of GPT 6.1 Sol after Sol worsened an Opus-designed homepage; also strong for visual documents like PowerPoint decks, but still hallucinates here and there, so don't rely on its research and facts
 
 | Aspect | Pros | Cons |
 |---|---|---|
 | Reasoning | | still making some hallucinations and mistakes here and there — would not completely depend on its research and facts |
-| Coding | freaking fantastic for web design/UI design — refactored both the user's portfolio website and this LLM report card website, and the UI work on both was amazing; excellent single-prompt autonomous execution: give it long thinking plus one "go ahead, do it" prompt and it delivers | |
+| Coding | freaking fantastic for web design/UI design: refactored both the user's portfolio website and this LLM report card website, and the UI work on both was amazing; excellent single-prompt autonomous execution: give it long thinking plus one "go ahead, do it" prompt and it delivers; (2026-11-12) the user considers it miles ahead of GPT 6.1 Sol for UI work after Sol made an Opus-designed homepage worse when asked to improve it | |
 | Instruction-following | | |
 | Tool use / agentic | | |
 | Context handling | | |
@@ -197,20 +197,20 @@ for that task, and never list a model whose task evidence is negative-only.
 
 ### GPT 6.1 Sol
 
-**Verdict:** preferred · 2026-10-01 · go-to large model — comes very close to GPT-6 Astra (but not Astra-level yet) and punches far above its cost class; not the model for UI/web-design work
+**Verdict:** care · 2026-11-12 · previously the go-to large model for near-Astra reasoning and quota efficiency, but today's return was disappointing: made an Opus 5.5 homepage design worse and frequently stops trying even in goal mode; the user thinks it still needs proper direction for UI work and considers Opus 5.5 miles ahead
 
 | Aspect | Pros | Cons |
 |---|---|---|
 | Reasoning | comes very close to GPT-6 Astra, though not Astra-level yet | |
-| Coding | | UI/web-design work is not its strength — Claude Opus 5.5 does better UI work than GPT models; definitely not the best model out there for UI work |
+| Coding | | UI/web-design work is not its strength; Claude Opus 5.5 does better UI work than GPT models; definitely not the best model out there for UI work; (2026-11-12) asked to improve a homepage design previously created by Claude Opus 5.5, but made it worse; the user thinks it is still bad at UI work without proper direction and considers Opus 5.5 miles ahead |
 | Instruction-following | | |
-| Tool use / agentic | | |
+| Tool use / agentic | | (2026-11-12) frequently stops trying even when set to goal mode |
 | Context handling | | |
 | Speed / latency | | |
 | Cost / efficiency | 5-hour usage consumption is very low — even at large context-window usage (~600k tokens) it barely eats through the 5-hour limit, whereas previous models would have exhausted it in a few prompts; the user burns a lot of tokens on it and the subscription still holds, so from a cost perspective it freaking punches above its class versus other models with similar costs; (2026-10-01) Zcode 30-day usage log: 689 calls, 147M billed tokens plus 138M cache reads, matching the barely-visible quota impact | |
 | Refusals / safety behavior | | |
 | Formatting / output quality | | |
-| Other | (2026-10-01) an amazing model and the user's go-to large model in recent times; feels reliable for a lot of tasks at the moment | |
+| Other | (2026-10-01) an amazing model and the user's go-to large model in recent times; feels reliable for a lot of tasks at the moment | (2026-11-12) trying it again today was disappointing; the user somewhat regrets buying a ChatGPT Plus subscription today |
 
 ### GPT 6 Luna
 
@@ -654,7 +654,7 @@ Harnesses are the apps/CLIs that models run inside. They're judged on different 
 | Speech to text | Parakeet TDT V2 | care | 2026-08-10 | Testing well with a natural typing style that keeps acronyms lowercase, but it lacks streaming/live transcription. |
 | Speech to text | Nemotron Streaming 3.5 | care | 2026-08-10 | Fast streaming transcription that works fine overall, but once transcribed English speech entirely in Hindi and struggles with single words like Tamil names. |
 | Content writing | Gemini 3.8 Flash | preferred | 2026-09-12 | Go-to model for Tanglish YouTube scripts at medium effort — Tanglish sentences make more sense than Gemini 3.7 Flash, and it is fast and straight to the point. |
-| UI / web design | Claude Opus 5.5 | preferred | 2026-10-01 | Refactored the portfolio website and this report card site in single-prompt runs — the UI work on both was amazing. |
+| UI / web design | Claude Opus 5.5 | preferred | 2026-11-12 | Refactored the portfolio website and this report card site beautifully in single-prompt runs; the user considers it miles ahead of GPT 6.1 Sol, which made an Opus-designed homepage worse when asked to improve it. |
 | Visual documents / presentations | Claude Opus 5.5 | preferred | 2026-10-22 | PowerPoint presentations come out really well — visuals need a couple of tweaks to land, but they get there; for visual stuff, definitely a good model. |
 | Review / critique | GPT-6 Astra | preferred | 2026-10-01 | Regularly relied on to review every other model's plans and output; immense knowledge that comes close to human intelligence. |
 
