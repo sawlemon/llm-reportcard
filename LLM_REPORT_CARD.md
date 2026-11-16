@@ -197,20 +197,20 @@ for that task, and never list a model whose task evidence is negative-only.
 
 ### GPT 6.1 Sol
 
-**Verdict:** care · 2026-11-12 · previously the go-to large model for near-Astra reasoning and quota efficiency, but today's return was disappointing: made an Opus 5.5 homepage design worse and frequently stops trying even in goal mode; the user thinks it still needs proper direction for UI work and considers Opus 5.5 miles ahead
+**Verdict:** care · 2026-11-16 · still impressive and doing a lot of good work, but repeated mid-task stops requiring prompts to resume make the user question its reliability and usability; earlier stops occurred even in goal mode, and UI work still needs proper direction, with Opus 5.5 considered miles ahead
 
 | Aspect | Pros | Cons |
 |---|---|---|
 | Reasoning | comes very close to GPT-6 Astra, though not Astra-level yet | |
 | Coding | | UI/web-design work is not its strength; Claude Opus 5.5 does better UI work than GPT models; definitely not the best model out there for UI work; (2026-11-12) asked to improve a homepage design previously created by Claude Opus 5.5, but made it worse; the user thinks it is still bad at UI work without proper direction and considers Opus 5.5 miles ahead |
 | Instruction-following | | |
-| Tool use / agentic | | (2026-11-12) frequently stops trying even when set to goal mode |
+| Tool use / agentic | | (2026-11-12) frequently stops trying even when set to goal mode; (2026-11-16) again stopped midway through work, and the user had to prompt it to continue twice; when asked why it stopped, it only apologised and continued without explaining the interruption |
 | Context handling | | |
 | Speed / latency | | |
 | Cost / efficiency | 5-hour usage consumption is very low — even at large context-window usage (~600k tokens) it barely eats through the 5-hour limit, whereas previous models would have exhausted it in a few prompts; the user burns a lot of tokens on it and the subscription still holds, so from a cost perspective it freaking punches above its class versus other models with similar costs; (2026-10-01) Zcode 30-day usage log: 689 calls, 147M billed tokens plus 138M cache reads, matching the barely-visible quota impact | |
 | Refusals / safety behavior | | |
 | Formatting / output quality | | |
-| Other | (2026-10-01) an amazing model and the user's go-to large model in recent times; feels reliable for a lot of tasks at the moment | (2026-11-12) trying it again today was disappointing; the user somewhat regrets buying a ChatGPT Plus subscription today |
+| Other | (2026-10-01) an amazing model and the user's go-to large model in recent times; feels reliable for a lot of tasks at the moment; (2026-11-16) still an impressive model that is doing a lot of good things | (2026-11-12) trying it again today was disappointing; the user somewhat regrets buying a ChatGPT Plus subscription today; (2026-11-16) repeated mid-task stops make the user question the model's reliability and usability despite its capabilities |
 
 ### GPT 6 Luna
 
