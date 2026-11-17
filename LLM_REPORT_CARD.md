@@ -197,7 +197,7 @@ for that task, and never list a model whose task evidence is negative-only.
 
 ### GPT 6.1 Sol
 
-**Verdict:** care · 2026-11-17 · still impressive in places, but mid-task stops, wrong-target mistakes, weak stock research, and a Codex Plus subscription that drains much faster than Anthropic's models leave the user seeing little reason to use it beyond image generation; UI work still needs proper direction, with Opus 5.5 considered miles ahead
+**Verdict:** care · 2026-11-17 · still impressive in places, but mid-task stops, wrong-target mistakes, weak stock research, and a Codex Plus subscription that drains much faster than Anthropic's models leave the user seeing little reason to use it beyond image generation; the user has switched to GPT 6 Sol and is not using GPT 6.1 Sol for now; UI work still needs proper direction, with Opus 5.5 considered miles ahead
 
 | Aspect | Pros | Cons |
 |---|---|---|
@@ -210,7 +210,24 @@ for that task, and never list a model whose task evidence is negative-only.
 | Cost / efficiency | 5-hour usage consumption is very low — even at large context-window usage (~600k tokens) it barely eats through the 5-hour limit, whereas previous models would have exhausted it in a few prompts; the user burns a lot of tokens on it and the subscription still holds, so from a cost perspective it freaking punches above its class versus other models with similar costs; (2026-10-01) Zcode 30-day usage log: 689 calls, 147M billed tokens plus 138M cache reads, matching the barely-visible quota impact | (2026-11-17) the ChatGPT Codex Plus subscription is exhausting very fast compared with Anthropic's models |
 | Refusals / safety behavior | | |
 | Formatting / output quality | | |
-| Other | (2026-10-01) an amazing model and the user's go-to large model in recent times; feels reliable for a lot of tasks at the moment; (2026-11-16) still an impressive model that is doing a lot of good things; (2026-11-17) GPT models can generate images, which the user needs for their YouTube channel, and Anthropic models are not that good at images; this is the only reason the user sees to use it over Anthropic models | (2026-11-12) trying it again today was disappointing; the user somewhat regrets buying a ChatGPT Plus subscription today; (2026-11-16) repeated mid-task stops make the user question the model's reliability and usability despite its capabilities; (2026-11-17) even for image work the user finds Gemini better, since the user believes GPT models do not accept audio as input (not verified); the user concludes Anthropic plus Gemini models are enough for their workflow |
+| Other | (2026-10-01) an amazing model and the user's go-to large model in recent times; feels reliable for a lot of tasks at the moment; (2026-11-16) still an impressive model that is doing a lot of good things; (2026-11-17) GPT models can generate images, which the user needs for their YouTube channel, and Anthropic models are not that good at images; this is the only reason the user sees to use it over Anthropic models | (2026-11-12) trying it again today was disappointing; the user somewhat regrets buying a ChatGPT Plus subscription today; (2026-11-16) repeated mid-task stops make the user question the model's reliability and usability despite its capabilities; (2026-11-17) even for image work the user finds Gemini better, since the user believes GPT models do not accept audio as input (not verified); the user concludes Anthropic plus Gemini models are enough for their workflow; (2026-11-17) the user has switched to GPT 6 Sol, which feels better, and is definitely not using GPT 6.1 Sol for now |
+
+### GPT 6 Sol
+
+**Verdict:** care · 2026-11-17 · the user's current Sol after switching away from GPT 6.1 Sol; it simply feels better than 6.1 Sol, though the user cannot say why; early impression only, with no detailed task evidence yet
+
+| Aspect | Pros | Cons |
+|---|---|---|
+| Reasoning | | |
+| Coding | | |
+| Instruction-following | | |
+| Tool use / agentic | | |
+| Context handling | | |
+| Speed / latency | | |
+| Cost / efficiency | (2026-10-01) Zcode 30-day usage log: 28M billed tokens in the logged period, a small share compared with the heavily used Sol models | |
+| Refusals / safety behavior | | |
+| Formatting / output quality | | |
+| Other | (2026-11-17) the user switched to it from GPT 6.1 Sol and it feels better than 6.1 Sol, though the user does not know why; the OpenAI subscription is being kept because it is the only provider that is actually usable in many of the user's custom self-hosted apps | (2026-11-17) the improvement is a feeling rather than a tested result, so treat it as an early impression |
 
 ### GPT 6 Luna
 
