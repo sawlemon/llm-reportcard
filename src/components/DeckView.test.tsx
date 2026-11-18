@@ -120,11 +120,11 @@ describe('DeckView', () => {
     expect(logged.length).toBeGreaterThan(0);
     expect(container.querySelectorAll('.face__usage')).toHaveLength(logged.length);
 
-    const sonnet = logged.find((model) => model.name === 'Claude Sonnet 5');
-    expect(sonnet).toBeDefined();
-    const chip = flipButton(sonnet!.name).closest('.card')!.querySelector('.face__usage');
+    const opus = logged.find((model) => model.name === 'Claude Opus 5.5');
+    expect(opus).toBeDefined();
+    const chip = flipButton(opus!.name).closest('.card')!.querySelector('.face__usage');
     expect(chip).not.toBeNull();
-    const chipText = formatTokens(modelUsage(sonnet!)!.billedTokens);
+    const chipText = formatTokens(modelUsage(opus!)!.billedTokens);
     expect(chip!).toHaveTextContent(chipText);
     // The emoji is aria-hidden; the amount is carried by a visually-hidden span.
     const hiddenLabel = within(chip as HTMLElement).getByText(`${chipText} tokens in 30 days`);

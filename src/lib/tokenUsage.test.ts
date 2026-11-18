@@ -264,14 +264,14 @@ describe('perMillionRows on the committed data', () => {
     expect(round2(firstUsed.effectivePair!)).toBe(0.52);
     expect(round2(find('GLM 5.3 Flash').effectivePair!)).toBe(0.54);
 
-    const sonnet = find('Claude Sonnet 5');
-    expect(round2(sonnet.effectiveInput!)).toBe(0.25);
-    expect(round2(sonnet.effectivePair!)).toBe(10.25);
-    expect(sonnet.listPair).toBe(12);
-    expect(round2(sonnet.cacheHitRate!)).toBe(0.98);
+    const opus = find('Claude Opus 5.5');
+    expect(round2(opus.effectiveInput!)).toBe(0.31);
+    expect(round2(opus.effectivePair!)).toBe(20.31);
+    expect(opus.listPair).toBe(24);
+    expect(round2(opus.cacheHitRate!)).toBe(0.98);
 
     const astra = find('GPT-6 Astra');
-    expect(round2(astra.effectivePair!)).toBe(51.92);
+    expect(round2(astra.effectivePair!)).toBe(51.56);
     const usedPairs = rows.flatMap((row) => (row.effectivePair === null ? [] : [row.effectivePair]));
     expect(Math.max(...usedPairs)).toBe(astra.effectivePair);
 
@@ -300,10 +300,10 @@ describe('the committed data files', () => {
     for (const found of withUsage) expect(found.cost).not.toBeNull();
   });
 
-  it('use the cache-read rate, which keeps Sonnet 5 far below the old full-price estimate', () => {
-    const sonnet = reportCard.models.find((model) => model.name === 'Claude Sonnet 5')!;
-    const found = modelUsage(sonnet)!;
-    expect(found.cost!).toBeLessThan(found.billedTokens * 2e-6);
+  it('use the cache-read rate, which keeps Opus 5.5 far below the old full-price estimate', () => {
+    const opus = reportCard.models.find((model) => model.name === 'Claude Opus 5.5')!;
+    const found = modelUsage(opus)!;
+    expect(found.cost!).toBeLessThan(found.billedTokens * 4e-6);
   });
 });
 
@@ -328,7 +328,7 @@ describe('sortPerMillionRows', () => {
       expect(firstNull).toBeGreaterThan(0);
       expect(sorted.slice(firstNull).every((row) => row.cacheHitRate === null)).toBe(true);
     }
-    expect(sortPerMillionRows(rows, 'cache')[0].name).toBe('Claude Sonnet 5');
+    expect(sortPerMillionRows(rows, 'cache')[0].name).toBe('GPT 6 Sol');
   });
 
   it('does not mutate its input', () => {
