@@ -117,7 +117,7 @@ for that task, and never list a model whose task evidence is negative-only.
 | Tool use / agentic | (2026-11-18) does most things itself and only spins up subagents when absolutely necessary, rather than delegating by default | |
 | Context handling | | |
 | Speed / latency | (2026-11-18) considerably faster than GPT 6 Sol, because it does the work itself instead of waiting on slow subagents to gather context | |
-| Cost / efficiency | very low 5-hour usage consumption — reliably light on quota even at large context usage; (2026-10-01) Zcode 30-day usage log: 885 calls, 187M billed tokens plus 181M cache reads — moderate burn for a heavily used model | |
+| Cost / efficiency | very low 5-hour usage consumption — reliably light on quota even at large context usage; (2026-11-18) the user feels Anthropic's plans give way more usage than the ChatGPT Plus subscription, which drains very fast by comparison; (2026-10-01) Zcode 30-day usage log: 885 calls, 187M billed tokens plus 181M cache reads — moderate burn for a heavily used model | |
 | Refusals / safety behavior | | |
 | Formatting / output quality | (2026-10-22) behaving really well for visual document creation — the user has been using it for PowerPoint presentations "and whatnot"; visuals don't land exactly right on the first attempt, but after a couple of tweaks it gets to the right place, so for visual stuff definitely a good model | |
 | Other | (2026-10-01) a really good model that the user likes; feels better and more reliable than Opus 5, reliable for a lot of tasks at the moment; (2026-11-18) definitely the user's preferred model for large tasks and highly complex tasks for now | the user still isn't fully feeling the vibe of it |
@@ -224,7 +224,7 @@ for that task, and never list a model whose task evidence is negative-only.
 | Tool use / agentic | | (2026-11-18) spawns GPT 6 Luna subagents to gather context, and those subagents are slow; the user contrasts this with Claude Opus 5.5, which does most things itself and only spawns subagents when absolutely necessary |
 | Context handling | | |
 | Speed / latency | | (2026-11-18) takes a lot of time on tasks because of the slow Luna subagents it spawns; Claude Opus 5.5 is considerably faster |
-| Cost / efficiency | (2026-10-01) Zcode 30-day usage log: 28M billed tokens in the logged period, a small share compared with the heavily used Sol models | |
+| Cost / efficiency | (2026-10-01) Zcode 30-day usage log: 28M billed tokens in the logged period, a small share compared with the heavily used Sol models | (2026-11-18) the ChatGPT Plus subscription drains like crazy and the user feels it is not worth the price, calling it a rip-off; the user feels Anthropic's plans give far more usage |
 | Refusals / safety behavior | | |
 | Formatting / output quality | | |
 | Other | (2026-11-17) the user switched to it from GPT 6.1 Sol and it feels better than 6.1 Sol, though the user does not know why; the OpenAI subscription is being kept because it is the only provider that is actually usable in many of the user's custom self-hosted apps | (2026-11-17) the improvement is a feeling rather than a tested result, so treat it as an early impression; (2026-11-18) the user feels it is not that great even so, and prefers Claude Opus 5.5 for large and highly complex tasks |
